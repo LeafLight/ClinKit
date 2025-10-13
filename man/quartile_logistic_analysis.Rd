@@ -2,63 +2,52 @@
 % Please edit documentation in R/04_quartile.R
 \name{quartile_logistic_analysis}
 \alias{quartile_logistic_analysis}
-\title{四分位 Logistic 回归批量分析}
+\title{Quartile-based Logistic Regression Analysis}
 \usage{
 quartile_logistic_analysis(
   data,
-  all_index,
-  all_outcomes,
+  outcomes,
+  predictors,
   models_list,
-  output_docx = "quartile_logistic_results.docx"
+  output_dir = NULL,
+  save_format = c("none", "docx", "csv", "all")
 )
 }
 \arguments{
-\item{data}{\code{data.frame}，必须包含结局变量、预测变量及所有协变量}
+\item{data}{Data frame containing all variables}
 
-\item{all_index}{字符向量，指定需要分析的连续预测变量名}
+\item{outcomes}{Character vector of binary outcome variable names}
 
-\item{all_outcomes}{字符向量，指定二分类结局变量名（可多个）}
+\item{predictors}{Character vector of continuous predictor variable names}
 
-\item{models_list}{命名列表，长度 3，依次给出 Model2/3/4 的协变量。
-示例：\code{list(model2 = c("age","sex"), model3 = c("bmi"), model4 = c("LDL"))}}
+\item{models_list}{Named list of length 3 with covariates for model2, model3, model4}
 
-\item{output_docx}{输出 Word 文件名（含路径），默认 \code{"quartile_logistic_results.docx"}}
+\item{output_dir}{Output directory (optional)}
+
+\item{save_format}{Save format: "none", "docx", "csv", "all" (default "none")}
 }
 \value{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{         \code{data.frame}，包含 Outcome/Index/Model/Comparison/OR/95\%CI/P-value/P-trend
-                 同时把三线表写入指定 Word 文件（invisible 返回）
-}\if{html}{\out{</div>}}
+List containing results data frame and optional saved file paths
 }
 \description{
-将连续预测变量按四分位分组后，依次拟合：
-① Model1（单因素）
-② Model2/3/4（依次叠加协变量）
-并计算 Q2/Q3/Q4 相对于 Q1 的 OR、95\%CI 及趋势检验 P 值，
-最终结果汇总成可发表的三线表并写入 Word。
-}
-\details{
-\enumerate{
-\item 每组四分位标签为 Q1/Q2/Q3/Q4，Q1 作为参照组
-\item 趋势检验使用 quartile_num（1-4）作为连续变量纳入模型
-\item 所有模型均使用 \code{stats::glm(..., family = binomial())} 拟合
-\item Word 表使用 \code{flextable} 绘制，可直接用于论文或补充材料
-}
+Analyzes continuous predictors by quartile groups, fitting:
+① Model1 (unadjusted)
+② Model2/3/4 (sequentially adding covariates)
+Calculates OR, 95\% CI for Q2/Q3/Q4 vs Q1 and trend P-value.
 }
 \examples{
 \dontrun{
-models <- list(
-  model2 = c("age", "sex"),
-  model3 = c("bmi", "smoke"),
-  model4 = c("sbp", "ldl")
+models_list <- list(
+  model2 = c("cyl", "gear"),
+  model3 = c("carb"),
+  model4 = c("hp")
 )
 
-res <- quartile_logistic_analysis(
-  data         = mydata,
-  all_index    = c("PIV", "SIRI"),
-  all_outcomes = c("death", "stroke"),
-  models_list  = models,
-  output_docx  = "Table_Quartile.docx"
+result <- quartile_logistic_analysis(
+  data = mtcars,
+  outcomes = "vs",
+  predictors = c("mpg", "wt"),
+  models_list = models_list
 )
 }
-
 }

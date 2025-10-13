@@ -2,31 +2,52 @@
 % Please edit documentation in R/01_univariate.R
 \name{run_univariate_logistic_regression}
 \alias{run_univariate_logistic_regression}
-\title{单因素 Logistic}
+\title{Univariate Logistic Regression Analysis}
 \usage{
 run_univariate_logistic_regression(
-  related_index,
-  all_outcomes,
   data,
-  folder_path,
-  outcomes_map
+  outcomes,
+  predictors,
+  outcomes_map = NULL,
+  output_dir = NULL,
+  save_format = c("csv", "txt", "none")
 )
 }
 \arguments{
-\item{related_index}{预测变量}
+\item{data}{Data frame}
 
-\item{all_outcomes}{结局变量}
+\item{outcomes}{Outcome variables (character vector)}
 
-\item{data}{数据框}
+\item{predictors}{Predictor variables (character vector)}
 
-\item{folder_path}{结果保存目录}
+\item{outcomes_map}{Outcome variable mapping (optional)}
 
-\item{outcomes_map}{中文映射}
+\item{output_dir}{Output directory (optional, default no file saving)}
+
+\item{save_format}{Save format: "none", "txt", "csv" (default "csv")}
 }
 \value{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{         data.frame（OR / 95\%CI / p）
-}\if{html}{\out{</div>}}
+List containing results data frame and optional saved file paths
 }
 \description{
-单因素 Logistic
+Univariate Logistic Regression Analysis
+}
+\examples{
+\dontrun{
+# Basic usage
+result <- run_univariate_logistic_regression(
+  data = mtcars,
+  outcomes = "vs",
+  predictors = c("mpg", "drat")
+)
+
+# Save as text files
+result <- run_univariate_logistic_regression(
+  data = mtcars,
+  outcomes = "vs",
+  predictors = c("mpg", "drat")
+  output_dir = tempdir(),
+  save_format = "csv"
+)
+}
 }

@@ -1,19 +1,19 @@
-#' 将 p 值格式化为可绘图的表达式字符串
+#' Format p-value as plotmath expression string
 #'
-#' 按期刊常见格式返回：
+#' Returns p-values in common journal formats:
 #' \itemize{
 #'   \item p < 0.001  →  "name < 0.001"
-#'   \item 0.001 ≤ p < 0.01  →  scientific notation（含 ×10⁻ⁿ）
-#'   \item p ≥ 0.01  →  保留 3 位小数
+#'   \item 0.001 ≤ p < 0.01  →  scientific notation (with ×10⁻ⁿ)
+#'   \item p ≥ 0.01  →  keep 3 decimal places
 #' }
-#' 输出为 \code{plotmath} 表达式，可直接用于 \code{ggplot2::annotate()} 或
-#' \code{ggpmisc::stat_poly_eq()} 的 \code{label} 参数。
+#' Outputs as \code{plotmath} expressions that can be directly used in
+#' \code{ggplot2::annotate()} or \code{ggpmisc::stat_poly_eq()} label parameters.
 #'
-#' @param p    数值向量，待格式化的 p 值（通常 0–1）
-#' @param name 字符标量，p 值前缀，如 "p"、"P interaction"、"P trend"
+#' @param p    Numeric vector, p-values to format (typically 0-1)
+#' @param name Character scalar, p-value prefix, e.g., "p", "P interaction", "P trend"
 #'
-#' @return     字符向量，\code{plotmath} 合法表达式，例如
-#'             \code{"p < 0.001"}、\code{"p~\"=\"~3.14\\times10^{-4}"}、
+#' @return     Character vector, valid \code{plotmath} expressions, e.g.,
+#'             \code{"p < 0.001"}, \code{"p~\"=\"~3.14\\times10^{-4}"},
 #'             \code{"p~\"=\"~0.03"}
 #'
 #' @examples

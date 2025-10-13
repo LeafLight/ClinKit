@@ -2,7 +2,7 @@
 % Please edit documentation in R/08_baseline.R
 \name{make_baseline_table}
 \alias{make_baseline_table}
-\title{一键基线特征表（gtsummary 版）}
+\title{One-Click Baseline Characteristics Table (gtsummary version)}
 \usage{
 make_baseline_table(
   data,
@@ -12,39 +12,54 @@ make_baseline_table(
   pct_digits = 2,
   cont_digits = 2,
   p_digits = 3,
-  label_list = NULL
+  label_list = NULL,
+  normality_test_method = "shapiro",
+  normality_alpha = 0.05,
+  export_normality = TRUE,
+  normality_file = NULL
 )
 }
 \arguments{
-\item{data}{\code{data.frame}，必须包含分组变量及所有待汇总变量}
+\item{data}{Data frame containing grouping variable and all variables to summarize}
 
-\item{outcome}{字符标量，分组变量名（通常为一二分类或分组因子）}
+\item{outcome}{Character scalar, grouping variable name (typically binary or factor)}
 
-\item{vars}{字符向量，需展示的变量；若为 NULL（默认）则展示除 outcome 外的全部变量}
+\item{vars}{Character vector, variables to display; if NULL (default) displays all variables except outcome}
 
-\item{file}{字符，输出 Word 文件名（含路径）；父目录须已存在}
+\item{file}{Character, output Word file name (with path); parent directory must exist}
 
-\item{pct_digits}{百分比小数位，默认 2}
+\item{pct_digits}{Decimal places for percentages, default 2}
 
-\item{cont_digits}{连续变量小数位，默认 2}
+\item{cont_digits}{Decimal places for continuous variables, default 2}
 
-\item{p_digits}{P 值小数位，默认 3}
+\item{p_digits}{Decimal places for P-values, default 3}
 
-\item{label_list}{命名列表，变量标签，如 \code{list(age = "Age (years)")}；NULL 时使用原列名}
+\item{label_list}{Named list, variable labels, e.g., list(age = "Age (years)");
+if NULL, uses original column names}
+
+\item{normality_test_method}{Character, method for normality test ("shapiro" or "ks"), default "shapiro"}
+
+\item{normality_alpha}{Numeric, significance level for normality test, default 0.05}
+
+\item{export_normality}{Logical, whether to export normality test results to a separate CSV file, default TRUE}
+
+\item{normality_file}{Character, output CSV file name for normality test results; if NULL, uses same base name as main file}
 }
 \value{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{       \code{gtsummary} 对象（invisible），方便后续继续管道操作
-}\if{html}{\out{</div>}}
+gtsummary object (invisible), convenient for subsequent piping operations
 }
 \description{
-自动计算各组例数（百分比）或中位数（四分位距），
-并输出带 P 值、Overall 列的三线表 Word 文档。
+Automatically generates baseline characteristics table with counts (percentages)
+for categorical variables and appropriate statistics for continuous variables
+based on normality testing. Outputs a three-line table in Word format with P-values and Overall column.
 }
 \details{
 \itemize{
-\item 分类变量展示为 {n} ({p}\%)，连续变量展示为 median (p25, p75)
-\item 缺失值默认不显示；P 值使用相应检验（卡方/t/ANOVA/Kruskal-Wallis）
-\item 最终表格经 \code{flextable} 输出，可直接用于论文或附录
+\item Categorical variables displayed as {n} ({p}\%)
+\item Continuous variables: if all groups are normal, display as mean (SD); otherwise display as median (Q1, Q3)
+\item Missing values not displayed by default; P-values use appropriate tests (chi-square/t/ANOVA/Kruskal-Wallis)
+\item Final table exported via flextable, ready for use in papers or appendices
+\item Normality test results can be exported to CSV for reference
 }
 }
 \examples{

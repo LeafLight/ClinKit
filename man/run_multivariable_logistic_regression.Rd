@@ -2,34 +2,52 @@
 % Please edit documentation in R/02_multivariable.R
 \name{run_multivariable_logistic_regression}
 \alias{run_multivariable_logistic_regression}
-\title{多因素逻辑回归（4 层模型）}
+\title{Multivariable Logistic Regression (4-layer models)}
 \usage{
 run_multivariable_logistic_regression(
-  related_index,
-  all_outcomes,
   data,
-  folder_path,
-  outcomes_map,
-  models_list
+  outcomes,
+  predictors,
+  models_list,
+  outcomes_map = NULL,
+  output_dir = NULL,
+  save_format = c("none", "txt", "csv")
 )
 }
 \arguments{
-\item{related_index}{预测变量}
+\item{data}{Data frame}
 
-\item{all_outcomes}{结局变量}
+\item{outcomes}{Outcome variables (character vector)}
 
-\item{data}{数据框}
+\item{predictors}{Predictor variables (character vector)}
 
-\item{folder_path}{结果保存目录（每个预测变量×结局生成一个txt)}
+\item{models_list}{Named list of length 3 with covariates for model2, model3, model4}
 
-\item{outcomes_map}{结局变量中文名映射（list）}
+\item{outcomes_map}{Outcome variable mapping (optional)}
 
-\item{models_list}{协变量列表，长度 3（model2、3、4）}
+\item{output_dir}{Output directory (optional, default no file saving)}
+
+\item{save_format}{Save format: "none", "txt", "csv" (default "none")}
 }
 \value{
-包含预测变量×结局的多因素逻辑回归结果的dataframe
-names 必须与 model2、model3、model4 对应
+List containing results data frame and optional saved file paths
 }
 \description{
-多因素逻辑回归（4 层模型）
+Multivariable Logistic Regression (4-layer models)
+}
+\examples{
+\dontrun{
+models_list <- list(
+  model2 = c("cyl", "gear"),
+  model3 = c("carb"),
+  model4 = c("hp")
+)
+
+result <- run_multivariable_logistic_regression(
+  data = mtcars,
+  outcomes = "vs",
+  predictors = c("mpg", "wt"),
+  models_list = models_list
+)
+}
 }

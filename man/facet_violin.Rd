@@ -2,21 +2,36 @@
 % Please edit documentation in R/09_plot_utils.R
 \name{facet_violin}
 \alias{facet_violin}
-\title{分面小提琴图}
+\title{Faceted Violin Plot}
 \usage{
 facet_violin(data, vars, groupby)
 }
 \arguments{
-\item{data}{数据框}
+\item{data}{Data frame}
 
-\item{vars}{指标向量}
+\item{vars}{Character vector, names of indicator variables to plot}
 
-\item{groupby}{分组变量名}
+\item{groupby}{Character scalar, name of grouping variable}
 }
 \value{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{   ggplot 对象
-}\if{html}{\out{</div>}}
+ggplot object
 }
 \description{
-分面小提琴图
+Draws faceted violin plots for multiple indicators, grouped by a grouping variable,
+with each indicator in a separate facet
+}
+\details{
+This function will:
+\enumerate{
+\item Select specified columns and convert to long format
+\item Convert grouping variable to factor
+\item Draw violin plots with boxplots inside, faceted by indicator
+}
+}
+\examples{
+\dontrun{
+p <- facet_violin(iris, c("Sepal.Length", "Sepal.Width"), "Species")
+print(p)
+}
+
 }

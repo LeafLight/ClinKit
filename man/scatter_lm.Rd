@@ -2,7 +2,7 @@
 % Please edit documentation in R/09_plot_utils.R
 \name{scatter_lm}
 \alias{scatter_lm}
-\title{带回归线的散点图（基础版）}
+\title{Scatter Plot with Regression Line (Basic Version)}
 \usage{
 scatter_lm(
   data,
@@ -19,30 +19,31 @@ scatter_lm(
 )
 }
 \arguments{
-\item{data}{\code{data.frame}，必须包含 x、y 列}
+\item{data}{\code{data.frame}, must contain x and y columns}
 
-\item{x, y}{字符标量，变量名}
+\item{x, y}{Character scalars, variable names}
 
-\item{digits}{数值，R² 与 P 值保留小数位，默认 3}
+\item{digits}{Numeric, decimal places for R² and P value, default 3}
 
-\item{label.x, label.y}{图内标注坐标；NULL 时自动置于左上角 5\% 处}
+\item{label.x, label.y}{Coordinates for annotation; when NULL, automatically placed at top-left 5\% position}
 
-\item{...}{额外参数，透传给 \code{geom_point()} 与 \code{geom_rug()}，
-例如 \code{color = group, size = 2, alpha = 0.6}}
+\item{...}{Additional parameters passed to \code{geom_point()} and \code{geom_rug()},
+e.g., \code{color = group, size = 2, alpha = 0.6}}
 }
 \value{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{    \code{ggplot} 对象，可继续用 \code{+} 叠加图层或保存
+\if{html}{\out{<div class="sourceCode">}}\preformatted{    \code{ggplot} object, can be further customized with \code{+} or saved
 }\if{html}{\out{</div>}}
 }
 \description{
-快速绘制 X-Y 散点 + 线性回归置信带，并在图内标注 R² 与 P 值；
-支持 rug、点形/颜色等额外美学参数透传。
+Quickly draws X-Y scatter plot with linear regression confidence band,
+and annotates R² and P value within the plot;
+Supports rug plots and additional aesthetic parameters for points
 }
 \details{
 \itemize{
-\item 使用 \code{lm(y ~ x)} 拟合，并绘制 95\% 置信带
-\item rug 位于底部与左侧，位置 jitter 避免重叠
-\item 图内文本固定为 Times 风格，方便后续主题统一
+\item Uses \code{lm(y ~ x)} for fitting and draws 95\% confidence band
+\item Rug plots at bottom and left with jitter to avoid overlap
+\item Annotation text uses Times font for consistent theming
 }
 }
 \examples{

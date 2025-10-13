@@ -1,167 +1,377 @@
-#' RCS 逻辑回归 + 图
+#' Restricted Cubic Splines (RCS) Logistic Regression with Plot
 #'
-#' @param outcome      结局变量名
-#' @param predictor    连续预测变量名
-#' @param data         数据框
-#' @param output_folder 输出目录
-#' @param models       协变量向量，默认 NULL
-#' @param use_model    是否加协变量，默认 FALSE
-#' @param filename     自定义文件名，默认 NULL（自动生成）
+#' Fits RCS logistic regression models and generates publication-ready plots
 #'
-#' @return             列表：plot + 非线性/总体 P 值（字符 + 数值）
-#' @examples
-#' \dontrun{
-#' generate_rcs_plot("death", "SIRI", data, "./RCS")
-#' }
-generate_rcs_plot <- function(outcome, predictor, data, output_folder, models=covariates, use_model=FALSE, filename=NULL) {
-  # 检查输出文件夹是否存在，如果不存在则创建
-  if (!dir.exists(output_folder)) {
-    dir.create(output_folder, recursive = TRUE)
+#' @param data Data frame containing all variables
+#' @param outcome Outcome variable name
+#' @param predictor Continuous predictor variable name for RCS
+#' @param covariates Covariates for adjusted model (optional)
+#' @param knots Number of knots for RCS (default 4)
+#' @param output_dir Output directory (optional)
+#' @param save_format Save format: "none", "tiff", "svg", "pdf", "all" (default "none")
+#' @param filename Custom filename prefix (optional)
+#'
+#' @return List containing plot object, p-values, and optional saved file paths
+#' @export
+generate_rcs_plot <- function(data,
+                             outcome,
+                             predictor,
+                             covariates = NULL,
+                             knots = 4,
+                             output_dir = NULL,
+                             save_format = c("none", "tiff", "svg", "pdf", "all"),
+                             filename = NULL) {
+
+  # Parameter validation
+  save_format <- match.arg(save_format)
+  if (!is.data.frame(data)) {
+    stop("data must be a data frame")
   }
-  formula <- as.formula(paste(outcome, "~ rcs(", predictor, ", 4)"))
-  print(use_model)
-  if(use_model){
-    print("use model")
-    formula <- as.formula(paste(outcome, "~ rcs(", predictor, ", 4) +", paste(models, collapse = " + ")))
+
+  # Check dependencies
+  if (!requireNamespace("rms", quietly = TRUE)) {
+    stop("Please install.packages('rms')")
   }
-  # 构建公式
-  print(formula)
-  # 拟合逻辑回归模型
-  fit <- rms::lrm(formula, data = data)
-  print(fit)
-  # 预测并计算OR值
-  predictions <- do.call(Predict, list(fit, predictor, fun = exp, type = "predictions",
-                                       conf.int = 0.95, digits = 2, ref.zero = TRUE))
-  # predictions <-Predict(fit, formula, fun = exp, type = "predictions",
-  #         conf.int = 0.95, digits = 2, ref.zero = TRUE)
-  # 方差分析
+  if (!requireNamespace("ggplot2", quietly = TRUE)) {
+    stop("Please install.packages('ggplot2')")
+  }
+
+  # Check if variables exist
+  all_vars <- unique(c(outcome, predictor, covariates))
+  missing_vars <- setdiff(all_vars, names(data))
+  if (length(missing_vars) > 0) {
+    stop("Variables not found in data: ", paste(missing_vars, collapse = ", "))
+  }
+
+  # Remove missing values
+  complete_cases <- complete.cases(data[all_vars])
+  if (sum(complete_cases) < 10) {
+    stop("Insufficient complete cases for analysis")
+  }
+  data_complete <- data[complete_cases, ]
+
+  # Set up rms environment
+  options(rms = "4.0.0")
+  dd <- rms::datadist(data_complete)
+  options(datadist = dd)
+
+  # Build formula
+  if (is.null(covariates)) {
+    formula <- as.formula(paste(outcome, "~ rms::rcs(", predictor, ",", knots, ")"))
+  } else {
+    formula <- as.formula(paste(outcome, "~ rms::rcs(", predictor, ",", knots, ") +",
+                               paste(covariates, collapse = " + ")))
+  }
+
+  # Fit model
+  fit <- tryCatch({
+    rms::lrm(formula, data = data_complete)
+  }, error = function(e) {
+    stop("Model fitting failed: ", e$message)
+  })
+
+  # Generate predictions
+  predictions <- tryCatch({
+    rms::Predict(fit, name = predictor, fun = exp, type = "predictions",
+                 conf.int = 0.95, digits = 2, ref.zero = TRUE)
+  }, error = function(e) {
+    stop("Prediction generation failed: ", e$message)
+  })
+
+  # ANOVA for p-values
   anova_table <- anova(fit)
-  p_nl <- format_p_value(anova_table[2, 3], "p for nonlinear")
-  p_oa <- format_p_value(anova_table[1, 3], "p for overall")
+  p_nl <- format_p_value(anova_table[2, 3])
+  p_oa <- format_p_value(anova_table[1, 3])
 
-  # 提取原始p值（数值型）
-  p_nl_value <- anova_table[2, 3]
-  p_oa_value <- anova_table[1, 3]
+  # Create plot
+  p <- ggplot2::ggplot() +
+    ggplot2::geom_line(
+      data = predictions,
+      ggplot2::aes(x = !!sym(predictor), y = yhat, color = "Prediction"),
+      linetype = "solid", size = 1, alpha = 0.9
+    ) +
+    ggplot2::geom_ribbon(
+      data = predictions,
+      ggplot2::aes(x = !!sym(predictor), ymin = lower, ymax = upper, fill = "Confidence Interval"),
+      alpha = 0.2
+    ) +
+    ggplot2::scale_color_manual(values = c("Prediction" = "#d63031")) +
+    ggplot2::scale_fill_manual(values = c("Confidence Interval" = "#e17055")) +
+    ggplot2::geom_hline(yintercept = 1, linetype = 2, size = 1) +
+    ggplot2::theme_classic() +
+    ggplot2::theme(
+      axis.text = ggplot2::element_text(size = 12),
+      legend.position = "none",
+      axis.title = ggplot2::element_text(size = 12),
+      axis.line = ggplot2::element_line(linewidth = 1)
+    ) +
+    ggplot2::labs(
+      x = predictor,
+      y = "OR (95% CI)",
+      title = if (!is.null(covariates)) "Adjusted RCS Plot" else "Unadjusted RCS Plot"
+    )
 
-  # 绘制RCS图
-  p <- ggplot() +
-    geom_line(data = predictions, aes(x = !!sym(predictor), y = yhat, color = "预测曲线"),
-              linetype = "solid", size = 1, alpha = 0.9) +
-    geom_ribbon(data = predictions,
-                aes(x = !!sym(predictor), ymin = lower, ymax = upper, fill = "置信区间"),
-                alpha = 0.2) +
-    scale_color_manual(values = c("预测曲线" = "#d63031")) +
-    scale_fill_manual(values = c("置信区间" = "#e17055")) +
-    geom_hline(yintercept = 1, linetype = 2, size = 1) +
-    theme_classic() +
-    theme(axis.text = element_text(size = 25, family = "Arial"),
-          legend.position = "none",
-          axis.title = element_text(size = 25, family = "Arial"),
-          axis.line = element_line(linewidth = 1)) +
-    labs(x = predictor, y = "OR (95%CI)")
+  # Save files if requested
+  saved_files <- character(0)
+  if (save_format != "none" && !is.null(output_dir)) {
+    if (!dir.exists(output_dir)) {
+      dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+    }
 
-  # 保存图片
-  tiff_path <- file.path(output_folder, paste(predictor, outcome, ".tiff", sep = "_"))
-  pdf_path <- file.path(output_folder, paste(predictor, outcome, ".pdf", sep = "_"))
-  if(use_model){
-    tiff_path <- file.path(output_folder, paste(predictor, outcome, "_use_model.tiff", sep = "_"))
-    pdf_path <- file.path(output_folder, paste(predictor, outcome, "_use_model.pdf", sep = "_"))
-  }
-  if(!is.null(filename)){
-    tiff_path <- file.path(output_folder, paste0(filename, ".tiff"))
-    pdf_path <- file.path(output_folder, paste0(filename, ".pdf"))
-    svg_path <- file.path(output_folder, paste0(filename, ".svg"))
-    if(use_model){
-      tiff_path <- file.path(output_folder, paste(filename, "use_model.tiff", sep = "_"))
-      pdf_path <- file.path(output_folder, paste(filename, "use_model.pdf", sep = "_"))
-      svg_path <- file.path(output_folder, paste(filename, "use_model.svg", sep = "_"))
+    # Generate filename
+    if (is.null(filename)) {
+      base_name <- paste(predictor, outcome, sep = "_")
+      if (!is.null(covariates)) {
+        base_name <- paste0(base_name, "_adjusted")
+      }
+    } else {
+      base_name <- filename
+    }
+
+    timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
+
+    # Handle different save formats
+    if (save_format == "tiff") {
+      tiff_file <- file.path(output_dir, sprintf("%s_%s.tiff", base_name, timestamp))
+      ggplot2::ggsave(tiff_file, plot = p, width = 6, height = 5.5, dpi = 300)
+      saved_files <- c(saved_files, tiff_file)
+
+    } else if (save_format == "svg") {
+      svg_file <- file.path(output_dir, sprintf("%s_%s.svg", base_name, timestamp))
+      ggplot2::ggsave(svg_file, plot = p, width = 6, height = 5.5)
+      saved_files <- c(saved_files, svg_file)
+
+    } else if (save_format == "pdf") {
+      pdf_file <- file.path(output_dir, sprintf("%s_%s.pdf", base_name, timestamp))
+      ggplot2::ggsave(pdf_file, plot = p, width = 6, height = 5.5)
+      saved_files <- c(saved_files, pdf_file)
+
+    } else if (save_format == "all") {
+      # Save all formats
+      tiff_file <- file.path(output_dir, sprintf("%s_%s.tiff", base_name, timestamp))
+      svg_file <- file.path(output_dir, sprintf("%s_%s.svg", base_name, timestamp))
+      pdf_file <- file.path(output_dir, sprintf("%s_%s.pdf", base_name, timestamp))
+
+      ggplot2::ggsave(tiff_file, plot = p, width = 6, height = 5.5, dpi = 300)
+      ggplot2::ggsave(svg_file, plot = p, width = 6, height = 5.5)
+      ggplot2::ggsave(pdf_file, plot = p, width = 6, height = 5.5)
+
+      saved_files <- c(saved_files, tiff_file, svg_file, pdf_file)
+
+      # Save results summary
+      results_summary <- data.frame(
+        predictor = predictor,
+        outcome = outcome,
+        covariates = if (!is.null(covariates)) paste(covariates, collapse = ", ") else "None",
+        p_nonlinear = anova_table[2, 3],
+        p_overall = anova_table[1, 3],
+        n_observations = sum(complete_cases),
+        stringsAsFactors = FALSE
+      )
+
+      csv_file <- file.path(output_dir, sprintf("%s_results_%s.csv", base_name, timestamp))
+      write.csv(results_summary, csv_file, row.names = FALSE)
+      saved_files <- c(saved_files, csv_file)
     }
   }
-  ggsave(tiff_path,
-         plot = p, width = 1600, height = 1500, dpi = 300, units = "px")
-  ggsave(pdf_path,
-         plot = p, width = 1600, height = 1500, dpi = 300, units = "px")
-  ggsave(svg_path,
-         plot = p, width = 1600, height = 1500, dpi = 300, units = "px")
-  # 返回结果列表：包含图形和p值
+
+  # Clean up rms environment
+  options(datadist = NULL)
+
+  # Return structured results
   return(list(
     plot = p,
-    p_nl_str = p_nl,    # 格式化字符串
-    p_oa_str = p_oa,    # 格式化字符串
-    p_nl_value = p_nl_value,  # 原始数值
-    p_oa_value = p_oa_value   # 原始数值
+    predictions = predictions,
+    p_nonlinear = anova_table[2, 3],
+    p_overall = anova_table[1, 3],
+    p_nonlinear_str = p_nl,
+    p_overall_str = p_oa,
+    n_observations = sum(complete_cases),
+    saved_files = if (length(saved_files) > 0) saved_files else NULL,
+    call = match.call()
   ))
 }
 
-#' 批量 RCS 分析
+#' Format P-value (Internal)
+#' @keywords internal
+format_p_value <- function(p_value) {
+  if (is.na(p_value)) return("NA")
+  if (p_value < 0.001) return("<0.001")
+  return(sprintf("%.3f", p_value))
+}
+
+#' Batch RCS Analysis
 #'
-#' @param data         数据框
-#' @param related_index 预测变量向量
-#' @param all_outcomes  结局变量向量
-#' @param folder_path   根目录
-#' @param outcomes_map  结局中文映射 named vector/list
-#' @param covariates    协变量向量
+#' Runs multiple RCS analyses for different predictors and outcomes
 #'
-#' @return             data.frame：predictor / outcome / model_type / P 值
+#' @param data Data frame containing all variables
+#' @param predictors Character vector of predictor variable names
+#' @param outcomes Character vector of outcome variable names
+#' @param outcomes_map Outcome variable mapping (optional)
+#' @param covariates Covariates for adjusted models (optional)
+#' @param output_dir Output directory (optional)
+#' @param save_format Save format: "none", "tiff", "svg", "pdf", "all" (default "none")
+#'
+#' @return Data frame with predictor, outcome, model_type, p-values, and optional saved file paths
+#' @export
+#'
 #' @examples
 #' \dontrun{
-#' run_analysis_rcs(data, c("SIRI"), c("death"), "./RCS", outcomes_map, covariates)
+#' results <- run_analysis_rcs(
+#'   data = mtcars,
+#'   predictors = c("mpg", "wt"),
+#'   outcomes = c("vs", "am"),
+#'   covariates = c("cyl", "gear"),
+#'   output_dir = tempdir(),
+#'   save_format = "none"
+#' )
 #' }
-run_analysis_rcs <- function(data, related_index, all_outcomes, folder_path, outcomes_map, covariates) {
-  # 初始化结果数据框
-  results_df <- data.frame(predictor = character(),
-                           outcome = character(),
-                           model_type = character(),
-                           p_nl_value = character(),
-                           p_oa_value = character(), stringsAsFactors = FALSE)
+run_analysis_rcs <- function(data,
+                            predictors,
+                            outcomes,
+                            outcomes_map = NULL,
+                            covariates = NULL,
+                            output_dir = NULL,
+                            save_format = c("none", "tiff", "svg", "pdf", "all")) {
 
-  # 遍历相关指标和结局
-  for (i in related_index) {
-    for (o in all_outcomes) {
-      fn <- paste(i, outcomes_map[o], sep = "_")
+  # Parameter validation
+  save_format <- match.arg(save_format)
+  if (!is.data.frame(data)) {
+    stop("data must be a data frame")
+  }
 
-      # 无模型版本
-      result_no_model <- generate_rcs_plot(
-        outcome = o,
-        predictor = i,
-        data = data,
-        output_folder = file.path(folder_path, "NoModel"),
-        filename = fn
-      )
+  # Handle outcome mapping
+  if (is.null(outcomes_map)) {
+    outcomes_map <- setNames(outcomes, outcomes)
+  }
 
-      # 添加结果到数据框
-      results_df <- rbind(results_df, data.frame(
-        predictor = i,
-        outcome = outcomes_map[o],
-        model_type = "NoModel",
-        p_nl_value = result_no_model$p_nl_value,
-        p_oa_value = result_no_model$p_oa_value,
-        stringsAsFactors = FALSE
-      ))
+  # Initialize results
+  results_list <- list()
+  all_saved_files <- character(0)
 
-      # 有模型版本
-      result_with_model <- generate_rcs_plot(
-        outcome = o,
-        predictor = i,
-        data = data,
-        output_folder = file.path(folder_path, "WithModel4"),
-        models = covariates,
-        use_model = TRUE,
-        filename = fn
-      )
+  # Iterate through predictors and outcomes
+  for (predictor in predictors) {
+    for (outcome in outcomes) {
 
-      # 添加结果到数据框
-      results_df <- rbind(results_df, data.frame(
-        predictor = i,
-        outcome = outcomes_map[o],
-        model_type = "WithModel4",
-        p_nl_value = result_with_model$p_nl_value,
-        p_oa_value = result_with_model$p_oa_value,
-        stringsAsFactors = FALSE
-      ))
+      # Generate base filename
+      base_filename <- paste(predictor, outcomes_map[[outcome]], sep = "_")
+
+      # Run unadjusted model
+      result_unadjusted <- tryCatch({
+        generate_rcs_plot(
+          data = data,
+          outcome = outcome,
+          predictor = predictor,
+          covariates = NULL,
+          output_dir = if (!is.null(output_dir)) file.path(output_dir, "unadjusted") else NULL,
+          save_format = save_format,
+          filename = paste0(base_filename, "_unadjusted")
+        )
+      }, error = function(e) {
+        warning(sprintf("Unadjusted model failed for %s ~ %s: %s", outcome, predictor, e$message))
+        return(NULL)
+      })
+
+      if (!is.null(result_unadjusted)) {
+        # Add unadjusted results
+        results_list[[paste(predictor, outcome, "unadjusted", sep = "__")]] <- data.frame(
+          predictor = predictor,
+          outcome = outcomes_map[[outcome]],
+          model_type = "unadjusted",
+          p_nonlinear = result_unadjusted$p_nonlinear,
+          p_overall = result_unadjusted$p_overall,
+          p_nonlinear_str = result_unadjusted$p_nonlinear_str,
+          p_overall_str = result_unadjusted$p_overall_str,
+          n_observations = result_unadjusted$n_observations,
+          stringsAsFactors = FALSE
+        )
+
+        # Collect saved files
+        if (!is.null(result_unadjusted$saved_files)) {
+          all_saved_files <- c(all_saved_files, result_unadjusted$saved_files)
+        }
+      }
+
+      # Run adjusted model if covariates provided
+      if (!is.null(covariates) && length(covariates) > 0) {
+        result_adjusted <- tryCatch({
+          generate_rcs_plot(
+            data = data,
+            outcome = outcome,
+            predictor = predictor,
+            covariates = covariates,
+            output_dir = if (!is.null(output_dir)) file.path(output_dir, "adjusted") else NULL,
+            save_format = save_format,
+            filename = paste0(base_filename, "_adjusted")
+          )
+        }, error = function(e) {
+          warning(sprintf("Adjusted model failed for %s ~ %s: %s", outcome, predictor, e$message))
+          return(NULL)
+        })
+
+        if (!is.null(result_adjusted)) {
+          # Add adjusted results
+          results_list[[paste(predictor, outcome, "adjusted", sep = "__")]] <- data.frame(
+            predictor = predictor,
+            outcome = outcomes_map[[outcome]],
+            model_type = "adjusted",
+            p_nonlinear = result_adjusted$p_nonlinear,
+            p_overall = result_adjusted$p_overall,
+            p_nonlinear_str = result_adjusted$p_nonlinear_str,
+            p_overall_str = result_adjusted$p_overall_str,
+            n_observations = result_adjusted$n_observations,
+            stringsAsFactors = FALSE
+          )
+
+          # Collect saved files
+          if (!is.null(result_adjusted$saved_files)) {
+            all_saved_files <- c(all_saved_files, result_adjusted$saved_files)
+          }
+        }
+      }
     }
   }
 
-  # 返回结果数据框
-  return(results_df)
+  # Combine all results
+  if (length(results_list) > 0) {
+    final_results <- dplyr::bind_rows(results_list)
+  } else {
+    final_results <- data.frame(
+      predictor = character(),
+      outcome = character(),
+      model_type = character(),
+      p_nonlinear = numeric(),
+      p_overall = numeric(),
+      p_nonlinear_str = character(),
+      p_overall_str = character(),
+      n_observations = integer(),
+      stringsAsFactors = FALSE
+    )
+  }
+
+  # Save summary table if requested
+  if (save_format != "none" && !is.null(output_dir) && nrow(final_results) > 0) {
+    summary_file <- file.path(output_dir,
+                             sprintf("rcs_summary_%s.csv", format(Sys.time(), "%Y%m%d_%H%M%S")))
+    write.csv(final_results, summary_file, row.names = FALSE)
+    all_saved_files <- c(all_saved_files, summary_file)
+  }
+
+  # Return structured results
+  return(list(
+    results = final_results,
+    saved_files = if (length(all_saved_files) > 0) all_saved_files else NULL,
+    call = match.call()
+  ))
 }
+
+
+# 保存所有结果
+# results <- run_analysis_rcs(
+#   data = colon,
+#   predictors = c("nodes"),
+#   outcomes = c("status"),
+#   covariates = c("sex", "age"),
+#   output_dir = "./test_output/rcs",
+#   save_format = "all"
+# )

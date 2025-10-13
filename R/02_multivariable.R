@@ -1,184 +1,332 @@
-#' 多因素逻辑回归（4 层模型）
+#' Multivariable Logistic Regression (4-layer models)
 #'
-#' @param related_index   预测变量
-#' @param all_outcomes    结局变量
-#' @param data            数据框
-#' @param folder_path     结果保存目录（每个预测变量×结局生成一个txt)
-#' @param outcomes_map    结局变量中文名映射（list）
-#' @param models_list     协变量列表，长度 3（model2、3、4）
+#' @param data          Data frame
+#' @param outcomes      Outcome variables (character vector)
+#' @param predictors    Predictor variables (character vector)
+#' @param models_list   Named list of length 3 with covariates for model2, model3, model4
+#' @param outcomes_map  Outcome variable mapping (optional)
+#' @param output_dir    Output directory (optional, default no file saving)
+#' @param save_format   Save format: "none", "txt", "csv" (default "none")
 #'
-#' @return 包含预测变量×结局的多因素逻辑回归结果的dataframe
-#'                        names 必须与 model2、model3、model4 对应
-run_multivariable_logistic_regression <- function(related_index,
-                                                  all_outcomes,
-                                                  data,
-                                                  folder_path,
-                                                  outcomes_map,
-                                                  models_list) {
+#' @return List containing results data frame and optional saved file paths
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' models_list <- list(
+#'   model2 = c("cyl", "gear"),
+#'   model3 = c("carb"),
+#'   model4 = c("hp")
+#' )
+#'
+#' result <- run_multivariable_logistic_regression(
+#'   data = mtcars,
+#'   outcomes = "vs",
+#'   predictors = c("mpg", "wt"),
+#'   models_list = models_list
+#' )
+#' }
+run_multivariable_logistic_regression <- function(data,
+                                                 outcomes,
+                                                 predictors,
+                                                 models_list,
+                                                 outcomes_map = NULL,
+                                                 output_dir = NULL,
+                                                 save_format = c("none", "txt", "csv")) {
+
+  # Parameter validation
+  save_format <- match.arg(save_format)
+  if (!is.data.frame(data)) {
+    stop("data must be a data frame")
+  }
 
   stopifnot(
     length(models_list) == 3,
     identical(names(models_list), c("model2", "model3", "model4"))
   )
 
-  # 初始化结果容器
-  results <- list()
+  # Check if variables exist
+  all_vars <- unique(c(outcomes, predictors, unlist(models_list)))
+  missing_vars <- setdiff(all_vars, names(data))
+  if (length(missing_vars) > 0) {
+    stop("Variables not found in data: ", paste(missing_vars, collapse = ", "))
+  }
 
-  # 遍历预测变量和结局
-  for (i in related_index) {
-    for (o in all_outcomes) {
+  # Handle outcome mapping
+  if (is.null(outcomes_map)) {
+    outcomes_map <- setNames(outcomes, outcomes)
+  }
 
-      # 当前行唯一标识
-      row_id <- paste(i, o, sep = "__")
+  # Initialize results container
+  results_list <- list()
+  saved_files <- character(0)
 
-      # 保存 4 个模型的结果
-      res_row <- list(predictor = i,
-                      outcome   = outcomes_map[[o]])
+  # Iterate through predictors and outcomes
+  for (predictor in predictors) {
+    for (outcome in outcomes) {
 
-      # 1. model1：单因素
-      f1 <- as.formula(paste(o, "~", i))
-      fit1 <- glm(f1, data = data, family = binomial())
-      ci1 <- confint.default(fit1)[i, ]
-      res_row <- c(res_row,
-                   OR_m1    = unname(exp(coef(fit1)[i])),
-                   LCI_m1   = unname(exp(ci1[1])),
-                   UCI_m1   = unname(exp(ci1[2])),
-                   p_m1     = unname(summary(fit1)$coefficients[i, 4]))
+      # Remove missing values for current variables
+      current_vars <- unique(c(outcome, predictor, unlist(models_list)))
+      complete_cases <- complete.cases(data[current_vars])
 
-      # 2. model2：model2 协变量
-      cov2 <- setdiff(models_list[["model2"]], i)
-      f2 <- reformulate(c(i, cov2), response = o)
-      fit2 <- glm(f2, data = data, family = binomial())
-      ci2 <- confint.default(fit2)[i, ]
-      res_row <- c(res_row,
-                   OR_m2    = unname(exp(coef(fit2)[i])),
-                   LCI_m2   = unname(exp(ci2[1])),
-                   UCI_m2   = unname(exp(ci2[2])),
-                   p_m2     = unname(summary(fit2)$coefficients[i, 4])
+      if (sum(complete_cases) < 10) {
+        warning(sprintf("Insufficient complete cases for %s ~ %s (n=%d)",
+                       outcome, predictor, sum(complete_cases)))
+        next
+      }
+
+      # Model 1: Unadjusted
+      f1 <- as.formula(paste(outcome, "~", predictor))
+      fit1 <- tryCatch({
+        glm(f1, data = data[complete_cases, ], family = binomial())
+      }, error = function(e) {
+        warning(sprintf("Model1 failed for %s ~ %s: %s", outcome, predictor, e$message))
+        return(NULL)
+      })
+
+      if (is.null(fit1)) next
+
+      # Extract results with error handling
+      model_results <- list()
+
+      # Helper function to fit model and extract results
+      fit_model <- function(formula, model_name) {
+        fit <- tryCatch({
+          glm(formula, data = data[complete_cases, ], family = binomial())
+        }, error = function(e) {
+          warning(sprintf("%s failed for %s ~ %s: %s", model_name, outcome, predictor, e$message))
+          return(NULL)
+        })
+
+        if (is.null(fit)) return(NULL)
+
+        coef_summary <- coef(summary(fit))
+        if (!predictor %in% rownames(coef_summary)) return(NULL)
+
+        ci <- tryCatch({
+          ci_raw <- confint.default(fit)[predictor, ]
+          setNames(as.numeric(exp(ci_raw)), NULL)
+        }, error = function(e) c(NA, NA))
+
+        return(list(
+          OR = exp(coef_summary[predictor, 1]),
+          lower_ci = ci[1],
+          upper_ci = ci[2],
+          p_value = coef_summary[predictor, 4]
+        ))
+      }
+
+      # Model 1 results
+      res1 <- list(
+        OR = exp(coef(fit1)[predictor]),
+        lower_ci = unname(exp(confint.default(fit1)[predictor, 1])),
+        upper_ci = unname(exp(confint.default(fit1)[predictor, 2])),
+        p_value = summary(fit1)$coefficients[predictor, 4]
       )
 
-      # 3. model3：model2+model3
-      cov3 <- setdiff(c(models_list[["model2"]], models_list[["model3"]]), i)
-      f3 <- reformulate(c(i, cov3), response = o)
-      fit3 <- glm(f3, data = data, family = binomial())
-      ci3 <- confint.default(fit3)[i, ]
-      res_row <- c(res_row,
-                   OR_m3    = unname(exp(coef(fit3)[i])),
-                   LCI_m3   = unname(exp(ci3[1])),
-                   UCI_m3   = unname(exp(ci3[2])),
-                   p_m3     = unname(summary(fit3)$coefficients[i, 4]))
+      # Model 2: Adjusted for model2 covariates
+      cov2 <- setdiff(models_list[["model2"]], predictor)
+      f2 <- reformulate(c(predictor, cov2), response = outcome)
+      res2 <- fit_model(f2, "Model2")
 
-      # 4. model4：model2+3+4
-      cov4 <- setdiff(unlist(models_list), i)
-      f4 <- reformulate(c(i, cov4), response = o)
-      fit4 <- glm(f4, data = data, family = binomial())
-      ci4 <- confint.default(fit4)[i, ]
-      res_row <- c(res_row,
-                   OR_m4    = unname(exp(coef(fit4)[i])),
-                   LCI_m4   = unname(exp(ci4[1])),
-                   UCI_m4   = unname(exp(ci4[2])),
-                   p_m4     = unname(summary(fit4)$coefficients[i, 4]))
+      # Model 3: Model2 + model3 covariates
+      cov3 <- setdiff(c(models_list[["model2"]], models_list[["model3"]]), predictor)
+      f3 <- reformulate(c(predictor, cov3), response = outcome)
+      res3 <- fit_model(f3, "Model3")
 
-      # 保存
-      results[[row_id]] <- res_row
+      # Model 4: All covariates
+      cov4 <- setdiff(unlist(models_list), predictor)
+      f4 <- reformulate(c(predictor, cov4), response = outcome)
+      res4 <- fit_model(f4, "Model4")
 
-      # 写单个 txt 文件
-      out_txt <- file.path(folder_path,
-                           paste(i, outcomes_map[[o]], "result.txt", sep = "_"))
-      writeLines(
-        c(paste("Predictor:", i),
-          paste("Outcome:",  outcomes_map[[o]]),
-          sprintf("Model1 (unadjusted): OR = %.2f, 95%%CI [%.2f-%.2f], p = %.4f",
-                  res_row[["OR_m1"]], res_row[["LCI_m1"]], res_row[["UCI_m1"]], res_row[["p_m1"]]),
-          sprintf("Model2 (adjusted for model2): OR = %.2f, 95%%CI [%.2f-%.2f], p = %.4f",
-                  res_row[["OR_m2"]], res_row[["LCI_m2"]], res_row[["UCI_m2"]], res_row[["p_m2"]]),
-          sprintf("Model3 (+model3): OR = %.2f, 95%%CI [%.2f-%.2f], p = %.4f",
-                  res_row[["OR_m3"]], res_row[["LCI_m3"]], res_row[["UCI_m3"]], res_row[["p_m3"]]),
-          sprintf("Model4 (+model4): OR = %.2f, 95%%CI [%.2f-%.2f], p = %.4f",
-                  res_row[["OR_m4"]], res_row[["LCI_m4"]], res_row[["UCI_m4"]], res_row[["p_m4"]])),
-        con = out_txt)
+      # Create result row
+      result_row <- data.frame(
+        predictor = predictor,
+        outcome = outcomes_map[[outcome]],
+        OR_m1 = res1$OR,
+        LCI_m1 = res1$lower_ci,
+        UCI_m1 = res1$upper_ci,
+        p_m1 = res1$p_value,
+        OR_m2 = if (!is.null(res2)) res2$OR else NA,
+        LCI_m2 = if (!is.null(res2)) res2$lower_ci else NA,
+        UCI_m2 = if (!is.null(res2)) res2$upper_ci else NA,
+        p_m2 = if (!is.null(res2)) res2$p_value else NA,
+        OR_m3 = if (!is.null(res3)) res3$OR else NA,
+        LCI_m3 = if (!is.null(res3)) res3$lower_ci else NA,
+        UCI_m3 = if (!is.null(res3)) res3$upper_ci else NA,
+        p_m3 = if (!is.null(res3)) res3$p_value else NA,
+        OR_m4 = if (!is.null(res4)) res4$OR else NA,
+        LCI_m4 = if (!is.null(res4)) res4$lower_ci else NA,
+        UCI_m4 = if (!is.null(res4)) res4$upper_ci else NA,
+        p_m4 = if (!is.null(res4)) res4$p_value else NA,
+        n_observations = sum(complete_cases),
+        stringsAsFactors = FALSE
+      )
+
+      # Add to results
+      if (requireNamespace("dplyr", quietly = TRUE)) {
+        results_list <- dplyr::bind_rows(results_list, result_row)
+      } else {
+        results_list <- rbind(results_list, result_row)
+      }
+
+      # Save individual file if requested
+      if (save_format != "none" && !is.null(output_dir)) {
+        file_saved <- save_multivariable_result(
+          result_row, output_dir, save_format, predictor, outcomes_map[[outcome]]
+        )
+        saved_files <- c(saved_files, file_saved)
+      }
     }
   }
 
-  # 合并为 data.frame
-  #do.call(rbind.data.frame, results)
-  as.data.frame(Reduce(rbind, results))
+  # Reset row names if using base R
+  if (!requireNamespace("dplyr", quietly = TRUE) && !is.null(results_list)) {
+    row.names(results_list) <- NULL
+  }
+
+  # Return structured results
+  return(list(
+    results = results_list,
+    saved_files = if (length(saved_files) > 0) saved_files else NULL,
+    call = match.call()
+  ))
+}
+
+#' Save Multivariable Analysis Results (Internal)
+#' @keywords internal
+save_multivariable_result <- function(result, output_dir, format, predictor, outcome_name) {
+
+  if (!dir.exists(output_dir)) {
+    dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+  }
+
+  safe_predictor <- gsub("[^a-zA-Z0-9]", "_", predictor)
+  safe_outcome <- gsub("[^a-zA-Z0-9]", "_", outcome_name)
+  timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
+
+  if (format == "txt") {
+    filename <- file.path(output_dir,
+                         sprintf("multivariable_%s_%s_%s.txt",
+                                safe_predictor, safe_outcome, timestamp))
+
+    content <- sprintf(
+      "Multivariable Logistic Regression Analysis Results\n\nPredictor: %s\nOutcome: %s\nSample Size: %d\n\nModel 1 (Unadjusted):\nOR = %.2f, 95%% CI [%.2f-%.2f], p = %.4f\n\nModel 2 (Adjusted for model2):\nOR = %.2f, 95%% CI [%.2f-%.2f], p = %.4f\n\nModel 3 (+model3):\nOR = %.2f, 95%% CI [%.2f-%.2f], p = %.4f\n\nModel 4 (+model4):\nOR = %.2f, 95%% CI [%.2f-%.2f], p = %.4f",
+      predictor, outcome_name, result$n_observations,
+      result$OR_m1, result$LCI_m1, result$UCI_m1, result$p_m1,
+      result$OR_m2, result$LCI_m2, result$UCI_m2, result$p_m2,
+      result$OR_m3, result$LCI_m3, result$UCI_m3, result$p_m3,
+      result$OR_m4, result$LCI_m4, result$UCI_m4, result$p_m4
+    )
+
+    writeLines(content, con = filename, useBytes = TRUE)
+
+  } else if (format == "csv") {
+    filename <- file.path(output_dir,
+                         sprintf("multivariable_%s_%s_%s.csv",
+                                safe_predictor, safe_outcome, timestamp))
+    write.csv(result, file = filename, row.names = FALSE, fileEncoding = "UTF-8")
+  }
+
+  return(filename)
 }
 
 
 
-#######
-#' 批量多因素结果 -> Word 三线表
+#' Create Multivariate Analysis Table
 #'
-#' @param raw_df        原始数据框，一行一个分析结果，18 列。
-#' @param out_file      输出的 docx 文件名；若为 NULL，则返回 flextable 对象。
-#' @param caption       表格标题
-#' @param merge_predictor 是否纵向合并相同的 Predictor 单元格（TRUE=合并）
+#' @param raw_df Results data frame from multivariable analysis
+#' @param out_file Output Word file path (optional)
+#' @param caption Table caption
+#' @param merge_predictor Merge identical predictor cells vertically (default TRUE)
 #'
-#' @return 若无 out_file，返回 flextable 对象；否则写入磁盘并返回 NULL（invisible）。
-#'
-#' @examples
-#' # make_multivariate_table(my_raw, "table1.docx")
-#'
+#' @return If out_file is NULL, returns flextable object; otherwise writes to file and returns NULL
+#' @export
 make_multivariate_table <- function(raw_df,
-                                    out_file   = NULL,
-                                    caption    = "Multivariate analysis results",
+                                    out_file = NULL,
+                                    caption = "Multivariate analysis results",
                                     merge_predictor = TRUE) {
 
-  # ---------- 0. 依赖检查 ----------
+  # Check dependencies
   if (!requireNamespace("flextable", quietly = TRUE))
     stop("Please install.packages('flextable')")
   if (!requireNamespace("dplyr", quietly = TRUE))
     stop("Please install.packages('dplyr')")
-  if (!requireNamespace("stringr", quietly = TRUE))
-    stop("Please install.packages('stringr')")
+  if (!requireNamespace("tidyr", quietly = TRUE))
+    stop("Please install.packages('tidyr')")
 
-  # ---------- 1. 确保是 data.frame ----------
+  # Ensure data.frame
   raw_df <- as.data.frame(raw_df, stringsAsFactors = FALSE)
 
-  # ---------- 2. 数据整理 ----------
+  # Data processing with separate OR and p-value columns
   dat <- raw_df %>%
     dplyr::mutate(
-      Predictor = sub("^X(\\..*)?$", "", as.character(.[[1]])),  # 按位置取列
-      Outcome   = as.character(.[[2]]),
-      OR_m1  = .[[3]],  LCI_m1 = .[[4]],  UCI_m1 = .[[5]],  p_m1 = .[[6]],
-      OR_m2  = .[[7]],  LCI_m2 = .[[8]],  UCI_m2 = .[[9]],  p_m2 = .[[10]],
-      OR_m3  = .[[11]], LCI_m3 = .[[12]], UCI_m3 = .[[13]], p_m3 = .[[14]],
-      OR_m4  = .[[15]], LCI_m4 = .[[16]], UCI_m4 = .[[17]], p_m4 = .[[18]]
+      Predictor = as.character(predictor),
+      Outcome = as.character(outcome),
+      `Model 1 OR (95% CI)` = sprintf("%.2f (%.2f–%.2f)", OR_m1, LCI_m1, UCI_m1),
+      `Model 1 P-value` = sprintf("%.2e", p_m1),
+      `Model 2 OR (95% CI)` = sprintf("%.2f (%.2f–%.2f)", OR_m2, LCI_m2, UCI_m2),
+      `Model 2 P-value` = sprintf("%.2e", p_m2),
+      `Model 3 OR (95% CI)` = sprintf("%.2f (%.2f–%.2f)", OR_m3, LCI_m3, UCI_m3),
+      `Model 3 P-value` = sprintf("%.2e", p_m3),
+      `Model 4 OR (95% CI)` = sprintf("%.2f (%.2f–%.2f)", OR_m4, LCI_m4, UCI_m4),
+      `Model 4 P-value` = sprintf("%.2e", p_m4)
     ) %>%
-    dplyr::transmute(
-      Predictor,
-      Outcome,
-      `Model 1` = sprintf("%.2f (%.2f–%.2f)\np=%.2e", OR_m1, LCI_m1, UCI_m1, p_m1),
-      `Model 2` = sprintf("%.2f (%.2f–%.2f)\np=%.2e", OR_m2, LCI_m2, UCI_m2, p_m2),
-      `Model 3` = sprintf("%.2f (%.2f–%.2f)\np=%.2e", OR_m3, LCI_m3, UCI_m3, p_m3),
-      `Model 4` = sprintf("%.2f (%.2f–%.2f)\np=%.2e", OR_m4, LCI_m4, UCI_m4, p_m4)
-    ) %>%
+    dplyr::select(Predictor, Outcome,
+                  `Model 1 OR (95% CI)`, `Model 1 P-value`,
+                  `Model 2 OR (95% CI)`, `Model 2 P-value`,
+                  `Model 3 OR (95% CI)`, `Model 3 P-value`,
+                  `Model 4 OR (95% CI)`, `Model 4 P-value`) %>%
     dplyr::arrange(Predictor, Outcome)
 
-  # ---------- 3. 构建 flextable ----------
+  # Create flextable
+
   ft <- flextable::flextable(dat) %>%
-    flextable::set_header_labels(
-      Predictor = "Predictor",
-      Outcome   = "Outcome",
-      `Model 1` = "Unadjusted",
-      `Model 2` = "Model 2",
-      `Model 3` = "Model 3",
-      `Model 4` = "Model 4"
-    ) %>%
-    flextable::theme_zebra() %>%
+    flextable::hline_top(border = officer::fp_border(width = 2), part = "header") %>%
+    flextable::hline_bottom(border = officer::fp_border(width = 2), part = "header") %>%
+    flextable::hline_bottom(border = officer::fp_border(width = 1), part = "body") %>%
+    flextable::border_remove() %>%  # 移除所有边框
     flextable::bold(part = "header") %>%
     flextable::align(align = "center", part = "all") %>%
     flextable::fontsize(size = 9, part = "all") %>%
     flextable::set_caption(caption)
 
-  if (merge_predictor && nrow(dat) > 1)
-    ft <- flextable::merge_v(ft, j = "Predictor")
 
-  # ---------- 4. 输出 ----------
+  # Merge predictor cells if requested
+  if (merge_predictor && nrow(dat) > 1) {
+    ft <- flextable::merge_v(ft, j = "Predictor")
+  }
+
+  # Merge header for each model
+  ft <- ft %>%
+    flextable::set_header_labels(
+      `Model 1 OR (95% CI)` = "OR (95% CI)",
+      `Model 1 P-value` = "P-value",
+      `Model 2 OR (95% CI)` = "OR (95% CI)",
+      `Model 2 P-value` = "P-value",
+      `Model 3 OR (95% CI)` = "OR (95% CI)",
+      `Model 3 P-value` = "P-value",
+      `Model 4 OR (95% CI)` = "OR (95% CI)",
+      `Model 4 P-value` = "P-value"
+    ) %>%
+    flextable::add_header_row(
+      values = c("", "", "Model 1", "Model 2", "Model 3", "Model 4"),
+      colwidths = c(1, 1, 2, 2, 2, 2)
+    )%>%
+    flextable::hline_top(border = officer::fp_border(width = 2), part = "header") %>%
+    flextable::hline_bottom(border = officer::fp_border(width = 1), part = "header") %>%
+    flextable::hline_bottom(border = officer::fp_border(width = 2), part = "body")
+
+  # Output
   if (!is.null(out_file)) {
     if (!requireNamespace("officer", quietly = TRUE))
       stop("Please install.packages('officer')")
+
+    output_dir <- dirname(out_file)
+    if (!dir.exists(output_dir) && output_dir != ".") {
+      dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+    }
+
     officer::read_docx() %>%
       flextable::body_add_flextable(ft) %>%
       print(target = out_file)
@@ -190,144 +338,216 @@ make_multivariate_table <- function(raw_df,
 }
 
 
-#' 连续变量多分类 Logistic 回归批量分析
+#' Multivariable Multinomial Logistic Regression Analysis
 #'
-#' 对连续预测变量（无需分组）直接拟合：
-#' ① Model1（单因素）  
-#' ② Model2/3/4（依次叠加协变量）  
-#' 计算每单位增加的 OR、95%CI 及 P 值，并进行多分类趋势检验。
-#' 结果汇总为可发表的三线表并写入 Word。
+#' Fits multinomial logistic regression models for continuous predictors:
+#' ① Model1 (unadjusted)
+#' ② Model2/3/4 (sequentially adding covariates)
+#' Calculates OR, 95% CI and P-value per unit increase.
 #'
-#' @param data          \code{data.frame}，必须包含结局变量、预测变量及所有协变量
-#' @param all_index     字符向量，指定需要分析的连续预测变量名
-#' @param all_outcomes  字符向量，指定多分类结局变量名（可多个）；函数会将其转为因子
-#' @param models_list   命名列表，长度 3，依次给出 Model2/3/4 的协变量。
-#'                      示例：\code{list(model2 = c("age","sex"), model3 = c("bmi"), model4 = c("LDL"))}
-#' @param ref_level     字符标量，可手动指定多分类结局的参照水平；默认 NULL（按因子默认第一水平）
-#' @param output_docx   输出 Word 文件名（含路径），默认 \code{"continuous_multinomial_results.docx"}
+#' @param data Data frame containing all variables
+#' @param outcomes Character vector of outcome variable names
+#' @param predictors Character vector of continuous predictor variable names
+#' @param models_list Named list of length 3 with covariates for model2, model3, model4
+#' @param ref_level Reference level for multinomial outcome (optional)
+#' @param output_dir Output directory (optional)
+#' @param save_format Save format: "none", "docx", "csv" (default "none")
 #'
-#' @return              \code{data.frame}，包含 Outcome/Level/Index/Model/Comparison/OR/95%CI/P-value
-#'                      同时把三线表写入指定 Word 文件（invisible 返回）
-#'
-#' @details
-#' \enumerate{
-#'   \item 预测变量保持连续，不切割，解释为单位增量下的 OR
-#'   \item 所有模型均使用 \code{nnet::multinom()} 拟合，OR 及 95%CI 通过 \code{broom::tidy(exponentiate = TRUE)} 提取
-#'   \item Word 表使用 \code{flextable} 绘制，可直接用于论文或补充材料
-#' }
-#'
-#' @examples
-#' \dontrun{
-#' models <- list(
-#'   model2 = c("age", "sex"),
-#'   model3 = c("bmi", "smoke"),
-#'   model4 = c("sbp", "ldl")
-#' )
-#'
-#' res <- run_multivariable_multinomial_logistic_regression(
-#'   data         = mydata,
-#'   all_index    = c("PIV", "SIRI"),
-#'   all_outcomes = "stroke_subtype",   # 三分类变量
-#'   models_list  = models,
-#'   ref_level    = "normal",
-#'   output_docx  = "Table_Continuous_Multi.docx"
-#' )
-#' }
-#'
-#' @importFrom dplyr %>% mutate across bind_rows select arrange transmute
-#' @importFrom broom tidy
-#' @importFrom glue glue
-#' @importFrom flextable flextable theme_zebra set_caption colformat_num autofit
-#' @importFrom officer read_docx body_add_par
-#' @importFrom flextable flextable theme_zebra autofit
-#' @importFrom nnet multinom
+#' @return List containing results data frame and optional saved file paths
 #' @export
 run_multivariable_multinomial_logistic_regression <- function(data,
-                                            all_index,
-                                            all_outcomes,
-                                            models_list,
-                                            ref_level = NULL,
-                                            output_docx = "continuous_multinomial_results.docx") {
+                                                             outcomes,
+                                                             predictors,
+                                                             models_list,
+                                                             ref_level = NULL,
+                                                             output_dir = NULL,
+                                                             save_format = c("none", "docx", "csv")) {
 
-  # ---------- 依赖 ----------
-  if (!requireNamespace("nnet", quietly = TRUE))
-    stop("请安装 nnet 包：install.packages('nnet')")
+  # Parameter validation
+  save_format <- match.arg(save_format)
+  if (!is.data.frame(data)) {
+    stop("data must be a data frame")
+  }
 
-  suppressPackageStartupMessages({
-    library(dplyr)
-    library(broom)
-    library(glue)
-    library(flextable)
-    library(officer)
-  })
+  # Check dependencies
+  if (!requireNamespace("nnet", quietly = TRUE)) {
+    stop("Please install.packages('nnet')")
+  }
+  if (!requireNamespace("broom", quietly = TRUE)) {
+    stop("Please install.packages('broom')")
+  }
 
-  results <- list()
+  # Check if variables exist
+  all_vars <- unique(c(outcomes, predictors, unlist(models_list)))
+  missing_vars <- setdiff(all_vars, names(data))
+  if (length(missing_vars) > 0) {
+    stop("Variables not found in data: ", paste(missing_vars, collapse = ", "))
+  }
 
-  for (outcome in all_outcomes) {
-    data[[outcome]] <- factor(data[[outcome]])
-    if (!is.null(ref_level))
-      data[[outcome]] <- relevel(data[[outcome]], ref = ref_level)
+  # Initialize results
+  results_list <- list()
+  saved_files <- character(0)
 
-    for (index in all_index) {
+  # Create a working copy of data to avoid modifying original
+  working_data <- data
 
-      model_names <- c("model1", names(models_list))
-      covariates  <- c("", unlist(models_list))
+  # Iterate through outcomes and predictors
+  for (outcome in outcomes) {
+    # Convert outcome to factor in working data
+    working_data[[outcome]] <- factor(working_data[[outcome]])
+    if (!is.null(ref_level)) {
+      working_data[[outcome]] <- relevel(working_data[[outcome]], ref = ref_level)
+    }
 
-      res_models <- list()
+    # Get outcome levels for current outcome
+    outcome_levels <- levels(working_data[[outcome]])
 
-      for (i in seq_along(model_names)) {
+    for (predictor in predictors) {
 
-        covar_expr <- if (covariates[i] == "") "" else
-          paste0(" + ", paste(covariates[[i]], collapse = " + "))
+      # Remove missing values for current variables
+      current_vars <- unique(c(outcome, predictor, unlist(models_list)))
+      complete_cases <- complete.cases(working_data[current_vars])
 
-        f_expr <- as.formula(glue::glue("{outcome} ~ {index}{covar_expr}"))
-        model  <- nnet::multinom(f_expr, data = data, trace = FALSE)
-
-        tidy_or <- broom::tidy(model, exponentiate = TRUE, conf.int = TRUE) %>%
-          filter(term == index) %>%
-          mutate(
-            term   = paste0(index, " (per unit increase)"),
-            Model  = model_names[i],
-            index  = index,
-            outcome = outcome
-          )
-
-        res_models[[model_names[i]]] <- tidy_or
+      if (sum(complete_cases) < 10) {
+        warning(sprintf("Insufficient complete cases for %s ~ %s (n=%d)",
+                       outcome, predictor, sum(complete_cases)))
+        next
       }
-      res_combined <- bind_rows(res_models) %>%
-        dplyr::select(outcome, index, Model, y.level, term,
-               estimate, conf.low, conf.high, p.value)
 
-      results[[glue::glue("{outcome}_{index}")]] <- res_combined
+      # Define models
+      model_names <- c("model1", "model2", "model3", "model4")
+      covariates_list <- list(
+        model1 = character(0),
+        model2 = setdiff(models_list[["model2"]], predictor),
+        model3 = setdiff(c(models_list[["model2"]], models_list[["model3"]]), predictor),
+        model4 = setdiff(unlist(models_list), predictor)
+      )
+
+      # Fit models and extract results
+      model_results <- list()
+
+      for (model_name in model_names) {
+        covariates <- covariates_list[[model_name]]
+
+        # Build formula
+        if (length(covariates) == 0) {
+          formula <- as.formula(paste(outcome, "~", predictor))
+        } else {
+          formula <- reformulate(c(predictor, covariates), response = outcome)
+        }
+
+        # Fit model
+        fit <- tryCatch({
+          nnet::multinom(formula, data = working_data[complete_cases, ], trace = FALSE)
+        }, error = function(e) {
+          warning(sprintf("%s failed for %s ~ %s: %s", model_name, outcome, predictor, e$message))
+          return(NULL)
+        })
+
+        if (is.null(fit)) next
+
+        # Extract results for the predictor
+        tidy_result <- tryCatch({
+          broom::tidy(fit, exponentiate = TRUE, conf.int = TRUE, conf.level = 0.95)
+        }, error = function(e) {
+          warning(sprintf("Result extraction failed for %s ~ %s: %s", outcome, predictor, e$message))
+          return(NULL)
+        })
+
+        if (is.null(tidy_result)) next
+
+        # Filter for current predictor and add model info
+predictor_results <- tidy_result %>%
+  dplyr::filter(term == predictor) %>%
+  dplyr::mutate(
+    predictor = predictor,
+    outcome = outcome,
+    model = model_name,
+    n_observations = sum(complete_cases),
+    level = as.character(y.level),  # y.level 就是水平名称
+    comparison = paste0(level, " vs ", outcome_levels[1])
+  )
+
+        model_results[[model_name]] <- predictor_results
+      }
+
+      # Combine results for current predictor-outcome pair
+      if (length(model_results) > 0) {
+        combined_results <- dplyr::bind_rows(model_results)
+        results_list <- append(results_list, list(combined_results))
+      }
     }
   }
 
-  # ---------- 最终表 ----------
-  final_df <- bind_rows(results) %>%
-    mutate(across(c(estimate, conf.low, conf.high, p.value), round, 3)) %>%
-    transmute(
-      Outcome    = outcome,
-      Level      = y.level,
-      Index      = index,
-      Model      = Model,
-      Comparison = term,
-      OR         = estimate,
-      `95% CI`   = sprintf("%.2f (%.2f–%.2f)", estimate, conf.low, conf.high),
-      `P-value`  = p.value
-    )
+  # Combine all results
+  if (length(results_list) > 0) {
+    final_results <- dplyr::bind_rows(results_list) %>%
+      dplyr::select(outcome, predictor, model, comparison,
+                    OR = estimate, lower_ci = conf.low, upper_ci = conf.high,
+                    p_value = p.value, n_observations) %>%
+      dplyr::arrange(outcome, predictor, model)
+  } else {
+    final_results <- data.frame()
+  }
 
-  # ---------- 写 Word ----------
-  ft <- flextable(final_df) %>%
-    theme_zebra() %>%
-    set_caption("Continuous Multinomial Logistic Regression Results") %>%
-    colformat_num(j = c("OR", "P-value"), digits = 3) %>%
-    autofit()
+  # Save results if requested
+  if (save_format != "none" && !is.null(output_dir)) {
+    if (!dir.exists(output_dir)) {
+      dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+    }
 
+    timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
+
+    if (save_format == "csv") {
+      csv_file <- file.path(output_dir, sprintf("multinomial_results_%s.csv", timestamp))
+      write.csv(final_results, csv_file, row.names = FALSE)
+      saved_files <- c(saved_files, csv_file)
+    } else if (save_format == "docx") {
+      docx_file <- file.path(output_dir, sprintf("multinomial_results_%s.docx", timestamp))
+      save_multinomial_table(final_results, docx_file)
+      saved_files <- c(saved_files, docx_file)
+    }
+  }
+
+  # Return structured results
+  return(list(
+    results = final_results,
+    saved_files = if (length(saved_files) > 0) saved_files else NULL,
+    call = match.call()
+  ))
+}
+
+#' Save Multinomial Results Table (Internal)
+#' @keywords internal
+save_multinomial_table <- function(results, file_path) {
+  if (!requireNamespace("flextable", quietly = TRUE) ||
+      !requireNamespace("officer", quietly = TRUE)) {
+    stop("Please install.packages('flextable') and install.packages('officer')")
+  }
+
+  # Format data for table
+  table_data <- results %>%
+    dplyr::mutate(
+      `OR (95% CI)` = sprintf("%.2f (%.2f–%.2f)", OR, lower_ci, upper_ci),
+      `P-value` = sprintf("%.3f", p_value)
+    ) %>%
+    dplyr::select(Outcome = outcome, Predictor = predictor, Model = model,
+                  Comparison = comparison, `OR (95% CI)`, `P-value`)
+
+  # Create three-line table
+  ft <- flextable::flextable(table_data) %>%
+    flextable::border_remove() %>%
+    flextable::hline_top(border = officer::fp_border(width = 2), part = "all") %>%
+    flextable::hline_bottom(border = officer::fp_border(width = 2), part = "header") %>%
+    flextable::hline_bottom(border = officer::fp_border(width = 2), part = "body") %>%
+    flextable::bold(part = "header") %>%
+    flextable::align(align = "center", part = "all") %>%
+    flextable::fontsize(size = 9, part = "all") %>%
+    flextable::set_caption("Multinomial Logistic Regression Results") %>%
+    flextable::autofit()
+
+  # Save to Word
   officer::read_docx() %>%
-    body_add_par("Continuous Multinomial Logistic Regression Results", style = "heading 1") %>%
     flextable::body_add_flextable(ft) %>%
-    print(target = output_docx)
-
-  message(glue::glue("✅ 连续变量多分类结果已写入：{output_docx}"))
-  invisible(final_df)
+    print(target = file_path)
 }

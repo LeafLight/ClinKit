@@ -2,39 +2,48 @@
 % Please edit documentation in R/03_rcs.R
 \name{run_analysis_rcs}
 \alias{run_analysis_rcs}
-\title{批量 RCS 分析}
+\title{Batch RCS Analysis}
 \usage{
 run_analysis_rcs(
   data,
-  related_index,
-  all_outcomes,
-  folder_path,
-  outcomes_map,
-  covariates
+  predictors,
+  outcomes,
+  outcomes_map = NULL,
+  covariates = NULL,
+  output_dir = NULL,
+  save_format = c("none", "tiff", "svg", "pdf", "all")
 )
 }
 \arguments{
-\item{data}{数据框}
+\item{data}{Data frame containing all variables}
 
-\item{related_index}{预测变量向量}
+\item{predictors}{Character vector of predictor variable names}
 
-\item{all_outcomes}{结局变量向量}
+\item{outcomes}{Character vector of outcome variable names}
 
-\item{folder_path}{根目录}
+\item{outcomes_map}{Outcome variable mapping (optional)}
 
-\item{outcomes_map}{结局中文映射 named vector/list}
+\item{covariates}{Covariates for adjusted models (optional)}
 
-\item{covariates}{协变量向量}
+\item{output_dir}{Output directory (optional)}
+
+\item{save_format}{Save format: "none", "tiff", "svg", "pdf", "all" (default "none")}
 }
 \value{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{        data.frame：predictor / outcome / model_type / P 值
-}\if{html}{\out{</div>}}
+Data frame with predictor, outcome, model_type, p-values, and optional saved file paths
 }
 \description{
-批量 RCS 分析
+Runs multiple RCS analyses for different predictors and outcomes
 }
 \examples{
 \dontrun{
-run_analysis_rcs(data, c("SIRI"), c("death"), "./RCS", outcomes_map, covariates)
+results <- run_analysis_rcs(
+  data = mtcars,
+  predictors = c("mpg", "wt"),
+  outcomes = c("vs", "am"),
+  covariates = c("cyl", "gear"),
+  output_dir = tempdir(),
+  save_format = "none"
+)
 }
 }

@@ -1,104 +1,111 @@
-#' 批量 ROC 曲线分析、AUC 比较与最佳截断点输出
+#' ROC Curve Analysis with AUC Comparison and Optimal Cutoff
 #'
-#' 对单个或多个连续指标（及自定义组合模型）一次性完成：
-#' \itemize{
-#'   \item ROC 拟合、AUC 及 95%CI 计算
-#'   \item 最佳截断值（Youden 指数）
-#'   \item 可选 DeLong 检验进行两两 AUC 比较
-#'   \item 自动绘制 ROC 曲线并保存 TIFF/SVG
-#'   \item 控制台打印灵敏度/特异度/截断值
-#' }
+#' Performs comprehensive ROC analysis for single or multiple continuous indicators
+#' and custom combination models, including AUC calculation, optimal cutoff determination,
+#' and DeLong test for AUC comparisons.
 #'
-#' @param data               \code{data.frame}，必须包含结局变量及所有待评估指标
-#' @param outcome            字符标量，二分类结局变量名（0/1）
-#' @param index              字符向量，单个连续指标名，将作为 ROC 的 predictor
-#' @param index_combined     命名列表，组合模型；如 \code{list(Combined = c("X1","X2"))}，
-#'                           函数内部用 \code{glm(..., family = binomial)} 建模，
-#'                           以预测概率作为 ROC 的 predictor
-#' @param file               输出 ROC 曲线 TIFF 文件名（含路径），默认 \code{"ROC_curve.tiff"}
-#' @param width,height,res   图形尺寸与分辨率（像素），默认 2000×2000×300 dpi
-#' @param DeLong             逻辑值，是否执行 DeLong 检验，默认 FALSE
-#' @param DeLong_fp          字符，DeLong 检验结果保存路径，默认 \code{"./DeLong_result.csv"}
-#' @param cols               自定义曲线颜色向量；NULL 时自动采样
-#' @param legend_map         命名向量，曲线图例别名，如 \code{c(PIV = "Systemic Inflammation Index")}
-#' @param seed               随机种子，确保颜色与 DeLong 抽样可复现，默认 123
+#' @param data Data frame containing outcome and all predictor variables
+#' @param outcome Character scalar, binary outcome variable name (0/1)
+#' @param predictors Character vector, continuous predictor variable names
+#' @param combined_models Named list of combined models, e.g., list(Combined = c("X1", "X2"))
+#' @param output_dir Output directory for saving results, default NULL
+#' @param save_format Save format: "none", "plot", "data", "all", default "none"
+#' @param delong_test Logical, whether to perform DeLong test for pairwise AUC comparisons, default FALSE
+#' @param colors Custom color vector for ROC curves; if NULL, colors are automatically sampled
+#' @param legend_labels Named vector for custom legend labels, e.g., c(PIV = "Systemic Inflammation Index")
+#' @param seed Random seed for reproducibility, default 123
+#' @param plot_width Plot width in pixels, default 2000
+#' @param plot_height Plot height in pixels, default 2000
+#' @param plot_res Plot resolution in DPI, default 300
 #'
-#' @return                   列表：
-#' \describe{
-#'   \item{roc_list}{命名列表，各指标/组合的 \code{pROC} 对象}
-#'   \item{auc_summary}{数据框，AUC、95%CI、最佳截断值、灵敏度、特异度}
-#' }
-#' 同时把 ROC 图写入 TIFF/SVG，控制台打印最佳截断点信息（invisible）
-#'
-#' @details
-#' \itemize{
-#'   \item 单个指标直接使用原始值；组合指标先拟合 logistic 再用预测概率
-#'   \item 最佳截断值采用 Youden 指数最大点；多解时取第一个
-#'   \item DeLong 检验使用 \code{pROC::roc.test(..., method = "delong")}，结果含差值及 CI
-#'   \item 图形设备为 TIFF + SVG 双输出，满足期刊矢量/位图要求
-#' }
-#'
-#' @examples
-#' \dontrun{
-#' roc_indexes(mtcars, "vs", "mpg", file = tempfile(".tiff"))
-#' }
-roc_indexes <- function(data,
-                        outcome,               # 结局列名（字符）
-                        index,                 # 单个指标名字向量
-                        index_combined = NULL, # list("AB" = c("A","B"))
-                        file = "ROC_curve.tiff",
-                        width = 2000,
-                        height = 2000,
-                        res = 300,
-                        DeLong = FALSE,        # 新增：是否做 DeLong 检验
-                        DeLong_fp = "./DeLong_result.csv",
-                        cols = NULL,
-                        legend_map = NULL,
-                        seed = 123             # 新增：设置随机种子确保结果可复现
-) {
-  # 设置随机种子确保结果可复现
+#' @return List containing ROC objects, AUC summary, and optional saved file paths
+#' @export
+roc_analysis <- function(data,
+                        outcome,
+                        predictors,
+                        combined_models = NULL,
+                        output_dir = NULL,
+                        save_format = c("none", "plot", "data", "all"),
+                        delong_test = FALSE,
+                        colors = NULL,
+                        legend_labels = NULL,
+                        seed = 123,
+                        plot_width = 2000,
+                        plot_height = 2000,
+                        plot_res = 300,
+                         direction = "<") {
+
+  # Parameter validation
+  save_format <- match.arg(save_format)
+  if (!is.data.frame(data)) {
+    stop("data must be a data frame")
+  }
+
+  # Check dependencies
+  if (!requireNamespace("pROC", quietly = TRUE)) {
+    stop("Please install.packages('pROC')")
+  }
+
+  # Check if variables exist
+  all_vars <- unique(c(outcome, predictors, unlist(combined_models)))
+  missing_vars <- setdiff(all_vars, names(data))
+  if (length(missing_vars) > 0) {
+    stop("Variables not found in data: ", paste(missing_vars, collapse = ", "))
+  }
+
+  # Set random seed for reproducibility
   set.seed(seed)
 
-  # ---------- 依赖包 ----------
-  if (!requireNamespace("pROC", quietly = TRUE))
-    stop("请安装 'pROC' 包：install.packages('pROC')")
-
-  # ---------- 检查 ----------
-  if (!outcome %in% names(data))
-    stop("outcome 列不存在")
-  if (!all(index %in% names(data)))
-    stop("index 中的某些列不存在")
-
-  # ---------- 建立单个指标的模型 ----------
+  # Initialize results
   roc_list <- list()
-  auc_summary <- data.frame(Indicator = character(),
-                            AUC = numeric(),
-                            Lower_CI = numeric(),
-                            Upper_CI = numeric(),
-                            Optimal_Cut_off = numeric(),
-                            Sensitivity = numeric(),
-                            Specificity = numeric(),
-                            stringsAsFactors = FALSE)
+  saved_files <- character(0)
 
-  for (v in index) {
-    # 关键修改：直接使用原始指标值构建ROC对象
-    roc_obj <- pROC::roc(
-      response = data[[outcome]],
-      predictor = data[[v]],  # 使用原始指标值而非预测概率
-      ci = TRUE,
-      direction = "<"  # 明确方向：值越大阳性概率越高
-    )
-    roc_list[[v]] <- roc_obj
+  # Initialize AUC summary data frame
+  auc_summary <- data.frame(
+    predictor = character(),
+    auc = numeric(),
+    lower_ci = numeric(),
+    upper_ci = numeric(),
+    optimal_cutoff = numeric(),
+    sensitivity = numeric(),
+    specificity = numeric(),
+    stringsAsFactors = FALSE
+  )
 
-    # 计算最佳截断值、敏感性和特异性
-    coords_result <- pROC::coords(
-      roc_obj,
-      x = "best",
-      ret = c("threshold", "sensitivity", "specificity"),
-      best.method = "youden"  # 明确使用Youden指数
-    )
+  # ---- Analyze individual predictors ----
+  for (predictor in predictors) {
+    roc_obj <- tryCatch({
+      pROC::roc(
+        response = data[[outcome]],
+        predictor = data[[predictor]],
+        ci = TRUE,
+        direction = direction
+      )
+    }, error = function(e) {
+      warning(sprintf("ROC analysis failed for %s: %s", predictor, e$message))
+      return(NULL)
+    })
 
-    # 处理可能的多解情况
+    if (is.null(roc_obj)) next
+
+    roc_list[[predictor]] <- roc_obj
+
+    # Calculate optimal cutoff and performance metrics
+    coords_result <- tryCatch({
+      pROC::coords(
+        roc_obj,
+        x = "best",
+        ret = c("threshold", "sensitivity", "specificity"),
+        best.method = "youden"
+      )
+    }, error = function(e) {
+      warning(sprintf("Coordinate calculation failed for %s: %s", predictor, e$message))
+      return(NULL)
+    })
+
+    if (is.null(coords_result)) next
+
+    # Handle multiple solutions
     optimal_cutoff <- if (is.list(coords_result)) {
       coords_result$threshold[1]
     } else {
@@ -106,156 +113,253 @@ roc_indexes <- function(data,
     }
 
     auc_summary <- rbind(auc_summary, data.frame(
-      Indicator = v,
-      AUC = as.numeric(roc_obj$auc),
-      Lower_CI = roc_obj$ci[1],
-      Upper_CI = roc_obj$ci[3],
-      Optimal_Cut_off = optimal_cutoff,
-      Sensitivity = coords_result$sensitivity[1],
-      Specificity = coords_result$specificity[1]
+      predictor = predictor,
+      auc = as.numeric(roc_obj$auc),
+      lower_ci = roc_obj$ci[1],
+      upper_ci = roc_obj$ci[3],
+      optimal_cutoff = optimal_cutoff,
+      sensitivity = coords_result$sensitivity[1],
+      specificity = coords_result$specificity[1],
+      stringsAsFactors = FALSE
     ))
   }
 
-  # ---------- 建立组合的模型 ----------
-  if (!is.null(index_combined)) {
-    for (nm in names(index_combined)) {
-      vars <- index_combined[[nm]]
-      if (!all(vars %in% names(data)))
-        stop(sprintf("组合 %s 中的某些列不存在", nm))
-      rhs <- paste(vars, collapse = " + ")
-      f <- as.formula(paste(outcome, "~", rhs))
-      fit <- glm(f, data = data, family = binomial())
-      roc_obj <- pROC::roc(data[[outcome]], fit$fitted.values, ci = TRUE)
-      roc_list[[nm]] <- roc_obj
+  # ---- Analyze combined models ----
+  if (!is.null(combined_models)) {
+    for (model_name in names(combined_models)) {
+      model_vars <- combined_models[[model_name]]
 
-      # 计算最佳截断值、敏感性和特异性
-      optimal_cutoff <- pROC::coords(roc_obj, x = "best", ret = "threshold")$threshold
-      sensitivity <- pROC::coords(roc_obj, x = optimal_cutoff, ret = "sensitivity")$sensitivity
-      specificity <- pROC::coords(roc_obj, x = optimal_cutoff, ret = "specificity")$specificity
+      # Fit logistic regression model
+      fit <- tryCatch({
+        formula <- as.formula(paste(outcome, "~", paste(model_vars, collapse = " + ")))
+        glm(formula, data = data, family = binomial())
+      }, error = function(e) {
+        warning(sprintf("Model fitting failed for %s: %s", model_name, e$message))
+        return(NULL)
+      })
+
+      if (is.null(fit)) next
+
+      # Create ROC object from predicted probabilities
+      roc_obj <- tryCatch({
+        pROC::roc(data[[outcome]], fit$fitted.values, ci = TRUE)
+      }, error = function(e) {
+        warning(sprintf("ROC analysis failed for %s: %s", model_name, e$message))
+        return(NULL)
+      })
+
+      if (is.null(roc_obj)) next
+
+      roc_list[[model_name]] <- roc_obj
+
+      # Calculate performance metrics
+      coords_result <- tryCatch({
+        pROC::coords(
+          roc_obj,
+          x = "best",
+          ret = c("threshold", "sensitivity", "specificity"),
+          best.method = "youden"
+        )
+      }, error = function(e) {
+        warning(sprintf("Coordinate calculation failed for %s: %s", model_name, e$message))
+        return(NULL)
+      })
+
+      if (is.null(coords_result)) next
+
+      optimal_cutoff <- if (is.list(coords_result)) {
+        coords_result$threshold[1]
+      } else {
+        coords_result["threshold"]
+      }
 
       auc_summary <- rbind(auc_summary, data.frame(
-        Indicator = nm,
-        AUC = roc_obj$auc,
-        Lower_CI = roc_obj$ci[1],
-        Upper_CI = roc_obj$ci[3],
-        Optimal_Cut_off = optimal_cutoff,
-        Sensitivity = sensitivity,
-        Specificity = specificity
+        predictor = model_name,
+        auc = as.numeric(roc_obj$auc),
+        lower_ci = roc_obj$ci[1],
+        upper_ci = roc_obj$ci[3],
+        optimal_cutoff = optimal_cutoff,
+        sensitivity = coords_result$sensitivity[1],
+        specificity = coords_result$specificity[1],
+        stringsAsFactors = FALSE
       ))
     }
   }
 
-  # ---------- 颜色 ----------
-  if(length(cols)==0){
-    cols <- grDevices::colors()[grep("gr(a|e)y|white", grDevices::colors(), invert = TRUE)]
-    cols <- sample(cols, length(roc_list))
-  }
+  # ---- Generate ROC plot ----
+  if (length(roc_list) > 0) {
+    # Generate colors if not provided
+    if (is.null(colors)) {
+      available_colors <-  ggsci::pal_npg("nrc")(10)
+      colors <- sample(available_colors, length(roc_list))
+    }
+    # Order by AUC (descending)
+    aucs <- sapply(roc_list, function(r) r$auc)
+    plot_order <- order(aucs, decreasing = TRUE)
 
-  # ---------- 画图 ----------
-  aucs <- sapply(roc_list, function(r) r$auc)
-  plot_order <- order(aucs, decreasing = TRUE)
-
-  # 保存为 TIFF 格式
-  tiff(file, width = width, height = height, units = "px", bg = "white", res = res)
-  first <- TRUE
-  for (i in plot_order) {
-    if (first) {
-      plot(roc_list[[i]],
-           col = cols[i],
-           legacy.axes = TRUE,
-           xlim = c(1, 0), ylim = c(0, 1),
-           font = 2, cex = 1.4, font.lab = 2, font.axis = 2,
-           cex.lab = 1.5, cex.axis = 1.5, cex.main = 2)
-      first <- FALSE
-    } else {
-      lines(roc_list[[i]], col = cols[i])
+    # Prepare legend labels
+    plot_legend <- names(roc_list)
+    if (!is.null(legend_labels)) {
+      plot_legend <- legend_labels[plot_legend]
+      plot_legend[is.na(plot_legend)] <- names(roc_list)[is.na(plot_legend)]
     }
   }
-  plot_legend <- names(roc_list)
-  if(length(legend_map) > 0){
-    plot_legend <- legend_map[plot_legend]
-  }
-  legend("bottomright",
-         legend = plot_legend,
-         col = cols,
-         lty = 1,
-         cex = 1.2)
-  dev.off()
-
-  # 保存为 SVG 格式
-  svg_file <- gsub("\\.tiff$", ".svg", file)
-  svg(svg_file, width = width / res, height = height / res)
-  first <- TRUE
-  for (i in plot_order) {
-    if (first) {
-      plot(roc_list[[i]],
-           col = cols[i],
-           legacy.axes = TRUE,
-           xlim = c(1, 0), ylim = c(0, 1),
-           font = 2, cex = 1.4, font.lab = 2, font.axis = 2,
-           cex.lab = 1.5, cex.axis = 1.5, cex.main = 2)
-      first <- FALSE
-    } else {
-      lines(roc_list[[i]], col = cols[i])
-    }
-  }
-  legend("bottomright",
-         legend = plot_legend,
-         col = cols,
-         lty = 1,
-         cex = 1.2)
-  dev.off()
-
-  # ---------- DeLong 两两比较 ----------
-  if (DeLong) {
-    delong_res <- list()
+  # legend with auc
+  plot_legend_with_auc <- sprintf("%s (AUC=%.3f)",
+                               plot_legend[plot_order],
+                               as.numeric(sapply(roc_list[plot_order], function(x) x$auc)))
+  # ---- Perform DeLong test if requested ----
+  delong_results <- NULL
+  if (delong_test && length(roc_list) > 1) {
+    delong_results <- list()
     keys <- names(roc_list)
     n <- length(keys)
+
     for (i in seq_len(n - 1)) {
       for (j in (i + 1):n) {
-        test <- pROC::roc.test(roc_list[[keys[i]]],
-                               roc_list[[keys[j]]],
-                               method = "delong")
-        delong_res[[paste(keys[i], "vs", keys[j])]] <- data.frame(
-          Comparison = paste(keys[i], "vs", keys[j]),
-          AUC1 = as.numeric(pROC::auc(roc_list[[keys[i]]])),
-          AUC2 = as.numeric(pROC::auc(roc_list[[keys[j]]])),
-          Difference = as.numeric(pROC::auc(roc_list[[keys[i]]])) -
+        test <- tryCatch({
+          pROC::roc.test(roc_list[[keys[i]]], roc_list[[keys[j]]], method = "delong")
+        }, error = function(e) {
+          warning(sprintf("DeLong test failed for %s vs %s: %s", keys[i], keys[j], e$message))
+          return(NULL)
+        })
+
+        if (is.null(test)) next
+
+        delong_results[[paste(keys[i], "vs", keys[j])]] <- data.frame(
+          comparison = paste(keys[i], "vs", keys[j]),
+          auc1 = as.numeric(pROC::auc(roc_list[[keys[i]]])),
+          auc2 = as.numeric(pROC::auc(roc_list[[keys[j]]])),
+          difference = as.numeric(pROC::auc(roc_list[[keys[i]]])) -
             as.numeric(pROC::auc(roc_list[[keys[j]]])),
-          p.value = as.numeric(test$p.value),
-          Lower_CI = test$conf.int[1],
-          Upper_CI = test$conf.int[2],
-          row.names = NULL
+          p_value = as.numeric(test$p.value),
+          lower_ci = test$conf.int[1],
+          upper_ci = test$conf.int[2],
+          stringsAsFactors = FALSE
         )
       }
     }
-    delong_df <- do.call(rbind, delong_res)
-    write.csv(delong_df, file = DeLong_fp, row.names = FALSE)
+
+    if (length(delong_results) > 0) {
+      delong_results <- do.call(rbind, delong_results)
+    } else {
+      delong_results <- NULL
+    }
   }
 
-  # ---------- 打印最佳截断点 ----------
-  for (i in names(roc_list)) {
-    roc_obj <- roc_list[[i]]
-    coords_result <- pROC::coords(
-      roc_obj,
-      x = "best",
-      ret = c("threshold", "sensitivity", "specificity"),
-      best.method = "youden"
-    )
-
-    optimal_cutoff <- if (is.list(coords_result)) {
-      coords_result$threshold[1]
-    } else {
-      coords_result["threshold"]
+  # ---- Save results if requested ----
+  if (save_format != "none" && !is.null(output_dir)) {
+    if (!dir.exists(output_dir)) {
+      dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
     }
 
-    cat(sprintf("Indicator: %s\n", i))
-    cat(sprintf("  Optimal Cut-off: %.3f\n", optimal_cutoff))
-    cat(sprintf("  Sensitivity: %.3f\n", coords_result$sensitivity[1]))
-    cat(sprintf("  Specificity: %.3f\n", coords_result$specificity[1]))
-    cat("\n")
+    timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
+
+    if (save_format %in% c("data", "all")) {
+      # Save AUC summary
+      auc_file <- file.path(output_dir, sprintf("roc_auc_summary_%s.csv", timestamp))
+      write.csv(auc_summary, auc_file, row.names = FALSE)
+      saved_files <- c(saved_files, auc_file)
+
+      # Save DeLong test results
+      if (!is.null(delong_results)) {
+        delong_file <- file.path(output_dir, sprintf("roc_delong_test_%s.csv", timestamp))
+        write.csv(delong_results, delong_file, row.names = FALSE)
+        saved_files <- c(saved_files, delong_file)
+      }
+    }
+
+    if (save_format %in% c("plot", "all") && length(roc_list) > 0) {
+      # Save plots
+      tiff_file <- file.path(output_dir, sprintf("roc_curve_%s.tiff", timestamp))
+      svg_file <- file.path(output_dir, sprintf("roc_curve_%s.svg", timestamp))
+
+      # Save TIFF
+      grDevices::tiff(tiff_file, width = plot_width, height = plot_height,
+                     units = "px", bg = "white", res = plot_res)
+
+      first <- TRUE
+      for (i in plot_order) {
+        if (first) {
+          pROC::plot.roc(roc_list[[i]],
+                         col = colors[i],
+                         legacy.axes = TRUE,
+                         xlab = "1 - Specificity",
+                         ylab = "Sensitivity",
+                         font = 2, cex = 1.4, font.lab = 2, font.axis = 2,
+                         cex.lab = 1.5, cex.axis = 1.5, cex.main = 2)
+          first <- FALSE
+        } else {
+          pROC::lines.roc(roc_list[[i]], col = colors[i])
+        }
+      }
+      graphics::legend("bottomright",
+                      legend = plot_legend_with_auc,
+                      col = colors[plot_order],
+                      lty = 1,
+                      cex = 1.2)
+      grDevices::dev.off()
+      print(plot_legend_with_auc)
+
+      # Save SVG
+      grDevices::svg(svg_file, width = plot_width / plot_res, height = plot_height / plot_res)
+      first <- TRUE
+      for (i in plot_order) {
+        if (first) {
+          pROC::plot.roc(roc_list[[i]],
+                         col = colors[i],
+                         legacy.axes = TRUE,
+                         xlab = "1 - Specificity",
+                         ylab = "Sensitivity",
+                         font = 2, cex = 1.4, font.lab = 2, font.axis = 2,
+                         cex.lab = 1.5, cex.axis = 1.5, cex.main = 2)
+          first <- FALSE
+        } else {
+          pROC::lines.roc(roc_list[[i]], col = colors[i])
+        }
+      }
+      graphics::legend("bottomright",
+                      legend = plot_legend_with_auc,
+                      col = colors[plot_order],
+                      lty = 1,
+                      cex = 1.2)
+      grDevices::dev.off()
+
+      saved_files <- c(saved_files, tiff_file, svg_file)
+    }
   }
 
-  # ---------- 返回对象 ----------
-  list(roc_list = roc_list, auc_summary = auc_summary)
+  # ---- Print optimal cutoff information ----
+  if (nrow(auc_summary) > 0) {
+    message("Optimal Cutoff Points:")
+    for (i in 1:nrow(auc_summary)) {
+      message(sprintf("  %s: cutoff = %.3f, sensitivity = %.3f, specificity = %.3f",
+                     auc_summary$predictor[i],
+                     auc_summary$optimal_cutoff[i],
+                     auc_summary$sensitivity[i],
+                     auc_summary$specificity[i]))
+    }
+  }
+
+  # ---- Return structured results ----
+  return(list(
+    roc_objects = roc_list,
+    auc_summary = auc_summary,
+    delong_test = delong_results,
+    saved_files = if (length(saved_files) > 0) saved_files else NULL,
+    call = match.call()
+  ))
 }
+
+
+########test
+# result <- roc_analysis(
+#   data = mtcars,
+#   outcome = "vs",
+#   predictors = c("mpg", "wt", "disp"),
+#   combined_models = list(Combined = c("mpg", "wt")),
+#   output_dir = "./test_output",
+#   save_format = "all",
+#   delong_test = TRUE,
+#   direction = "auto"
+# )

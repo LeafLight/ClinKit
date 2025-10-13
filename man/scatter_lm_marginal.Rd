@@ -2,7 +2,7 @@
 % Please edit documentation in R/09_plot_utils.R
 \name{scatter_lm_marginal}
 \alias{scatter_lm_marginal}
-\title{带边缘密度/直方图与回归方程的散点图（增强版）}
+\title{Scatter Plot with Marginal Density/Histogram and Regression Equation (Enhanced Version)}
 \usage{
 scatter_lm_marginal(
   data,
@@ -20,39 +20,39 @@ scatter_lm_marginal(
 )
 }
 \arguments{
-\item{data}{数据框，必须包含 x、y 及可选 color 分组变量}
+\item{data}{Data frame, must contain x, y and optional color grouping variable}
 
-\item{x, y}{字符标量，变量名}
+\item{x, y}{Character scalars, variable names}
 
-\item{digits}{方程/统计量小数位，默认 3（已由 stat_poly_eq 控制）}
+\item{digits}{Decimal places for equation/statistics, default 3 (controlled by stat_poly_eq)}
 
-\item{label.x, label.y}{弃用，保留参数位以便兼容旧接口}
+\item{label.x, label.y}{Deprecated, kept for backward compatibility}
 
-\item{color}{字符标量，分组变量名；NULL 时无分组}
+\item{color}{Character scalar, grouping variable name; NULL for no grouping}
 
-\item{marginal}{边缘图类型，固定为 "densigram"}
+\item{marginal}{Marginal plot type, fixed as "densigram"}
 
-\item{bins}{直方图分箱数，透传给 ggExtra::ggMarginal}
+\item{bins}{Number of histogram bins, passed to ggExtra::ggMarginal}
 
-\item{margin_fill, margin_color}{边缘图填充色/边框色}
+\item{margin_fill, margin_color}{Fill color and border color for marginal plots}
 
-\item{...}{额外美学参数，透传给 geom_point()}
+\item{...}{Additional aesthetic parameters passed to geom_point()}
 }
 \value{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{    ggplot 对象（含边缘图层），可继续 + 主题或保存
+\if{html}{\out{<div class="sourceCode">}}\preformatted{    ggplot object (with marginal layers), can be further customized with + or saved
 }\if{html}{\out{</div>}}
 }
 \description{
-主图：散点 + 线性回归线 + 自动标注方程、R²、p 值（ggpmisc::stat_poly_eq）。
-边缘：双侧 densigram（密度+直方图混合），支持分组着色。
-颜色逻辑：无 color 时统一配色；有 color 时按分组变量自动着色并隐藏图例。
+Main plot: scatter points + linear regression line + automatic annotation of equation, R², p value (ggpmisc::stat_poly_eq).
+Marginal plots: bilateral densigram (density + histogram mix), supports grouping colors.
+Color logic: uniform color when no color grouping; automatic coloring by group variable with hidden legend when color specified.
 }
 \details{
 \itemize{
-\item 使用 ggpmisc::stat_poly_line() + stat_poly_eq() 自动添加回归线及方程
-\item 边缘图为 densigram（密度+直方图），支持分组颜色/填充
-\item 无分组时统一 \verb{#479E88} 颜色；有分组时调用 scale_color_npg() 并隐藏图例
-\item 返回对象已含边缘图层，可直接 ggsave()
+\item Uses ggpmisc::stat_poly_line() + stat_poly_eq() to automatically add regression line and equation
+\item Marginal plots are densigram (density + histogram), supports group colors/fill
+\item Uniform color \verb{#479E88} when no grouping; uses scale_color_npg() with hidden legend when grouping
+\item Returned object already includes marginal layers, can be directly saved with ggsave()
 }
 }
 \examples{

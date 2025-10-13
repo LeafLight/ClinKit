@@ -2,66 +2,39 @@
 % Please edit documentation in R/02_multivariable.R
 \name{run_multivariable_multinomial_logistic_regression}
 \alias{run_multivariable_multinomial_logistic_regression}
-\title{连续变量多分类 Logistic 回归批量分析}
+\title{Multivariable Multinomial Logistic Regression Analysis}
 \usage{
 run_multivariable_multinomial_logistic_regression(
   data,
-  all_index,
-  all_outcomes,
+  outcomes,
+  predictors,
   models_list,
   ref_level = NULL,
-  output_docx = "continuous_multinomial_results.docx"
+  output_dir = NULL,
+  save_format = c("none", "docx", "csv")
 )
 }
 \arguments{
-\item{data}{\code{data.frame}，必须包含结局变量、预测变量及所有协变量}
+\item{data}{Data frame containing all variables}
 
-\item{all_index}{字符向量，指定需要分析的连续预测变量名}
+\item{outcomes}{Character vector of outcome variable names}
 
-\item{all_outcomes}{字符向量，指定多分类结局变量名（可多个）；函数会将其转为因子}
+\item{predictors}{Character vector of continuous predictor variable names}
 
-\item{models_list}{命名列表，长度 3，依次给出 Model2/3/4 的协变量。
-示例：\code{list(model2 = c("age","sex"), model3 = c("bmi"), model4 = c("LDL"))}}
+\item{models_list}{Named list of length 3 with covariates for model2, model3, model4}
 
-\item{ref_level}{字符标量，可手动指定多分类结局的参照水平；默认 NULL（按因子默认第一水平）}
+\item{ref_level}{Reference level for multinomial outcome (optional)}
 
-\item{output_docx}{输出 Word 文件名（含路径），默认 \code{"continuous_multinomial_results.docx"}}
+\item{output_dir}{Output directory (optional)}
+
+\item{save_format}{Save format: "none", "docx", "csv" (default "none")}
 }
 \value{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{         \code{data.frame}，包含 Outcome/Level/Index/Model/Comparison/OR/95\%CI/P-value
-                 同时把三线表写入指定 Word 文件（invisible 返回）
-}\if{html}{\out{</div>}}
+List containing results data frame and optional saved file paths
 }
 \description{
-对连续预测变量（无需分组）直接拟合：
-① Model1（单因素）
-② Model2/3/4（依次叠加协变量）
-计算每单位增加的 OR、95\%CI 及 P 值，并进行多分类趋势检验。
-结果汇总为可发表的三线表并写入 Word。
-}
-\details{
-\enumerate{
-\item 预测变量保持连续，不切割，解释为单位增量下的 OR
-\item 所有模型均使用 \code{nnet::multinom()} 拟合，OR 及 95\%CI 通过 \code{broom::tidy(exponentiate = TRUE)} 提取
-\item Word 表使用 \code{flextable} 绘制，可直接用于论文或补充材料
-}
-}
-\examples{
-\dontrun{
-models <- list(
-  model2 = c("age", "sex"),
-  model3 = c("bmi", "smoke"),
-  model4 = c("sbp", "ldl")
-)
-
-res <- run_multivariable_multinomial_logistic_regression(
-  data         = mydata,
-  all_index    = c("PIV", "SIRI"),
-  all_outcomes = "stroke_subtype",   # 三分类变量
-  models_list  = models,
-  ref_level    = "normal",
-  output_docx  = "Table_Continuous_Multi.docx"
-)
-}
-
+Fits multinomial logistic regression models for continuous predictors:
+① Model1 (unadjusted)
+② Model2/3/4 (sequentially adding covariates)
+Calculates OR, 95\% CI and P-value per unit increase.
 }

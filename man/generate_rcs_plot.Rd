@@ -2,42 +2,39 @@
 % Please edit documentation in R/03_rcs.R
 \name{generate_rcs_plot}
 \alias{generate_rcs_plot}
-\title{RCS 逻辑回归 + 图}
+\title{Restricted Cubic Splines (RCS) Logistic Regression with Plot}
 \usage{
 generate_rcs_plot(
+  data,
   outcome,
   predictor,
-  data,
-  output_folder,
-  models = covariates,
-  use_model = FALSE,
+  covariates = NULL,
+  knots = 4,
+  output_dir = NULL,
+  save_format = c("none", "tiff", "svg", "pdf", "all"),
   filename = NULL
 )
 }
 \arguments{
-\item{outcome}{结局变量名}
+\item{data}{Data frame containing all variables}
 
-\item{predictor}{连续预测变量名}
+\item{outcome}{Outcome variable name}
 
-\item{data}{数据框}
+\item{predictor}{Continuous predictor variable name for RCS}
 
-\item{output_folder}{输出目录}
+\item{covariates}{Covariates for adjusted model (optional)}
 
-\item{models}{协变量向量，默认 NULL}
+\item{knots}{Number of knots for RCS (default 4)}
 
-\item{use_model}{是否加协变量，默认 FALSE}
+\item{output_dir}{Output directory (optional)}
 
-\item{filename}{自定义文件名，默认 NULL（自动生成）}
+\item{save_format}{Save format: "none", "tiff", "svg", "pdf", "all" (default "none")}
+
+\item{filename}{Custom filename prefix (optional)}
 }
 \value{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{        列表：plot + 非线性/总体 P 值（字符 + 数值）
-}\if{html}{\out{</div>}}
+List containing plot object, p-values, and optional saved file paths
 }
 \description{
-RCS 逻辑回归 + 图
-}
-\examples{
-\dontrun{
-generate_rcs_plot("death", "SIRI", data, "./RCS")
-}
+Fits RCS logistic regression models and generates publication-ready plots
 }

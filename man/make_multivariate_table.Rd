@@ -2,7 +2,7 @@
 % Please edit documentation in R/02_multivariable.R
 \name{make_multivariate_table}
 \alias{make_multivariate_table}
-\title{批量多因素结果 -> Word 三线表}
+\title{Create Multivariate Analysis Table}
 \usage{
 make_multivariate_table(
   raw_df,
@@ -12,21 +12,17 @@ make_multivariate_table(
 )
 }
 \arguments{
-\item{raw_df}{原始数据框，一行一个分析结果，18 列。}
+\item{raw_df}{Results data frame from multivariable analysis}
 
-\item{out_file}{输出的 docx 文件名；若为 NULL，则返回 flextable 对象。}
+\item{out_file}{Output Word file path (optional)}
 
-\item{caption}{表格标题}
+\item{caption}{Table caption}
 
-\item{merge_predictor}{是否纵向合并相同的 Predictor 单元格（TRUE=合并）}
+\item{merge_predictor}{Merge identical predictor cells vertically (default TRUE)}
 }
 \value{
-若无 out_file，返回 flextable 对象；否则写入磁盘并返回 NULL（invisible）。
+If out_file is NULL, returns flextable object; otherwise writes to file and returns NULL
 }
 \description{
-批量多因素结果 -> Word 三线表
-}
-\examples{
-# make_multivariate_table(my_raw, "table1.docx")
-
+Create Multivariate Analysis Table
 }

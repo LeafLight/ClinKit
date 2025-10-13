@@ -3,38 +3,45 @@ Title: What the Package Does (One Line, Title Case)
 Version: 0.0.0.9
 Authors@R: 
     person("Hualin", "Wang", , "wanghualin@stu.njmu.edu.cn", role = c("aut", "cre"))
-Description: A comprehensive, opinionated toolkit for routine clinical analyses. Provides one-click functions for univariate/multivariable logistic or multinomial regression, restricted cubic splines, quartile-based analyses, ROC curves, forest plots, interaction testing, baseline tables, and publication-ready figures. All outputs (tables, figures, Word reports) are generated automatically with sensible defaults and minimal boilerplate code.
+Description: A comprehensive, opinionated toolkit for routine clinical
+    analyses. Provides one-click functions for univariate/multivariable
+    logistic or multinomial regression, restricted cubic splines,
+    quartile-based analyses, ROC curves, forest plots, interaction
+    testing, baseline tables, and publication-ready figures. All outputs
+    (tables, figures, Word reports) are generated automatically with
+    sensible defaults and minimal boilerplate code.
 License: MIT + file LICENSE
+URL: https://github.com/leaflight/ClinKit
+BugReports: https://github.com/leaflight/ClinKit/issues
+Depends: 
+    R (>= 4.1.0)
+Imports:
+    broom,
+    dplyr,
+    flextable,
+    ggExtra,
+    ggplot2,
+    ggpmisc,
+    ggprism,
+    ggsci,
+    glue,
+    gtsummary,
+    interactionR,
+    nnet,
+    officer,
+    pROC,
+    purrr,
+    rlang,
+    rms,
+    stats,
+    tibble,
+    tidyr,
+    tidyselect,
+    utils
+Suggests:
+    pkgdown,
+    testthat (>= 3.0.0)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
-Depends: 
-  R (>= 4.1.0)
-Imports:
-    dplyr,
-    broom,
-    ggplot2,
-    ggpmisc,
-    ggExtra,
-    flextable,
-    officer,
-    rms,
-    nnet,
-    pROC,
-    interactionR,
-    rlang,
-    glue,
-    purrr,
-    tibble,
-    tidyr,
-    ggsci,
-    ggprism,
-    utils,
-    stats,
-    gtsummary,
-    tidyselect
-Suggests:
-  testthat (>= 3.0.0),
-  pkgdown
-URL: https://github.com/leaflight/ClinKit
-BugReports: https://github.com/leaflight/ClinKit/issues
+Config/testthat/edition: 3
