@@ -1,11 +1,40 @@
 Package: ClinKit
 Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Version: 0.0.0.9
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+    person("Hualin", "Wang", , "wanghualin@stu.njmu.edu.cn", role = c("aut", "cre"))
+Description: A comprehensive, opinionated toolkit for routine clinical analyses. Provides one-click functions for univariate/multivariable logistic or multinomial regression, restricted cubic splines, quartile-based analyses, ROC curves, forest plots, interaction testing, baseline tables, and publication-ready figures. All outputs (tables, figures, Word reports) are generated automatically with sensible defaults and minimal boilerplate code.
+License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
+Depends: 
+  R (>= 4.1.0)
+Imports:
+    dplyr,
+    broom,
+    ggplot2,
+    ggpmisc,
+    ggExtra,
+    flextable,
+    officer,
+    rms,
+    nnet,
+    pROC,
+    interactionR,
+    rlang,
+    glue,
+    purrr,
+    tibble,
+    tidyr,
+    ggsci,
+    ggprism,
+    utils,
+    stats,
+    gtsummary,
+    tidyselect
+Suggests:
+  testthat (>= 3.0.0),
+  pkgdown
+URL: https://github.com/leaflight/ClinKit
+BugReports: https://github.com/leaflight/ClinKit/issues
