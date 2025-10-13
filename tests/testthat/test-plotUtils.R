@@ -1,0 +1,9 @@
+library(ClinKit)
+library(testthat)
+test_that("plot utils works", {
+  tmp_fp <- withr::local_tempdir()
+  out_file <- file.path(tmp_fp, "1.tiff")
+  p <- scatter_lm_marginal(mtcars, "disp", "cyl")
+  ggsave(out_file,p, width = 10, height = 10)
+  expect_true(file.exists(out_file))
+})

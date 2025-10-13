@@ -21,6 +21,11 @@ generate_rcs_plot <- function(data,
                              output_dir = NULL,
                              save_format = c("none", "tiff", "svg", "pdf", "all"),
                              filename = NULL) {
+  if (!is.null(output_dir) && nzchar(output_dir)) {
+  output_dir <- normalizePath(output_dir, mustWork = FALSE)
+  dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+  if (!dir.exists(output_dir)) stop("Cannot create output_dir: ", output_dir)
+}
 
   # Parameter validation
   save_format <- match.arg(save_format)
@@ -65,30 +70,38 @@ generate_rcs_plot <- function(data,
 
   # Fit model
   fit <- tryCatch({
-    rms::lrm(formula, data = data_complete)
+    model_fit <- rms::lrm(formula, data = data_complete)
+    message("Model fitting successfully")
+    model_fit
   }, error = function(e) {
+    message("Model fitting failed",  e$message)
     stop("Model fitting failed: ", e$message)
   })
 
   # Generate predictions
+  print(formula)
+  print(fit)
   predictions <- tryCatch({
-    rms::Predict(fit, name = predictor, fun = exp, type = "predictions",
+    model_prediction <- rms::Predict(fit, name = predictor,fun = exp, type = "predictions",
                  conf.int = 0.95, digits = 2, ref.zero = TRUE)
+    message("Prediction generation successfully")
+     model_prediction
   }, error = function(e) {
+    message("Prediction generation failed")
     stop("Prediction generation failed: ", e$message)
   })
 
   # ANOVA for p-values
   anova_table <- anova(fit)
-  p_nl <- format_p_value(anova_table[2, 3])
-  p_oa <- format_p_value(anova_table[1, 3])
+  p_nl <- format_p_value(anova_table[2, 3], name = "p for nonlinear")
+  p_oa <- format_p_value(anova_table[1, 3], name = "p for overall")
 
   # Create plot
   p <- ggplot2::ggplot() +
     ggplot2::geom_line(
       data = predictions,
       ggplot2::aes(x = !!sym(predictor), y = yhat, color = "Prediction"),
-      linetype = "solid", size = 1, alpha = 0.9
+      linetype = "solid", linewidth = 1, alpha = 0.9
     ) +
     ggplot2::geom_ribbon(
       data = predictions,
@@ -97,7 +110,7 @@ generate_rcs_plot <- function(data,
     ) +
     ggplot2::scale_color_manual(values = c("Prediction" = "#d63031")) +
     ggplot2::scale_fill_manual(values = c("Confidence Interval" = "#e17055")) +
-    ggplot2::geom_hline(yintercept = 1, linetype = 2, size = 1) +
+    ggplot2::geom_hline(yintercept = 1, linetype = 2, linewidth = 1) +
     ggplot2::theme_classic() +
     ggplot2::theme(
       axis.text = ggplot2::element_text(size = 12),
@@ -192,13 +205,12 @@ generate_rcs_plot <- function(data,
   ))
 }
 
-#' Format P-value (Internal)
-#' @keywords internal
-format_p_value <- function(p_value) {
-  if (is.na(p_value)) return("NA")
-  if (p_value < 0.001) return("<0.001")
-  return(sprintf("%.3f", p_value))
-}
+
+# format_p_value <- function(p_value) {
+#   if (is.na(p_value)) return("NA")
+#   if (p_value < 0.001) return("<0.001")
+#   return(sprintf("%.3f", p_value))
+# }
 
 #' Batch RCS Analysis
 #'
@@ -365,13 +377,13 @@ run_analysis_rcs <- function(data,
   ))
 }
 
-
-# 保存所有结果
+# data(package = "survival", cancer)
+# # 保存所有结果
 # results <- run_analysis_rcs(
 #   data = colon,
 #   predictors = c("nodes"),
 #   outcomes = c("status"),
 #   covariates = c("sex", "age"),
-#   output_dir = "./test_output/rcs",
+#   output_dir = "test_output/rcs",
 #   save_format = "all"
 # )

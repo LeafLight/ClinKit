@@ -166,7 +166,8 @@ scatter_lm_marginal <- function(data, x, y,
                           bins = 15,
                           margin_fill = "grey60",
                           margin_color = "white", ...) {
-
+  library(ggplot2)
+  library(ggpmisc)
   # ---- 0. Convert strings to symbols ----
   x_sym <- sym(x)
   y_sym <- sym(y)
@@ -204,8 +205,8 @@ scatter_lm_marginal <- function(data, x, y,
     # With color grouping
     p_main <- ggplot(data, aes(!!x_sym, !!y_sym, color = !!sym(color))) +
       geom_point(alpha = 0.5, na.rm = TRUE) +
-      stat_poly_line(formula = y ~ x) +
-      stat_poly_eq(
+      ggpmisc::stat_poly_line(formula = y ~ x) +
+      ggpmisc::stat_poly_eq(
         aes(label = paste(..eq.label.., ..rr.label.., ..p.value.label.., sep = "*\", \"*")),
         formula = y ~ x,
         parse = TRUE
@@ -224,6 +225,6 @@ scatter_lm_marginal <- function(data, x, y,
                      groupFill = TRUE,
                      alpha = 0.4)
 }
-#p<-scatter_lm_marginal(mtcars, "disp", "cyl")
-#ggsave("./test_output/1.tiff",p, width = 10, height = 10)
-#facet_violin(mtcars, "disp", "gear")
+# p<-scatter_lm_marginal(mtcars, "disp", "cyl")
+# ggsave("./test_output/1.tiff",p, width = 10, height = 10)
+# facet_violin(mtcars, "disp", "gear")

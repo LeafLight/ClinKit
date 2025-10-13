@@ -146,22 +146,19 @@ highlow_analysis <- function(
   # ---- 6. Additive interaction analysis ----
   interaction_result <- NULL
   if (!is.null(mods$Model4)) {
-    interaction_result <- tryCatch({
+
       int_mod <- glm(
         stats::as.formula(paste0(outcome, " ~ A_bin * B_bin + ",
                                 paste(c(model2, model3, model4), collapse = " + "))),
         data = data_processed, family = binomial
       )
 
-      interactionR::interactionR(
+      interaction_result <- interactionR::interactionR(
         int_mod,
         exposure_names = c("A_bin", "B_bin"),
         ci.type = "mover", ci.level = 0.95, em = FALSE, recode = recode
       )
-    }, error = function(e) {
-      warning("Interaction analysis failed: ", e$message)
-      return(NULL)
-    })
+
   }
 
   # ---- 7. Save results if requested ----
@@ -174,6 +171,7 @@ highlow_analysis <- function(
 
     if (save_format %in% c("docx", "all")) {
       # Save main results table
+      print(table_results)
       if (nrow(table_results) > 0) {
         main_file <- file.path(output_dir, sprintf("%s_main_%s.docx", filename_base, timestamp))
         save_highlow_table(table_results, main_file, "Joint Association Analysis")
@@ -182,9 +180,10 @@ highlow_analysis <- function(
 
       # Save interaction results
       if (!is.null(interaction_result)) {
-        int_file <- file.path(output_dir, sprintf("%s_interaction_%s.docx", filename_base, timestamp))
+        int_file <- file.path(output_dir, sprintf("%s_interaction", filename_base))
+        dir.create(file.path(output_dir,"%s_interaction"))
         save_interaction_table(interaction_result, int_file)
-        saved_files <- c(saved_files, int_file)
+        saved_files <- c(saved_files,  paste0(int_file, "\\interaction.docx", collapse = ""))
       }
     }
 
@@ -236,6 +235,6 @@ save_interaction_table <- function(interaction_result, file_path) {
       if(is.numeric(x)) round(x, 4) else x
     })
   )
-
+print(file_path)
   interactionR::interactionR_table(interaction_result, p.value = TRUE, file_path = file_path)
 }

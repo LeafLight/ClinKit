@@ -92,7 +92,7 @@ make_baseline_table <- function(
 
   # 4. Determine statistics format based on normality
   statistic_list <- list(
-    all_categorical() ~ "{n} ({p}%)"
+    gtsummary::all_categorical() ~ "{n} ({p}%)"
   )
 
   # Add continuous variables with appropriate statistics
@@ -125,8 +125,8 @@ make_baseline_table <- function(
       statistic = statistic_list,
       missing = "no",
       digits = list(
-        all_continuous()  ~ cont_digits,
-        all_categorical() ~ c(0, pct_digits)
+        gtsummary::all_continuous()  ~ cont_digits,
+        gtsummary::all_categorical() ~ c(0, pct_digits)
       )
     ) %>%
     gtsummary::add_p() %>%

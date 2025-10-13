@@ -230,6 +230,7 @@ for (outcome in outcomes) {
 #' Save Quartile Results Table (Internal)
 #' @keywords internal
 save_quartile_table <- function(results, file_path) {
+  # nocov start
   if (!requireNamespace("flextable", quietly = TRUE) ||
       !requireNamespace("officer", quietly = TRUE)) {
     stop("Please install.packages('flextable') and install.packages('officer')")
@@ -261,6 +262,7 @@ save_quartile_table <- function(results, file_path) {
   officer::read_docx() %>%
     flextable::body_add_flextable(ft) %>%
     print(target = file_path)
+  # nocov end
 }
 
 #' Quartile-based Multinomial Logistic Regression Analysis

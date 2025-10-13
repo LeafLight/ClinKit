@@ -1,0 +1,2 @@
+"predictor","outcome","covariates","p_nonlinear","p_overall","n_observations"
+"mpg","vs","gear, hp",0.435710950456376,0.519835013299199,32

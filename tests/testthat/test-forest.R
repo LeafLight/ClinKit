@@ -1,0 +1,52 @@
+library(ClinKit)
+library(testthat)
+test_that("forest works", {
+    data(cancer, package = "survival")
+    out <- subgroup_forest(
+      data = colon,
+      outcome = "status",
+      exposure = "nodes",
+      subgroups = c("sex", "adhere", "rx"),
+      covariates = c("age"),
+      output_dir = "./test_output",
+      save_format = "all",
+      CI_title = "OR(95% CI)"
+    )
+    expect_true(all(file.exists(out$saved_files)))
+})
+test_that("forest theme works", {
+    data(cancer, package = "survival")
+    out <- subgroup_forest(
+      data = colon,
+      outcome = "status",
+      exposure = "nodes",
+      subgroups = c("sex", "adhere", "rx"),
+      covariates = c("age"),
+      output_dir = "./test_output",
+      save_format = "all",
+      CI_title = "OR(95% CI)",
+      tm = "cyan"
+    )
+    expect_true(all(file.exists(out$saved_files)))
+    data(cancer, package = "survival")
+    out <- subgroup_forest(
+      data = colon,
+      outcome = "status",
+      exposure = "nodes",
+      subgroups = c("sex", "adhere", "rx"),
+      covariates = c("age"),
+      output_dir = "./test_output",
+      save_format = "all",
+      CI_title = "OR(95% CI)",
+      tm = tm_green(base_size = 20)
+    )
+    expect_true(all(file.exists(out$saved_files)))
+
+    tm <- tm_default(base_size = 20, background_levels = c(1, 2, 1, 2, 1))
+    expect_true(is.list(tm))
+})
+
+test_that("create font config works",{
+fc <- setup_font_config("STIX Two Math")
+expect_true(file.exists(fc))
+})

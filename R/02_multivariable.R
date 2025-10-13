@@ -196,7 +196,7 @@ run_multivariable_logistic_regression <- function(data,
 #' Save Multivariable Analysis Results (Internal)
 #' @keywords internal
 save_multivariable_result <- function(result, output_dir, format, predictor, outcome_name) {
-
+# nocov start
   if (!dir.exists(output_dir)) {
     dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
   }
@@ -229,6 +229,7 @@ save_multivariable_result <- function(result, output_dir, format, predictor, out
   }
 
   return(filename)
+  # nocov end
 }
 
 
@@ -520,6 +521,7 @@ predictor_results <- tidy_result %>%
 #' Save Multinomial Results Table (Internal)
 #' @keywords internal
 save_multinomial_table <- function(results, file_path) {
+  # nocov start
   if (!requireNamespace("flextable", quietly = TRUE) ||
       !requireNamespace("officer", quietly = TRUE)) {
     stop("Please install.packages('flextable') and install.packages('officer')")
@@ -550,4 +552,5 @@ save_multinomial_table <- function(results, file_path) {
   officer::read_docx() %>%
     flextable::body_add_flextable(ft) %>%
     print(target = file_path)
+  # nocov end
 }

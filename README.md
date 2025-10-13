@@ -2,6 +2,7 @@
 # ClinKit
 
 <!-- badges: start -->
+[![Codecov test coverage](https://codecov.io/gh/LeafLight/ClinKit/graph/badge.svg)](https://app.codecov.io/gh/LeafLight/ClinKit)
 <!-- badges: end -->
 
 The goal of ClinKit is to ...

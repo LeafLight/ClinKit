@@ -150,8 +150,13 @@ subgroup_forest <- function(data,
       )
     final_data[is.na(final_data$`OR(95%CI)`), "OR(95%CI)"] <- " "
   }
+  if(is.character(tm)){
   if(tm %in% c("blue", "green", "cyan")) {
     tm <- get_forest_theme(tm, background_levels = generate_background_levels(final_data))
+  }
+  }
+  else if(!is.list(tm)){
+     tm <- "default"
   }
   # Make Forest Plot ####
   forest_plot <- NULL
@@ -229,11 +234,16 @@ setup_font_config <- function(math_font = NULL, ensure_italic_p = TRUE) {
   if (is.null(math_font)) {
     math_font <- "STIX Two Math"
   }
-  # check the availablity of font
-  if (!sysfonts::font_families() %>% grepl(math_font, .) %>% any()) {
-    warning("Math font '", math_font, "' not found. Using system default.")
-    return(NULL)
-  }
+  # # check the availablity of font
+  #
+  # if (!extrafont::fonts() %>% grepl(math_font, .) %>% any()) {
+  #   warning("Math font '", math_font, "' not found.")
+  #   extrafont::font_import()
+  #    if (!extrafont::fonts() %>% grepl(math_font, .) %>% any()) {
+  #        warning("Math font '", math_font, "' not found after importing.")
+  #      return(NULL)}
+  #
+  # }
 
   # creat font config
   fc <- tempfile(fileext = ".conf")
@@ -399,7 +409,7 @@ generate_background_levels <- function(forest_data) {
   levels <- numeric(nrow(forest_data))
   data_row_counter <- 0  # calculate row of data
 
-  for (i in 1:nrow(forest_dsata)) {
+  for (i in 1:nrow(forest_data)) {
     if (i == 1) {
       levels[i] <- 1  # first row
     } else if (is.na(forest_data$OR[i])) {
