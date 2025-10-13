@@ -1,0 +1,25 @@
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>/404.html</loc></url>
+<url><loc>/authors.html</loc></url>
+<url><loc>/index.html</loc></url>
+<url><loc>/reference/facet_violin.html</loc></url>
+<url><loc>/reference/forForest.html</loc></url>
+<url><loc>/reference/forest_multiGLM.html</loc></url>
+<url><loc>/reference/format_p_value.html</loc></url>
+<url><loc>/reference/generate_rcs_plot.html</loc></url>
+<url><loc>/reference/highhighlowlow.html</loc></url>
+<url><loc>/reference/index.html</loc></url>
+<url><loc>/reference/interaction_table.html</loc></url>
+<url><loc>/reference/make_baseline_table.html</loc></url>
+<url><loc>/reference/make_multivariate_table.html</loc></url>
+<url><loc>/reference/quartile_logistic_analysis.html</loc></url>
+<url><loc>/reference/quartile_multinomial_analysis.html</loc></url>
+<url><loc>/reference/roc_indexes.html</loc></url>
+<url><loc>/reference/run_analysis_rcs.html</loc></url>
+<url><loc>/reference/run_multivariable_logistic_regression.html</loc></url>
+<url><loc>/reference/run_multivariable_multinomial_logistic_regression.html</loc></url>
+<url><loc>/reference/run_univariate_logistic_regression.html</loc></url>
+<url><loc>/reference/scatter_lm.html</loc></url>
+<url><loc>/reference/scatter_lm_marginal.html</loc></url>
+</urlset>
+
