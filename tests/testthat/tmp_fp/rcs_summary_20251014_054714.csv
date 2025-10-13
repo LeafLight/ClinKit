@@ -1,0 +1,3 @@
+"predictor","outcome","model_type","p_nonlinear","p_overall","p_nonlinear_str","p_overall_str","n_observations"
+"mpg","vs","unadjusted",0.62163143098978,0.177944832362416,"p for nonlinear~""=""~0.622","p for overall~""=""~0.178",32
+"mpg","vs","adjusted",0.435710950456376,0.519835013299199,"p for nonlinear~""=""~0.436","p for overall~""=""~0.52",32

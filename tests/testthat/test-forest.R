@@ -1,6 +1,7 @@
 library(ClinKit)
 library(testthat)
 test_that("forest works", {
+    tmp_fp <- withr::local_tempdir()
     data(cancer, package = "survival")
     out <- subgroup_forest(
       data = colon,
@@ -8,13 +9,14 @@ test_that("forest works", {
       exposure = "nodes",
       subgroups = c("sex", "adhere", "rx"),
       covariates = c("age"),
-      output_dir = "./test_output",
+      output_dir = tmp_fp,
       save_format = "all",
       CI_title = "OR(95% CI)"
     )
     expect_true(all(file.exists(out$saved_files)))
 })
 test_that("forest theme works", {
+    tmp_fp <- withr::local_tempdir()
     data(cancer, package = "survival")
     out <- subgroup_forest(
       data = colon,
@@ -22,7 +24,7 @@ test_that("forest theme works", {
       exposure = "nodes",
       subgroups = c("sex", "adhere", "rx"),
       covariates = c("age"),
-      output_dir = "./test_output",
+      output_dir = tmp_fp,
       save_format = "all",
       CI_title = "OR(95% CI)",
       tm = "cyan"
@@ -35,7 +37,7 @@ test_that("forest theme works", {
       exposure = "nodes",
       subgroups = c("sex", "adhere", "rx"),
       covariates = c("age"),
-      output_dir = "./test_output",
+      output_dir = tmp_fp,
       save_format = "all",
       CI_title = "OR(95% CI)",
       tm = tm_green(base_size = 20)

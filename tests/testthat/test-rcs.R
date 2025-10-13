@@ -10,7 +10,7 @@ test_that("rcs works", {
     predictors = c("mpg"),
     outcomes = c("vs"),
     covariates = c("gear", "hp"),
-    output_dir = "tmp_fp",
+    output_dir = tmp_fp,
     save_format = "all"
 )
   expect_true(all(file.exists(out$saved_files)))
