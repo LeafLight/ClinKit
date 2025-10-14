@@ -4,26 +4,14 @@
 \alias{scatter_lm}
 \title{Scatter Plot with Regression Line (Basic Version)}
 \usage{
-scatter_lm(
-  data,
-  x,
-  y,
-  digits = 3,
-  label.x = NULL,
-  label.y = NULL,
-  marginal = c("histogram", "density", "boxplot"),
-  bins = 15,
-  margin_fill = "grey60",
-  margin_color = "white",
-  ...
-)
+scatter_lm(data, x, y, digits = 3, label.x = NULL, label.y = NULL, ...)
 }
 \arguments{
 \item{data}{\code{data.frame}, must contain x and y columns}
 
 \item{x, y}{Character scalars, variable names}
 
-\item{digits}{Numeric, decimal places for R² and P value, default 3}
+\item{digits}{Numeric, decimal places for R^2 and P value, default 3}
 
 \item{label.x, label.y}{Coordinates for annotation; when NULL, automatically placed at top-left 5\% position}
 
@@ -36,7 +24,7 @@ e.g., \code{color = group, size = 2, alpha = 0.6}}
 }
 \description{
 Quickly draws X-Y scatter plot with linear regression confidence band,
-and annotates R² and P value within the plot;
+and annotates R^2 and P value within the plot;
 Supports rug plots and additional aesthetic parameters for points
 }
 \details{

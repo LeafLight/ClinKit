@@ -1,8 +1,8 @@
 #' Quartile-based Logistic Regression Analysis
 #'
 #' Analyzes continuous predictors by quartile groups, fitting:
-#' ① Model1 (unadjusted)
-#' ② Model2/3/4 (sequentially adding covariates)
+#' 1. Model1 (unadjusted)
+#' 2. Model2/3/4 (sequentially adding covariates)
 #' Calculates OR, 95% CI for Q2/Q3/Q4 vs Q1 and trend P-value.
 #'
 #' @param data Data frame containing all variables
@@ -214,7 +214,7 @@ for (outcome in outcomes) {
 
     if (save_format %in% c("csv", "all")) {
       csv_file <- file.path(output_dir, sprintf("quartile_results_%s.csv", timestamp))
-      write.csv(final_results, csv_file, row.names = FALSE)
+      utils::write.csv(final_results, csv_file, row.names = FALSE)
       saved_files <- c(saved_files, csv_file)
     }
   }
@@ -239,7 +239,7 @@ save_quartile_table <- function(results, file_path) {
   # Format data for table
   table_data <- results %>%
     dplyr::mutate(
-      `OR (95% CI)` = sprintf("%.2f (%.2f–%.2f)", OR, lower_ci, upper_ci),
+      `OR (95% CI)` = sprintf("%.2f (%.2f-%.2f)", OR, lower_ci, upper_ci),
       `P-value` = sprintf("%.3f", p_value),
       `P-trend` = sprintf("%.3f", p_trend)
     ) %>%
@@ -503,7 +503,7 @@ quartile_multinomial_analysis <- function(data,
 
     if (save_format %in% c("csv", "all")) {
       csv_file <- file.path(output_dir, sprintf("quartile_multinomial_results_%s.csv", timestamp))
-      write.csv(final_results, csv_file, row.names = FALSE)
+      utils::write.csv(final_results, csv_file, row.names = FALSE)
       saved_files <- c(saved_files, csv_file)
     }
   }
@@ -527,7 +527,7 @@ save_multinomial_quartile_table <- function(results, file_path) {
   # Format data for table
   table_data <- results %>%
     dplyr::mutate(
-      `OR (95% CI)` = sprintf("%.2f (%.2f–%.2f)", OR, lower_ci, upper_ci),
+      `OR (95% CI)` = sprintf("%.2f (%.2f-%.2f)", OR, lower_ci, upper_ci),
       `P-value` = sprintf("%.3f", p_value),
       `P-trend` = sprintf("%.3f", p_trend)
     ) %>%

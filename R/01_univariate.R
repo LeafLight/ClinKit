@@ -171,7 +171,7 @@ save_analysis_result <- function(result, output_dir, format, predictor, outcome_
     filename <- file.path(output_dir,
                          sprintf("univariate_%s_%s_%s.csv",
                                 safe_predictor, safe_outcome, timestamp))
-    write.csv(result, file = filename, row.names = FALSE, fileEncoding = "UTF-8")
+    utils::write.csv(result, file = filename, row.names = FALSE, fileEncoding = "UTF-8")
   }
 
   return(filename)

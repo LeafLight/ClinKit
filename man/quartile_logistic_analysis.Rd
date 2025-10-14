@@ -31,9 +31,11 @@ List containing results data frame and optional saved file paths
 }
 \description{
 Analyzes continuous predictors by quartile groups, fitting:
-① Model1 (unadjusted)
-② Model2/3/4 (sequentially adding covariates)
+\enumerate{
+\item Model1 (unadjusted)
+\item Model2/3/4 (sequentially adding covariates)
 Calculates OR, 95\% CI for Q2/Q3/Q4 vs Q1 and trend P-value.
+}
 }
 \examples{
 \dontrun{

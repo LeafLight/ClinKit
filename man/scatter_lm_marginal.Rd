@@ -43,7 +43,7 @@ scatter_lm_marginal(
 }\if{html}{\out{</div>}}
 }
 \description{
-Main plot: scatter points + linear regression line + automatic annotation of equation, R², p value (ggpmisc::stat_poly_eq).
+Main plot: scatter points + linear regression line + automatic annotation of equation, R^2, p value (ggpmisc::stat_poly_eq).
 Marginal plots: bilateral densigram (density + histogram mix), supports grouping colors.
 Color logic: uniform color when no color grouping; automatic coloring by group variable with hidden legend when color specified.
 }

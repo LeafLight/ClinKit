@@ -6,7 +6,7 @@
 #' @param data    Data frame
 #' @param vars    Character vector, names of indicator variables to plot
 #' @param groupby Character scalar, name of grouping variable
-#'
+#' @importFrom dplyr `%>%` mutate select filter all_of any_of
 #' @return ggplot object
 #'
 #' @details
@@ -53,12 +53,12 @@ facet_violin <- function(data, vars, groupby) {
 #' Scatter Plot with Regression Line (Basic Version)
 #'
 #' Quickly draws X-Y scatter plot with linear regression confidence band,
-#' and annotates R² and P value within the plot;
+#' and annotates R^2 and P value within the plot;
 #' Supports rug plots and additional aesthetic parameters for points
 #'
 #' @param data     \code{data.frame}, must contain x and y columns
 #' @param x,y      Character scalars, variable names
-#' @param digits   Numeric, decimal places for R² and P value, default 3
+#' @param digits   Numeric, decimal places for R^2 and P value, default 3
 #' @param label.x,label.y  Coordinates for annotation; when NULL, automatically placed at top-left 5% position
 #' @param ...      Additional parameters passed to \code{geom_point()} and \code{geom_rug()},
 #'                 e.g., \code{color = group, size = 2, alpha = 0.6}
@@ -85,11 +85,7 @@ facet_violin <- function(data, vars, groupby) {
 scatter_lm <- function(data, x, y,
                           digits = 3,
                           label.x = NULL,
-                          label.y = NULL,
-                          marginal = c("histogram", "density", "boxplot"),
-                          bins = 15,
-                          margin_fill = "grey60",
-                          margin_color = "white", ...) {
+                          label.y = NULL, ...) {
 
   # ---- 0. Convert strings to symbols ----
   x_sym <- sym(x)
@@ -100,7 +96,7 @@ scatter_lm <- function(data, x, y,
   summ <- summary(fit)
   r2   <- summ$r.squared
   pval <- summ$coefficients[2, 4]
-  lab  <- sprintf("R² = %.*f\np  = %.*g", digits, r2, digits, pval)
+  lab  <- sprintf("R\u00B2 = %.*f\np  = %.*g", digits, r2, digits, pval)
 
   # ---- 2. Default label positions ----
   if (is.null(label.x))
@@ -122,7 +118,7 @@ scatter_lm <- function(data, x, y,
 
 #' Scatter Plot with Marginal Density/Histogram and Regression Equation (Enhanced Version)
 #'
-#' Main plot: scatter points + linear regression line + automatic annotation of equation, R², p value (ggpmisc::stat_poly_eq).
+#' Main plot: scatter points + linear regression line + automatic annotation of equation, R^2, p value (ggpmisc::stat_poly_eq).
 #' Marginal plots: bilateral densigram (density + histogram mix), supports grouping colors.
 #' Color logic: uniform color when no color grouping; automatic coloring by group variable with hidden legend when color specified.
 #'
@@ -166,8 +162,17 @@ scatter_lm_marginal <- function(data, x, y,
                           bins = 15,
                           margin_fill = "grey60",
                           margin_color = "white", ...) {
-  library(ggplot2)
-  library(ggpmisc)
+# Check if ggplot2 is installed (without loading it into the search path)
+# If not installed, stop execution and inform the user
+if (!requireNamespace("ggplot2", quietly = TRUE)) {
+  stop("Package 'ggplot2' is required. Please install it with: install.packages('ggplot2')")
+}
+# Check if ggpmisc is installed (without loading it into the search path)
+# If not installed, stop execution and inform the user
+if (!requireNamespace("ggpmisc", quietly = TRUE)) {
+  stop("Package 'ggpmisc' is required. Please install it with: install.packages('ggpmisc')")
+}
+# Load the ggpmisc namespace (makes its functions available via ::)
   # ---- 0. Convert strings to symbols ----
   x_sym <- sym(x)
   y_sym <- sym(y)
@@ -177,7 +182,7 @@ scatter_lm_marginal <- function(data, x, y,
   summ <- summary(fit)
   r2   <- summ$r.squared
   pval <- summ$coefficients[2, 4]
-  lab  <- sprintf("R² = %.*f\np  = %.*g", digits, r2, digits, pval)
+  lab  <- sprintf("R\u00B2 = %.*f\np  = %.*g", digits, r2, digits, pval)
 
   # ---- 2. Default label positions (kept for compatibility) ----
   if (is.null(label.x))

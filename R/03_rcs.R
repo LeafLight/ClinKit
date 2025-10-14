@@ -92,14 +92,14 @@ generate_rcs_plot <- function(data,
   })
 
   # ANOVA for p-values
-  anova_table <- anova(fit)
+  anova_table <- stats::anova(fit)
   p_nl <- format_p_value(anova_table[2, 3], name = "p for nonlinear")
   p_oa <- format_p_value(anova_table[1, 3], name = "p for overall")
 
   # Create plot
   p <- ggplot2::ggplot() +
     ggplot2::geom_line(
-      data = predictions,
+      data = predictions%>% dplyr::select(dplyr::all_of(predictor), yhat, lower, upper),
       ggplot2::aes(x = !!sym(predictor), y = yhat, color = "Prediction"),
       linetype = "solid", linewidth = 1, alpha = 0.9
     ) +
@@ -183,7 +183,7 @@ generate_rcs_plot <- function(data,
       )
 
       csv_file <- file.path(output_dir, sprintf("%s_results_%s.csv", base_name, timestamp))
-      write.csv(results_summary, csv_file, row.names = FALSE)
+      utils::write.csv(results_summary, csv_file, row.names = FALSE)
       saved_files <- c(saved_files, csv_file)
     }
   }
@@ -365,7 +365,7 @@ run_analysis_rcs <- function(data,
   if (save_format != "none" && !is.null(output_dir) && nrow(final_results) > 0) {
     summary_file <- file.path(output_dir,
                              sprintf("rcs_summary_%s.csv", format(Sys.time(), "%Y%m%d_%H%M%S")))
-    write.csv(final_results, summary_file, row.names = FALSE)
+    utils::write.csv(final_results, summary_file, row.names = FALSE)
     all_saved_files <- c(all_saved_files, summary_file)
   }
 

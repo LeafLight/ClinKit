@@ -19,6 +19,12 @@
 #' @param tm Forest plot theme, default "blue", you can alse choose green, cyan or passing a custom theme by forestploter::forest_theme
 #' @param plot_title Plot title, default "Forest Plot of Subgroup Analysis"
 #' @param xlab X-axis label, default "Odds Ratio"
+#' @param CI_title title of Confidence Interval, default "OR(95%CI)"
+#' @param xlim xlim of the forest plot, default NULL
+#' @param ticks_at a numeric vector to specify the x tick of the forestplot
+#' @param math_font the font you want to use to display math charactor(those not included in normal fonts)
+#' @param ensure_italic_p TRUE if you want to use italic p
+#'
 #'
 #' @return List containing forest plot data, plot object, and optional saved file paths
 #' @export
@@ -62,9 +68,7 @@ subgroup_forest <- function(data,
   old_font_config <- NULL
 
   if (!is.null(math_font) || ensure_italic_p) {
-    if (!requireNamespace("sysfonts", quietly = TRUE)) {
-      warning("Package 'sysfonts' not available. Font configuration skipped.")
-    } else {
+
       # create font config
       font_config_file <- setup_font_config(math_font, ensure_italic_p)
 
@@ -85,7 +89,7 @@ subgroup_forest <- function(data,
           }
         })
       }
-    }
+
   }
 
   # Check if variables exist
@@ -129,8 +133,8 @@ subgroup_forest <- function(data,
   if (prepare_plot) {
     final_data <- plot_res
     colnames(final_data)[1] <- "Subgroup"
-    colnames(final_data)[7] <- "𝑃  value"
-    colnames(final_data)[8] <- "𝑃  for interaction"
+    colnames(final_data)[7] <- "\U0001D443  value"
+    colnames(final_data)[8] <- "\U0001D443  for interaction"
     final_data$Subgroup <- ifelse(is.na(final_data$OR),
                                  final_data$Subgroup,
                                  paste0("        ", final_data$Subgroup))
@@ -148,7 +152,7 @@ subgroup_forest <- function(data,
           " "
         )
       )
-    final_data[is.na(final_data$`OR(95%CI)`), "OR(95%CI)"] <- " "
+    final_data[is.na(final_data$CI_title), CI_title] <- " "
   }
   if(is.character(tm)){
   if(tm %in% c("blue", "green", "cyan")) {
@@ -198,13 +202,13 @@ subgroup_forest <- function(data,
     if (save_format %in% c("data", "all")) {
       # save raw data
       csv_file <- file.path(output_dir, sprintf("subgroup_forest_raw_%s.csv", timestamp))
-      write.csv(plot_res, csv_file, row.names = FALSE)
+      utils::write.csv(plot_res, csv_file, row.names = FALSE)
       saved_files <- c(saved_files, csv_file)
 
       # save formated data
       if (prepare_plot) {
         formatted_file <- file.path(output_dir, sprintf("subgroup_forest_formatted_%s.csv", timestamp))
-        write.csv(final_data, formatted_file, row.names = FALSE)
+        utils::write.csv(final_data, formatted_file, row.names = FALSE)
         saved_files <- c(saved_files, formatted_file)
       }
     }
@@ -231,6 +235,7 @@ subgroup_forest <- function(data,
 #' Setup Font Configuration for Math Symbols (Internal)
 #' @keywords internal
 setup_font_config <- function(math_font = NULL, ensure_italic_p = TRUE) {
+  message("trying to setup font config")
   if (is.null(math_font)) {
     math_font <- "STIX Two Math"
   }

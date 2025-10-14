@@ -54,9 +54,19 @@ subgroup_forest(
 
 \item{tm}{Forest plot theme, default "blue", you can alse choose green, cyan or passing a custom theme by forestploter::forest_theme}
 
+\item{xlim}{xlim of the forest plot, default NULL}
+
+\item{ticks_at}{a numeric vector to specify the x tick of the forestplot}
+
 \item{plot_title}{Plot title, default "Forest Plot of Subgroup Analysis"}
 
 \item{xlab}{X-axis label, default "Odds Ratio"}
+
+\item{CI_title}{title of Confidence Interval, default "OR(95\%CI)"}
+
+\item{math_font}{the font you want to use to display math charactor(those not included in normal fonts)}
+
+\item{ensure_italic_p}{TRUE if you want to use italic p}
 }
 \value{
 List containing forest plot data, plot object, and optional saved file paths

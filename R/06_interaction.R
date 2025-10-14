@@ -190,7 +190,7 @@ highlow_analysis <- function(
     if (save_format == "all") {
       # Save raw data
       data_file <- file.path(output_dir, sprintf("%s_data_%s.csv", filename_base, timestamp))
-      write.csv(table_results, data_file, row.names = FALSE)
+      utils::write.csv(table_results, data_file, row.names = FALSE)
       saved_files <- c(saved_files, data_file)
     }
   }

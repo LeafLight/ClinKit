@@ -17,11 +17,11 @@
 #' @param normality_alpha Numeric, significance level for normality test, default 0.05
 #' @param export_normality Logical, whether to export normality test results to a separate CSV file, default TRUE
 #' @param normality_file Character, output CSV file name for normality test results; if NULL, uses same base name as main file
-#'
+#' @importFrom stats as.formula binomial coef complete.cases confint confint.default glm ks.test median na.omit relevel sd setNames shapiro.test
 #' @return gtsummary object (invisible), convenient for subsequent piping operations
 #' @details
 #' \itemize{
-#'   \item Categorical variables displayed as {n} ({p}%)
+#'   \item Categorical variables displayed as n(%)
 #'   \item Continuous variables: if all groups are normal, display as mean (SD); otherwise display as median (Q1, Q3)
 #'   \item Missing values not displayed by default; P-values use appropriate tests (chi-square/t/ANOVA/Kruskal-Wallis)
 #'   \item Final table exported via flextable, ready for use in papers or appendices
@@ -271,10 +271,10 @@ print_normality_summary <- function(normality_results) {
     total_groups <- nrow(var_results)
 
     if (normal_groups == total_groups) {
-      message("  ", var, ": ALL groups normal → Mean (SD)")
+      message("  ", var, ": ALL groups normal: Mean (SD)")
     } else {
       message("  ", var, ": ", normal_groups, "/", total_groups,
-              " groups normal → Median (Q1, Q3)")
+              " groups normal: Median (Q1, Q3)")
     }
   }
 }

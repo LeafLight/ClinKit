@@ -55,7 +55,7 @@ based on normality testing. Outputs a three-line table in Word format with P-val
 }
 \details{
 \itemize{
-\item Categorical variables displayed as {n} ({p}\%)
+\item Categorical variables displayed as n(\%)
 \item Continuous variables: if all groups are normal, display as mean (SD); otherwise display as median (Q1, Q3)
 \item Missing values not displayed by default; P-values use appropriate tests (chi-square/t/ANOVA/Kruskal-Wallis)
 \item Final table exported via flextable, ready for use in papers or appendices

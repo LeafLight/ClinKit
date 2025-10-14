@@ -34,7 +34,9 @@ List containing results data frame and optional saved file paths
 }
 \description{
 Fits multinomial logistic regression models for continuous predictors:
-① Model1 (unadjusted)
-② Model2/3/4 (sequentially adding covariates)
+\enumerate{
+\item Model1 (unadjusted)
+\item Model2/3/4 (sequentially adding covariates)
 Calculates OR, 95\% CI and P-value per unit increase.
+}
 }

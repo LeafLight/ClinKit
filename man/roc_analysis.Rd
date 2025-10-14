@@ -47,6 +47,8 @@ roc_analysis(
 \item{plot_height}{Plot height in pixels, default 2000}
 
 \item{plot_res}{Plot resolution in DPI, default 300}
+
+\item{direction}{roc direction, "auto" for automatic selection, default \code{<}}
 }
 \value{
 List containing ROC objects, AUC summary, and optional saved file paths

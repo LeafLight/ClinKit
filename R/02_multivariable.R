@@ -225,7 +225,7 @@ save_multivariable_result <- function(result, output_dir, format, predictor, out
     filename <- file.path(output_dir,
                          sprintf("multivariable_%s_%s_%s.csv",
                                 safe_predictor, safe_outcome, timestamp))
-    write.csv(result, file = filename, row.names = FALSE, fileEncoding = "UTF-8")
+    utils::write.csv(result, file = filename, row.names = FALSE, fileEncoding = "UTF-8")
   }
 
   return(filename)
@@ -264,13 +264,13 @@ make_multivariate_table <- function(raw_df,
     dplyr::mutate(
       Predictor = as.character(predictor),
       Outcome = as.character(outcome),
-      `Model 1 OR (95% CI)` = sprintf("%.2f (%.2f–%.2f)", OR_m1, LCI_m1, UCI_m1),
+      `Model 1 OR (95% CI)` = sprintf("%.2f (%.2f-%.2f)", OR_m1, LCI_m1, UCI_m1),
       `Model 1 P-value` = sprintf("%.2e", p_m1),
-      `Model 2 OR (95% CI)` = sprintf("%.2f (%.2f–%.2f)", OR_m2, LCI_m2, UCI_m2),
+      `Model 2 OR (95% CI)` = sprintf("%.2f (%.2f-%.2f)", OR_m2, LCI_m2, UCI_m2),
       `Model 2 P-value` = sprintf("%.2e", p_m2),
-      `Model 3 OR (95% CI)` = sprintf("%.2f (%.2f–%.2f)", OR_m3, LCI_m3, UCI_m3),
+      `Model 3 OR (95% CI)` = sprintf("%.2f (%.2f-%.2f)", OR_m3, LCI_m3, UCI_m3),
       `Model 3 P-value` = sprintf("%.2e", p_m3),
-      `Model 4 OR (95% CI)` = sprintf("%.2f (%.2f–%.2f)", OR_m4, LCI_m4, UCI_m4),
+      `Model 4 OR (95% CI)` = sprintf("%.2f (%.2f-%.2f)", OR_m4, LCI_m4, UCI_m4),
       `Model 4 P-value` = sprintf("%.2e", p_m4)
     ) %>%
     dplyr::select(Predictor, Outcome,
@@ -286,7 +286,7 @@ make_multivariate_table <- function(raw_df,
     flextable::hline_top(border = officer::fp_border(width = 2), part = "header") %>%
     flextable::hline_bottom(border = officer::fp_border(width = 2), part = "header") %>%
     flextable::hline_bottom(border = officer::fp_border(width = 1), part = "body") %>%
-    flextable::border_remove() %>%  # 移除所有边框
+    flextable::border_remove() %>%
     flextable::bold(part = "header") %>%
     flextable::align(align = "center", part = "all") %>%
     flextable::fontsize(size = 9, part = "all") %>%
@@ -342,8 +342,8 @@ make_multivariate_table <- function(raw_df,
 #' Multivariable Multinomial Logistic Regression Analysis
 #'
 #' Fits multinomial logistic regression models for continuous predictors:
-#' ① Model1 (unadjusted)
-#' ② Model2/3/4 (sequentially adding covariates)
+#' 1. Model1 (unadjusted)
+#' 2. Model2/3/4 (sequentially adding covariates)
 #' Calculates OR, 95% CI and P-value per unit increase.
 #'
 #' @param data Data frame containing all variables
@@ -465,7 +465,7 @@ predictor_results <- tidy_result %>%
     outcome = outcome,
     model = model_name,
     n_observations = sum(complete_cases),
-    level = as.character(y.level),  # y.level 就是水平名称
+    level = as.character(y.level),
     comparison = paste0(level, " vs ", outcome_levels[1])
   )
 
@@ -501,7 +501,7 @@ predictor_results <- tidy_result %>%
 
     if (save_format == "csv") {
       csv_file <- file.path(output_dir, sprintf("multinomial_results_%s.csv", timestamp))
-      write.csv(final_results, csv_file, row.names = FALSE)
+      utils::write.csv(final_results, csv_file, row.names = FALSE)
       saved_files <- c(saved_files, csv_file)
     } else if (save_format == "docx") {
       docx_file <- file.path(output_dir, sprintf("multinomial_results_%s.docx", timestamp))
@@ -530,7 +530,7 @@ save_multinomial_table <- function(results, file_path) {
   # Format data for table
   table_data <- results %>%
     dplyr::mutate(
-      `OR (95% CI)` = sprintf("%.2f (%.2f–%.2f)", OR, lower_ci, upper_ci),
+      `OR (95% CI)` = sprintf("%.2f (%.2f-%.2f)", OR, lower_ci, upper_ci),
       `P-value` = sprintf("%.3f", p_value)
     ) %>%
     dplyr::select(Outcome = outcome, Predictor = predictor, Model = model,

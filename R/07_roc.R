@@ -17,7 +17,7 @@
 #' @param plot_width Plot width in pixels, default 2000
 #' @param plot_height Plot height in pixels, default 2000
 #' @param plot_res Plot resolution in DPI, default 300
-#'
+#' @param direction roc direction, "auto" for automatic selection, default `<`
 #' @return List containing ROC objects, AUC summary, and optional saved file paths
 #' @export
 roc_analysis <- function(data,
@@ -258,13 +258,13 @@ roc_analysis <- function(data,
     if (save_format %in% c("data", "all")) {
       # Save AUC summary
       auc_file <- file.path(output_dir, sprintf("roc_auc_summary_%s.csv", timestamp))
-      write.csv(auc_summary, auc_file, row.names = FALSE)
+      utils::write.csv(auc_summary, auc_file, row.names = FALSE)
       saved_files <- c(saved_files, auc_file)
 
       # Save DeLong test results
       if (!is.null(delong_results)) {
         delong_file <- file.path(output_dir, sprintf("roc_delong_test_%s.csv", timestamp))
-        write.csv(delong_results, delong_file, row.names = FALSE)
+        utils::write.csv(delong_results, delong_file, row.names = FALSE)
         saved_files <- c(saved_files, delong_file)
       }
     }

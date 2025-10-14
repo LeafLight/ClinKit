@@ -1,6 +1,8 @@
 library(ClinKit)
 library(testthat)
 test_that("plot utils works", {
+              library(ggplot2)
+              library(ggpmisc)
   tmp_fp <- withr::local_tempdir()
   out_file <- file.path(tmp_fp, "1.tiff")
   p <- scatter_lm_marginal(mtcars, "disp", "cyl")
