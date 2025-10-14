@@ -60,7 +60,7 @@ jobs:
         run: |
           Rscript -e "
           # 运行测试并保存详细输出
-          test_results <- testthat::test_local(reporter = 'verbose')
+          test_results <- testthat::test_local(reporter = 'progress')
           if (any(test_results$failed > 0)) {
             cat('❌ Some tests failed!\\n')
             print(test_results)
