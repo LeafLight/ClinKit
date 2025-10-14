@@ -67,7 +67,7 @@ jobs:
           } else {
             cat('✅ All tests passed!\\n')
           }
-        "
+          "
 
       - name: Test coverage
         run: |
