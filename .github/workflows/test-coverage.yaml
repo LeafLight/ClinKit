@@ -26,7 +26,35 @@ jobs:
         with:
           extra-packages: any::covr, any::xml2
           needs: coverage
-
+       
+      - name: Create and run diagnostics
+        run: |
+          cat > diagnostics.R << 'EOF'
+          library(testthat)
+          
+          # 检查测试环境
+          print("R version:")
+          print(R.version)
+          
+          print("Platform:")
+          print(.Platform)
+          
+          print("Capabilities:")
+          print(capabilities())
+          
+          print("Installed packages:")
+          print(installed.packages()[, c("Package", "Version")])
+          
+          # 尝试加载包
+          print("Loading package...")
+          library(ClinKit)
+          
+          # 运行单个测试文件
+          print("Running tests...")
+          test_dir("tests/testthat/", reporter = "summary")
+          EOF
+          
+          Rscript diagnostics.R
       - name: Test coverage
         run: |
           cov <- covr::package_coverage(
@@ -60,31 +88,3 @@ jobs:
         with:
           name: coverage-test-failures
           path: ${{ runner.temp }}/package
-      - name: Create and run diagnostics
-        run: |
-          cat > diagnostics.R << 'EOF'
-          library(testthat)
-          
-          # 检查测试环境
-          print("R version:")
-          print(R.version)
-          
-          print("Platform:")
-          print(.Platform)
-          
-          print("Capabilities:")
-          print(capabilities())
-          
-          print("Installed packages:")
-          print(installed.packages()[, c("Package", "Version")])
-          
-          # 尝试加载包
-          print("Loading package...")
-          library(ClinKit)
-          
-          # 运行单个测试文件
-          print("Running tests...")
-          test_dir("tests/testthat/", reporter = "summary")
-          EOF
-          
-          Rscript diagnostics.R
