@@ -57,14 +57,14 @@ jobs:
           Rscript diagnostics.R
       - name: Test coverage
         run: |
-          cov <- covr::package_coverage(
-            quiet = FALSE,
-            clean = FALSE,
-            #install_path = file.path(normalizePath(Sys.getenv("RUNNER_TEMP"), winslash = "/"), "package")
-          )
-          print(cov)
-          covr::to_cobertura(cov)
-
+          Rscript -e "
+            cov <- covr::package_coverage(
+              quiet = FALSE,
+              clean = FALSE
+            )
+            print(cov)
+            covr::to_cobertura(cov, filename = 'cobertura.xml')
+          "
       - uses: codecov/codecov-action@v5
         with:
           # Fail if error if not on PR, or if on PR and token is given
