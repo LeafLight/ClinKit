@@ -269,7 +269,7 @@ run_analysis_rcs <- function(data,
       base_filename <- paste(predictor, outcomes_map[[outcome]], sep = "_")
 
       # Run unadjusted model
-      result_unadjusted <- tryCatch({
+      result_unadjusted <-
         generate_rcs_plot(
           data = data,
           outcome = outcome,
@@ -279,10 +279,7 @@ run_analysis_rcs <- function(data,
           save_format = save_format,
           filename = paste0(base_filename, "_unadjusted")
         )
-      }, error = function(e) {
-        warning(sprintf("Unadjusted model failed for %s ~ %s: %s", outcome, predictor, e$message))
-        return(NULL)
-      })
+
 
       if (!is.null(result_unadjusted)) {
         # Add unadjusted results
@@ -306,7 +303,7 @@ run_analysis_rcs <- function(data,
 
       # Run adjusted model if covariates provided
       if (!is.null(covariates) && length(covariates) > 0) {
-        result_adjusted <- tryCatch({
+        result_adjusted <-
           generate_rcs_plot(
             data = data,
             outcome = outcome,
@@ -316,10 +313,7 @@ run_analysis_rcs <- function(data,
             save_format = save_format,
             filename = paste0(base_filename, "_adjusted")
           )
-        }, error = function(e) {
-          warning(sprintf("Adjusted model failed for %s ~ %s: %s", outcome, predictor, e$message))
-          return(NULL)
-        })
+
 
         if (!is.null(result_adjusted)) {
           # Add adjusted results

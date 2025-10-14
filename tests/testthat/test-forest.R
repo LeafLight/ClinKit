@@ -49,6 +49,7 @@ test_that("forest theme works", {
 })
 
 test_that("create font config works",{
-fc <- setup_font_config("STIX Two Math")
+font_func <- get("setup_font_config", envir = asNamespace("ClinKit"))
+fc <- font_func("STIX Two Math")
 expect_true(file.exists(fc))
 })
