@@ -11,7 +11,7 @@ Description: A comprehensive, opinionated toolkit for routine clinical
     (tables, figures, Word reports) are generated automatically with
     sensible defaults and minimal boilerplate code.
 License: MIT + file LICENSE
-URL: https://github.com/leaflight/ClinKit
+URL: https://github.com/leaflight/ClinKit, https://leaflight.github.io/ClinKit/
 BugReports: https://github.com/leaflight/ClinKit/issues
 Depends: 
     R (>= 4.1.0)
