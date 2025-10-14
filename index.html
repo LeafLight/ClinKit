@@ -50,22 +50,47 @@
 </h1></div>
 <!-- badges: start -->
 
-<p>The goal of ClinKit is to …</p>
+<p>ClinKit is an integrated R package designed to transform cleaned clinical datasets directly into publication-ready figures and statistical outputs, while preserving access to raw analysis objects for complete methodological transparency and customization.</p>
+<p>Built specifically for clinical research workflows, ClinKit begins where data cleaning ends, providing:</p>
 <div class="section level2">
-<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+<h2 id="core-analytical-modules">Core Analytical Modules:<a class="anchor" aria-label="anchor" href="#core-analytical-modules"></a>
 </h2>
+<ul>
+<li><p>make_baseline_table() - Automated baseline characteristic tables with intelligent test selection. Wraps gtsummary::tbl_summary() with built-in normality testing to automatically choose appropriate parametric or non-parametric tests, exporting directly to formatted Word documents.</p></li>
+<li><p>Regression Analysis Suite - Comprehensive modeling with progressive adjustment:</p></li>
+<li><p>run_univariate_logistic_regression() - Single predictor analysis</p></li>
+<li><p>run_multivariable_logistic_regression() - Sequential multivariable models (Model 1-4) with incremental covariate adjustment</p></li>
+<li><p>run_multivariable_multinomial_logistic_regression() - Multi-category outcome analysis</p></li>
+<li><p>Visualization Tools - Flexible plotting options:</p></li>
+<li><p>scatter_lm() - Clean scatter plots with linear regression</p></li>
+<li><p>scatter_lm_marginal() - Enhanced versions with marginal distributions</p></li>
+<li><p>subgroup_forest() - Publication-ready forest plots with 4 built-in themes and comprehensive p-value reporting</p></li>
+<li><p>Specialized Analytical Methods:</p></li>
+<li><p>highlow_analysis() - Variable interaction analysis with intuitive high/low grouping</p></li>
+<li><p>quartile_logistic_analysis(), quartile_multinomial_analysis() - Streamlined quartile-based analysis (Q1-Q4) for continuous predictors</p></li>
+<li><p>roc_analysis() - ROC curve visualization with tidy DeLong test results</p></li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="key-advantages">Key Advantages:<a class="anchor" aria-label="anchor" href="#key-advantages"></a>
+</h2>
+<ul>
+<li><p>Progressive Modeling: Sequential multivariable regression with incremental covariate adjustment (Models 1-4)</p></li>
+<li><p>Reproducible Research: All functions return raw analysis objects alongside formatted outputs</p></li>
+<li><p>Methodological Rigor: Automated statistical appropriateness checks</p></li>
+<li><p>Publication-Ready: Direct export to journal-compatible formats</p></li>
+</ul>
+<p>Clinical Focus: Specialized methods for common clinical research scenarios</p>
+<p>ClinKit bridges the gap between statistical analysis and manuscript preparation, ensuring analytical rigor while dramatically reducing the time from clean data to submission-ready results. ## Installation</p>
 <p>You can install the development version of ClinKit from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"LeafLight/ClinKit"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
+<h2 id="documents--tutorial">Documents &amp; Tutorial<a class="anchor" aria-label="anchor" href="#documents--tutorial"></a>
 </h2>
-<p>This is a basic example which shows you how to solve a common problem:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/leaflight/ClinKit" class="external-link">ClinKit</a></span><span class="op">)</span></span>
-<span><span class="co">## basic example code</span></span></code></pre></div>
+<p><a href="https://leaflight.github.io/ClinKit/index.html">ClinKit Documents</a></p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
