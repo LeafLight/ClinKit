@@ -1,6 +1,8 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://leaflight.github.io/ClinKit/404.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/LICENSE-text.html</loc></url>
+<url><loc>https://leaflight.github.io/ClinKit/articles/ClinKit-intro.html</loc></url>
+<url><loc>https://leaflight.github.io/ClinKit/articles/index.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/authors.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/index.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/reference/facet_violin.html</loc></url>
