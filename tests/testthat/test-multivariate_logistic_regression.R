@@ -1,3 +1,10 @@
+# Ensure survival package and colon dataset are available for tests
+if (!requireNamespace("survival", quietly = TRUE)) {
+  stop("Package 'survival' is required for these tests.")
+}
+library(survival)
+if (!exists("colon")) data(colon, package = "survival")
+
 library(ClinKit)
 library(testthat)
 test_that("mulivaraite logistic regression works", {
@@ -79,4 +86,3 @@ test_that("mulivaraite logistic regression works", {
         # out is a list of results output_dir is not specified
         expect_true(all(c("results", "call") %in% names(out)))
 })
-

@@ -1,8 +1,3 @@
-# Skip docx export test on macOS CI due to flextable/officer/gdtools segfault
-if (Sys.info()[["sysname"]] == "Darwin") {
-  testthat::skip("Skip docx export test on macOS CI due to flextable/officer/gdtools segfault.")
-}
-
 library(testthat)
 library(ClinKit)
 #library(vdiffr)      
