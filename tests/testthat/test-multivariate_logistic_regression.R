@@ -1,5 +1,5 @@
 # Set flextable default font to NULL to avoid macOS font segfaults
-options(flextable.defaults = list(font.family = NULL))
+options(flextable.defaults = list(font.family =  "DeJaVu Sans"))
 
 # Ensure survival package and colon dataset are available for tests
 if (!requireNamespace("survival", quietly = TRUE)) {
