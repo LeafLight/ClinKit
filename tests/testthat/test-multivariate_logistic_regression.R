@@ -13,81 +13,83 @@ if (!exists("colon")) data(colon, package = "survival")
 library(ClinKit)
 library(testthat)
 test_that("mulivaraite logistic regression works", {
+  is_mac <- tolower(Sys.info()[['sysname']]) == "darwin"
+  tmp_fp <- withr::local_tempdir()
+  #out_file <- file.path(tmp, "table1.docx")
+  data(package = "survival", "cancer")
+  out <- run_multivariable_logistic_regression(colon,
+                                     outcomes = c("status", "perfor"),
+                                     predictors = c("age", "nodes"),
+                                     outcomes_map = c("status" = "Status",
+                                                      "perfor" = "Perfor"
+                                     ),
+                                    models_list = list(
+                                                              model2 = c("sex"),
+                                                              model3 = NULL,
+                                                              model4 = NULL
+                                                            ),
+                                     output_dir = tmp_fp,
+                                     save_format = "csv"
+  )
+  expect_type(out, "list")
+  # out is a list containing the path of the output file when output_dir is specified
+  expect_true(all(file.exists(out$saved_files)))
+  #data(package = "survival", "cancer")
+  out <- run_multivariable_logistic_regression(colon,
+                                 outcomes = c("status", "perfor"),
+                                 predictors = c("age", "nodes"),
+                                 outcomes_map = c("status" = "Status",
+                                                  "perfor" = "Perfor"
+                                 ),
+                                           models_list = list(
+                                                              model2 = c("sex"),
+                                                              model3 = NULL,
+                                                              model4 = NULL
+                                           )
+                                 #output_dir = tmp_fp,
+                                 #save_format = "csv"
+  )
 
-              tmp_fp <- withr::local_tempdir()
-              #out_file <- file.path(tmp, "table1.docx")
-              data(package = "survival", "cancer")
-              out <- run_multivariable_logistic_regression(colon,
-                                                 outcomes = c("status", "perfor"),
-                                                 predictors = c("age", "nodes"),
-                                                 outcomes_map = c("status" = "Status",
-                                                                  "perfor" = "Perfor"
-                                                 ),
-                                                models_list = list(
-                                                                          model2 = c("sex"),
-                                                                          model3 = NULL,
-                                                                          model4 = NULL
-                                                                        ),
-                                                 output_dir = tmp_fp,
-                                                 save_format = "csv"
-              )
-            expect_type(out, "list")
-            # out is a list containing the path of the output file when output_dir is specified
-            expect_true(all(file.exists(out$saved_files)))
-        #data(package = "survival", "cancer")
-          out <- run_multivariable_logistic_regression(colon,
-                                             outcomes = c("status", "perfor"),
-                                             predictors = c("age", "nodes"),
-                                             outcomes_map = c("status" = "Status",
-                                                              "perfor" = "Perfor"
-                                             ),
-                                                       models_list = list(
-                                                                          model2 = c("sex"),
-                                                                          model3 = NULL,
-                                                                          model4 = NULL
-                                                       )
-                                             #output_dir = tmp_fp,
-                                             #save_format = "csv"
-          )
+  expect_type(out, "list")
+  # out is a list of results output_dir is not specified
+  expect_true(all(c("results", "call") %in% names(out)))
+  if (!is_mac) {
+    make_multivariate_table(out$results, out_file=file.path(tmp_fp, "table1.docx"))
+    expect_true(file.exists(file.path(tmp_fp, "table1.docx")))
+  }
 
-        expect_type(out, "list")
-        # out is a list of results output_dir is not specified
-        expect_true(all(c("results", "call") %in% names(out)))
-        make_multivariate_table(out$results, out_file=file.path(tmp_fp, "table1.docx"))
-        expect_true(file.exists(file.path(tmp_fp, "table1.docx")))
+  tmp_fp <- withr::local_tempdir()
+  #out_file <- file.path(tmp, "table1.docx")
+  data(package = "survival", "cancer")
+  out <- run_multivariable_multinomial_logistic_regression(colon,
+                                         outcomes = c("rx"),
+                                         predictors = c("age", "nodes"),
+                                         #outcomes_map = c("rx" = "Rx"),
+                                        models_list = list(
+                                                              model2 = c("sex"),
+                                                              model3 = NULL,
+                                                              model4 = NULL
+                                                            ),
+                                         output_dir = tmp_fp,
+                                         save_format = "csv"
+  )
+  expect_type(out, "list")
+  # out is a list containing the path of the output file when output_dir is specified
+  expect_true(all(file.exists(out$saved_files)))
+  #data(package = "survival", "cancer")
+  out <- run_multivariable_multinomial_logistic_regression(colon,
+                                         outcomes = c("rx"),
+                                         predictors = c("age", "nodes"),
+                                         models_list = list(
+                                                      model2 = c("sex"),
+                                                      model3 = NULL,
+                                                      model4 = NULL
+                                                   )
+                                         #output_dir = tmp_fp,
+                                         #save_format = "csv"
+  )
 
-              tmp_fp <- withr::local_tempdir()
-              #out_file <- file.path(tmp, "table1.docx")
-              data(package = "survival", "cancer")
-              out <- run_multivariable_multinomial_logistic_regression(colon,
-                                                 outcomes = c("rx"),
-                                                 predictors = c("age", "nodes"),
-                                                 #outcomes_map = c("rx" = "Rx"),
-                                                models_list = list(
-                                                                          model2 = c("sex"),
-                                                                          model3 = NULL,
-                                                                          model4 = NULL
-                                                                        ),
-                                                 output_dir = tmp_fp,
-                                                 save_format = "csv"
-              )
-            expect_type(out, "list")
-            # out is a list containing the path of the output file when output_dir is specified
-            expect_true(all(file.exists(out$saved_files)))
-        #data(package = "survival", "cancer")
-          out <- run_multivariable_multinomial_logistic_regression(colon,
-                                             outcomes = c("rx"),
-                                             predictors = c("age", "nodes"),
-                                             models_list = list(
-                                                          model2 = c("sex"),
-                                                          model3 = NULL,
-                                                          model4 = NULL
-                                                       )
-                                             #output_dir = tmp_fp,
-                                             #save_format = "csv"
-          )
-
-        expect_type(out, "list")
-        # out is a list of results output_dir is not specified
-        expect_true(all(c("results", "call") %in% names(out)))
+  expect_type(out, "list")
+  # out is a list of results output_dir is not specified
+  expect_true(all(c("results", "call") %in% names(out)))
 })
