@@ -1,3 +1,5 @@
+if (tolower(Sys.info()[['sysname']]) == "darwin") skip("skip on macOS: segfault in interactionR")
+
 library(ClinKit)
 library(testthat)
 test_that("interaction works", {
