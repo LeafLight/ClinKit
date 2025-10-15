@@ -41,6 +41,7 @@ Imports:
     utils
 Suggests:
     pkgdown,
+    svglite,
     testthat (>= 3.0.0),
     withr (>= 2.5.0),
     survival (>= 3.2.0)

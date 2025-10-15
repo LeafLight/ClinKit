@@ -26,6 +26,12 @@ generate_rcs_plot <- function(data,
   dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
   if (!dir.exists(output_dir)) stop("Cannot create output_dir: ", output_dir)
 }
+  if (save_format %in% c("svg", "all")) {
+  if (!requireNamespace("svglite", quietly = TRUE)) {
+    warning("svglite package not available, skipping SVG output")
+    return(NULL)
+  }
+}
 
   # Parameter validation
   save_format <- match.arg(save_format)
