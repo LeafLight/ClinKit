@@ -2,6 +2,7 @@ library(testthat)
 library(ClinKit)
 #library(vdiffr)      
 #library(jsonlite)
+if (tolower(Sys.info()[['sysname']]) == "darwin") skip("skip on macOS: segfault in flextable")
 test_that("make baseline table", {
     tmp_fp <- withr::local_tempdir()
     output_file <- file.path(tmp_fp, "table1.docx")
