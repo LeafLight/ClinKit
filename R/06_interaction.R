@@ -209,6 +209,8 @@ highlow_analysis <- function(
 #' Save High-Low Analysis Table (Internal)
 #' @keywords internal
 save_highlow_table <- function(results, file_path, title) {
+  dir.create(dirname(file_path), recursive = TRUE, showWarnings = FALSE)
+
   if (!requireNamespace("flextable", quietly = TRUE) ||
       !requireNamespace("officer", quietly = TRUE)) {
     stop("Please install.packages('flextable') and install.packages('officer')")
@@ -227,6 +229,8 @@ save_highlow_table <- function(results, file_path, title) {
 #' Save Interaction Table (Internal)
 #' @keywords internal
 save_interaction_table <- function(interaction_result, file_path) {
+  dir.create(dirname(file_path), recursive = TRUE, showWarnings = FALSE)
+
   if (is.null(interaction_result)) return(NULL)
 
   # Round numeric values
