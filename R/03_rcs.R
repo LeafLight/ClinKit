@@ -13,6 +13,9 @@
 #'
 #' @return List containing plot object, p-values, and optional saved file paths
 #' @export
+#' @importFrom dplyr %>%
+#' @importFrom dplyr select
+#' @importFrom rlang sym
 generate_rcs_plot <- function(data,
                              outcome,
                              predictor,
@@ -387,3 +390,5 @@ run_analysis_rcs <- function(data,
 #   output_dir = "test_output/rcs",
 #   save_format = "all"
 # )
+
+utils::globalVariables(c("yhat", "lower", "upper"))

@@ -552,3 +552,5 @@ save_multinomial_quartile_table <- function(results, file_path) {
     flextable::body_add_flextable(ft) %>%
     print(target = file_path)
 }
+
+utils::globalVariables(c("quartile", "term", "model", "comparison", "estimate", "conf.low", "conf.high", "p.value", "p_trend", "n_observations", "y.level", "level", "OR", "lower_ci", "upper_ci", "p_value", "p_trend", "outcome", "predictor", "model", "comparison", "OR (95% CI)", "P-value", "P-trend"))

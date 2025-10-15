@@ -454,6 +454,8 @@ tm_default <- function(base_size = 12, background_levels = NULL) {
   get_forest_theme("default", base_size, background_levels)
 }
 
+utils::globalVariables(c("OR", "Lower", "Upper"))
+
 
 ###### test
 # data(cancer, package = "survival")

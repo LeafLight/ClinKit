@@ -554,3 +554,5 @@ save_multinomial_table <- function(results, file_path) {
     print(target = file_path)
   # nocov end
 }
+
+utils::globalVariables(c("predictor", "outcome", "OR_m1", "LCI_m1", "UCI_m1", "p_m1", "OR_m2", "LCI_m2", "UCI_m2", "p_m2", "OR_m3", "LCI_m3", "UCI_m3", "p_m3", "OR_m4", "LCI_m4", "UCI_m4", "p_m4", "Predictor", "Outcome", "Model 1 OR (95% CI)", "Model 1 P-value", "Model 2 OR (95% CI)", "Model 2 P-value", "Model 3 OR (95% CI)", "Model 3 P-value", "Model 4 OR (95% CI)", "Model 4 P-value", "model", "comparison", "estimate", "conf.low", "conf.high", "p.value", "n_observations", "y.level", "level", "OR", "lower_ci", "upper_ci", "p_value", "outcome", "predictor", "model", "comparison", "OR (95% CI)", "P-value", "P-trend"))

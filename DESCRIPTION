@@ -44,8 +44,11 @@ Suggests:
     svglite,
     testthat (>= 3.0.0),
     withr (>= 2.5.0),
-    survival (>= 3.2.0)
+    survival (>= 3.2.0),
+    knitr,
+    rmarkdown
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
+VignetteBuilder: knitr
 Config/testthat/edition: 3

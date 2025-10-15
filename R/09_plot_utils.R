@@ -233,3 +233,5 @@ if (!requireNamespace("ggpmisc", quietly = TRUE)) {
 # p<-scatter_lm_marginal(mtcars, "disp", "cyl")
 # ggsave("./test_output/1.tiff",p, width = 10, height = 10)
 # facet_violin(mtcars, "disp", "gear")
+
+utils::globalVariables(c("..eq.label..", "..rr.label..", "..p.value.label..", "scale_color_npg"))

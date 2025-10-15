@@ -238,3 +238,5 @@ save_interaction_table <- function(interaction_result, file_path) {
 print(file_path)
   interactionR::interactionR_table(interaction_result, p.value = TRUE, file_path = file_path)
 }
+
+utils::globalVariables(c("group", "term", "estimate", "conf.low", "conf.high", "p.value", "OR_CI", "P_value", "Cases"))
