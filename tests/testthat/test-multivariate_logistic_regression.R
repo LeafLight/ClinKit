@@ -1,3 +1,6 @@
+# Set flextable default font to Arial to avoid macOS font segfaults
+options(flextable.defaults = list(font.family = "Arial"))
+
 # Ensure survival package and colon dataset are available for tests
 if (!requireNamespace("survival", quietly = TRUE)) {
   stop("Package 'survival' is required for these tests.")
