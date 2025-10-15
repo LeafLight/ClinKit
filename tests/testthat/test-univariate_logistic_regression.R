@@ -1,3 +1,5 @@
+if (tolower(Sys.info()[['sysname']]) == "darwin") skip("skip all tests on macOS: known segfaults in dependencies")
+
 library(testthat)
 library(ClinKit)
 test_that("univariate logistic regression works", {
@@ -32,4 +34,3 @@ test_that("univariate logistic regression works", {
         expect_true(all(c("results", "call") %in% names(out)))
 
 })
-

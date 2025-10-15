@@ -1,5 +1,8 @@
 library(ClinKit)
 library(testthat)
+
+if (tolower(Sys.info()[['sysname']]) == "darwin") skip("skip all tests on macOS: known segfaults in dependencies")
+
 test_that("rcs works", {
   data(package = "survival", cancer)
   tmp_fp <- withr::local_tempdir()

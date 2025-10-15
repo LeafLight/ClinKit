@@ -1,4 +1,4 @@
-if (tolower(Sys.info()[['sysname']]) == "darwin") skip("skip on macOS: segfault in interactionR")
+if (tolower(Sys.info()[['sysname']]) == "darwin") skip("skip all tests on macOS: known segfaults in dependencies")
 
 library(ClinKit)
 library(testthat)

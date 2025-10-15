@@ -1,3 +1,5 @@
+if (tolower(Sys.info()[['sysname']]) == "darwin") skip("skip all tests on macOS: known segfaults in dependencies")
+
 library(ClinKit)
 library(testthat)
 test_that("roc works", {

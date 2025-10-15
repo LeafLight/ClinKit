@@ -1,3 +1,5 @@
+if (tolower(Sys.info()[['sysname']]) == "darwin") skip("skip all tests on macOS: known segfaults in dependencies")
+
 # Set flextable default font to Arial to avoid macOS font segfaults
 if (requireNamespace("flextable", quietly = TRUE)) {
   flextable::set_flextable_defaults(font.family = "Arial")
