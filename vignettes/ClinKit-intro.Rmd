@@ -119,5 +119,4 @@ ClinKit streamlines the process of clinical data analysis and reporting in R, ma
 # References
 - [ClinKit GitHub](https://github.com/LeafLight/ClinKit)
 - [gtsummary](https://www.danieldsjoberg.com/gtsummary/)
-- [pkgdown](https://pkgdown.r-lib.org/)
 

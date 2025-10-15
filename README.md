@@ -2,6 +2,7 @@
 
 <!-- badges: start -->
 [![Codecov test coverage](https://codecov.io/gh/LeafLight/ClinKit/graph/badge.svg)](https://app.codecov.io/gh/LeafLight/ClinKit)
+[![R-CMD-check](https://github.com/LeafLight/ClinKit/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/LeafLight/ClinKit/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 ClinKit is an integrated R package designed to transform cleaned clinical datasets directly into publication-ready figures and statistical outputs, while preserving access to raw analysis objects for complete methodological transparency and customization.
