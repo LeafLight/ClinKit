@@ -45,7 +45,6 @@
 #' @importFrom flextable body_add_flextable
 #' @importFrom purrr map_dfr
 #' @importFrom tibble tibble
-#' @importFrom readr write_csv
 #' @export
 make_baseline_table <- function(
   data,
@@ -113,7 +112,7 @@ make_baseline_table <- function(
     }
     # Create directory if it doesn't exist
     dir.create(dirname(normality_file), showWarnings = FALSE, recursive = TRUE)
-    readr::write_csv(normality_results, normality_file)
+    utils::write.csv(normality_results, normality_file, row.names = FALSE)
     message("Normality test results exported to: ", normality_file)
   }
 
