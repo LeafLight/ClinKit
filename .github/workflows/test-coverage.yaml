@@ -27,19 +27,9 @@ jobs:
           extra-packages: any::covr, any::xml2
           needs: coverage
        
-      - name: Run tests with detailed output
+      - name: Run tests 
         run: |
-          Rscript -e "
-          # 运行测试并保存详细输出
-          test_results <- testthat::test_local(reporter = 'progress')
-          if (any(test_results$failed > 0)) {
-            cat('❌ Some tests failed!\\n')
-            print(test_results)
-          } else {
-            cat('✅ All tests passed!\\n')
-          }
-          "
-
+          Rscript -e "testthat::test_local(reporter = 'progress')"
       - name: Test coverage
         run: |
           Rscript -e "
