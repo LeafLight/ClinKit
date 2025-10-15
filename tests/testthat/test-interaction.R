@@ -1,7 +1,6 @@
 library(ClinKit)
 library(testthat)
 test_that("interaction works", {
-  skip_on_ci()
   tmp_fp <- withr::local_tempdir()
   output_file <- file.path(tmp_fp, "table1.docx")
   data(package = "survival", "cancer")

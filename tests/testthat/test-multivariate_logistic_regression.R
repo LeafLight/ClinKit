@@ -1,6 +1,6 @@
-# Set flextable default font to NULL to avoid macOS font segfaults
+# Set flextable default font to Arial to avoid macOS font segfaults
 if (requireNamespace("flextable", quietly = TRUE)) {
-  flextable::set_flextable_defaults(font.family = NULL)
+  flextable::set_flextable_defaults(font.family = "Arial")
 }
 
 # Ensure survival package and colon dataset are available for tests
