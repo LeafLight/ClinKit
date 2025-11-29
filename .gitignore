@@ -1,3 +1,4 @@
 test_output/
 .idea/
 docs
+.DS_Store
