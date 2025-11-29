@@ -1,0 +1,161 @@
+# ClinKit
+
+ClinKit is an integrated R package designed to transform cleaned
+clinical datasets directly into publication-ready figures and
+statistical outputs, while preserving access to raw analysis objects for
+complete methodological transparency and customization.
+
+## Installation
+
+You can install the development version of ClinKit from GitHub:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("LeafLight/ClinKit")
+```
+
+## Example Usage
+
+Below is a minimal example using built-in or example data:
+
+``` r
+library(ClinKit)
+# Example: Generate a baseline table
+data <- data.frame(
+  group = rep(c("A", "B"), each = 50),
+  age = rnorm(100, 60, 10),
+  gender = sample(c("Male", "Female"), 100, replace = TRUE)
+)
+result <- make_baseline_table(data, group_var = "group")
+print(result$summary)
+# Export to Word
+gtsummary::as_flextable(result$summary) |> flextable::save_as_docx(path = "baseline_table.docx")
+```
+
+## Core Analytical Modules
+
+- **make_baseline_table()**: Automated baseline characteristic tables
+  with intelligent test selection. Wraps gtsummary::tbl_summary() with
+  built-in normality testing to automatically choose appropriate
+  parametric or non-parametric tests, exporting directly to formatted
+  Word documents.
+- **Regression Analysis Suite**: Comprehensive modeling with progressive
+  adjustment:
+  - run_univariate_logistic_regression(): Single predictor analysis
+  - run_multivariable_logistic_regression(): Sequential multivariable
+    models (Model 1-4) with incremental covariate adjustment
+  - run_multivariable_multinomial_logistic_regression(): Multi-category
+    outcome analysis
+- **Visualization Tools**:
+  - scatter_lm(): Clean scatter plots with linear regression
+  - scatter_lm_marginal(): Enhanced versions with marginal distributions
+  - subgroup_forest(): Publication-ready forest plots with 4 built-in
+    themes and comprehensive p-value reporting
+- **Specialized Analytical Methods**:
+  - highlow_analysis(): Variable interaction analysis with intuitive
+    high/low grouping
+  - quartile_logistic_analysis(), quartile_multinomial_analysis():
+    Streamlined quartile-based analysis (Q1-Q4) for continuous
+    predictors
+  - roc_analysis(): ROC curve visualization with tidy DeLong test
+    results
+
+## Key Advantages
+
+- Progressive Modeling: Sequential multivariable regression with
+  incremental covariate adjustment (Models 1-4)
+- Reproducible Research: All functions return raw analysis objects
+  alongside formatted outputs
+- Methodological Rigor: Automated statistical appropriateness checks
+- Publication-Ready: Direct export to journal-compatible formats
+- Clinical Focus: Specialized methods for common clinical research
+  scenarios
+
+## Dependencies
+
+ClinKit depends on several R packages, including `gtsummary`,
+`flextable`, `ggplot2`, and others. All dependencies will be installed
+automatically.
+
+## Example Data
+
+You can use your own cleaned clinical dataset, or refer to the example
+in the usage section above.
+
+## Contributing
+
+Contributions, bug reports, and feature requests are welcome! Please
+open an issue or submit a pull request on GitHub.
+
+## Contact
+
+For questions or support, please contact
+[LeafLight](mailto:leaflight@domain.com) or open an issue on the GitHub
+repository.
+
+## License
+
+This project is licensed under the MIT License. See the LICENSE file for
+details.
+
+## Documents & Tutorial
+
+[ClinKit Documents](https://leaflight.github.io/ClinKit/index.html)
+
+# Package index
+
+## All functions
+
+- [`facet_violin()`](https://leaflight.github.io/ClinKit/reference/facet_violin.md)
+  : Faceted Violin Plot
+- [`format_p_value()`](https://leaflight.github.io/ClinKit/reference/format_p_value.md)
+  : Format p-value as plotmath expression string
+- [`generate_rcs_plot()`](https://leaflight.github.io/ClinKit/reference/generate_rcs_plot.md)
+  : Restricted Cubic Splines (RCS) Logistic Regression with Plot
+- [`get_forest_theme()`](https://leaflight.github.io/ClinKit/reference/get_forest_theme.md)
+  [`tm_blue()`](https://leaflight.github.io/ClinKit/reference/get_forest_theme.md)
+  [`tm_green()`](https://leaflight.github.io/ClinKit/reference/get_forest_theme.md)
+  [`tm_cyan()`](https://leaflight.github.io/ClinKit/reference/get_forest_theme.md)
+  [`tm_default()`](https://leaflight.github.io/ClinKit/reference/get_forest_theme.md)
+  : Get Predefined Forest Plot Themes
+- [`highlow_analysis()`](https://leaflight.github.io/ClinKit/reference/highlow_analysis.md)
+  : High-High vs Low-Low Four-Group Logistic Regression with Additive
+  Interaction
+- [`is_normal_overall()`](https://leaflight.github.io/ClinKit/reference/is_normal_overall.md)
+  : Check if all groups for a variable are normal
+- [`make_baseline_table()`](https://leaflight.github.io/ClinKit/reference/make_baseline_table.md)
+  : One-Click Baseline Characteristics Table (gtsummary version)
+- [`make_multivariate_table()`](https://leaflight.github.io/ClinKit/reference/make_multivariate_table.md)
+  : Create Multivariate Analysis Table
+- [`perform_normality_tests()`](https://leaflight.github.io/ClinKit/reference/perform_normality_tests.md)
+  : Perform normality tests for continuous variables by group
+- [`print_normality_summary()`](https://leaflight.github.io/ClinKit/reference/print_normality_summary.md)
+  : Print summary of normality test results
+- [`quartile_logistic_analysis()`](https://leaflight.github.io/ClinKit/reference/quartile_logistic_analysis.md)
+  : Quartile-based Logistic Regression Analysis
+- [`quartile_multinomial_analysis()`](https://leaflight.github.io/ClinKit/reference/quartile_multinomial_analysis.md)
+  : Quartile-based Multinomial Logistic Regression Analysis
+- [`roc_analysis()`](https://leaflight.github.io/ClinKit/reference/roc_analysis.md)
+  : ROC Curve Analysis with AUC Comparison and Optimal Cutoff
+- [`run_analysis_rcs()`](https://leaflight.github.io/ClinKit/reference/run_analysis_rcs.md)
+  : Batch RCS Analysis
+- [`run_multivariable_logistic_regression()`](https://leaflight.github.io/ClinKit/reference/run_multivariable_logistic_regression.md)
+  : Multivariable Logistic Regression (4-layer models)
+- [`run_multivariable_multinomial_logistic_regression()`](https://leaflight.github.io/ClinKit/reference/run_multivariable_multinomial_logistic_regression.md)
+  : Multivariable Multinomial Logistic Regression Analysis
+- [`run_univariate_logistic_regression()`](https://leaflight.github.io/ClinKit/reference/run_univariate_logistic_regression.md)
+  : Univariate Logistic Regression Analysis
+- [`scatter_lm()`](https://leaflight.github.io/ClinKit/reference/scatter_lm.md)
+  : Scatter Plot with Regression Line (Basic Version)
+- [`scatter_lm_marginal()`](https://leaflight.github.io/ClinKit/reference/scatter_lm_marginal.md)
+  : Scatter Plot with Marginal Density/Histogram and Regression Equation
+  (Enhanced Version)
+- [`subgroup_forest()`](https://leaflight.github.io/ClinKit/reference/subgroup_forest.md)
+  : Forest Plot for Subgroup Analysis
+
+# Articles
+
+### All vignettes
+
+- [ClinKit: Streamlined Clinical Data Analysis in
+  R](https://leaflight.github.io/ClinKit/articles/ClinKit-intro.md):
