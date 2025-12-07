@@ -9,25 +9,31 @@ run_univariate_logistic_regression(
   outcomes,
   predictors,
   outcomes_map = NULL,
+  predictors_map = NULL,
   output_dir = NULL,
   save_format = c("csv", "txt", "none")
 )
 }
 \arguments{
-\item{data}{Data frame}
+\item{data}{Data frame.}
 
-\item{outcomes}{Outcome variables (character vector)}
+\item{outcomes}{Outcome variables (character vector).}
 
-\item{predictors}{Predictor variables (character vector)}
+\item{predictors}{Predictor variables (character vector).}
 
-\item{outcomes_map}{Outcome variable mapping (optional)}
+\item{outcomes_map}{Optional named mapping from outcome variable names to
+display labels, e.g. c("A_B" = "A B").}
 
-\item{output_dir}{Output directory (optional, default no file saving)}
+\item{predictors_map}{Optional named mapping from predictor variable names
+to display labels.}
 
-\item{save_format}{Save format: "none", "txt", "csv" (default "csv")}
+\item{output_dir}{Output directory (optional; files are not saved if NULL).}
+
+\item{save_format}{Save format: "csv", "txt", or "none" (default "csv").}
 }
 \value{
-List containing results data frame and optional saved file paths
+A list with components \code{results}, \code{saved_files} and
+\code{call}.
 }
 \description{
 Univariate Logistic Regression Analysis
@@ -41,11 +47,11 @@ result <- run_univariate_logistic_regression(
   predictors = c("mpg", "drat")
 )
 
-# Save as text files
+# Save as CSV files
 result <- run_univariate_logistic_regression(
   data = mtcars,
   outcomes = "vs",
-  predictors = c("mpg", "drat")
+  predictors = c("mpg", "drat"),
   output_dir = tempdir(),
   save_format = "csv"
 )

@@ -10,8 +10,9 @@ run_multivariable_logistic_regression(
   predictors,
   models_list,
   outcomes_map = NULL,
+  predictors_map = NULL,
   output_dir = NULL,
-  save_format = c("none", "txt", "csv")
+  save_format = c("none", "docx", "csv")
 )
 }
 \arguments{
@@ -23,7 +24,11 @@ run_multivariable_logistic_regression(
 
 \item{models_list}{Named list of length 3 with covariates for model2, model3, model4}
 
-\item{outcomes_map}{Outcome variable mapping (optional)}
+\item{outcomes_map}{Optional named mapping from outcome variable names to
+display labels, e.g. c("A_B" = "A B").}
+
+\item{predictors_map}{Optional named mapping from predictor variable names
+to display labels.}
 
 \item{output_dir}{Output directory (optional, default no file saving)}
 

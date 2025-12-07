@@ -4,7 +4,13 @@
 \alias{save_multivariable_result}
 \title{Save Multivariable Analysis Results (Internal)}
 \usage{
-save_multivariable_result(result, output_dir, format, predictor, outcome_name)
+save_multivariable_result(
+  result,
+  outcome,
+  predictor,
+  output_dir,
+  format = c("none", "docx", "csv")
+)
 }
 \description{
 Save Multivariable Analysis Results (Internal)

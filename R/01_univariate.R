@@ -1,13 +1,17 @@
 #' Univariate Logistic Regression Analysis
 #'
-#' @param data          Data frame
-#' @param outcomes      Outcome variables (character vector)
-#' @param predictors    Predictor variables (character vector)
-#' @param outcomes_map  Outcome variable mapping (optional)
-#' @param output_dir    Output directory (optional, default no file saving)
-#' @param save_format   Save format: "none", "txt", "csv" (default "csv")
+#' @param data          Data frame.
+#' @param outcomes      Outcome variables (character vector).
+#' @param predictors    Predictor variables (character vector).
+#' @param outcomes_map  Optional named mapping from outcome variable names to
+#'   display labels, e.g. c("A_B" = "A B").
+#' @param predictors_map Optional named mapping from predictor variable names
+#'   to display labels.
+#' @param output_dir    Output directory (optional; files are not saved if NULL).
+#' @param save_format   Save format: "csv", "txt", or "none" (default "csv").
 #'
-#' @return List containing results data frame and optional saved file paths
+#' @return A list with components \code{results}, \code{saved_files} and
+#'   \code{call}.
 #' @export
 #'
 #' @examples
@@ -19,19 +23,21 @@
 #'   predictors = c("mpg", "drat")
 #' )
 #'
-#' # Save as text files
+#' # Save as CSV files
 #' result <- run_univariate_logistic_regression(
 #'   data = mtcars,
 #'   outcomes = "vs",
-#'   predictors = c("mpg", "drat")
+#'   predictors = c("mpg", "drat"),
 #'   output_dir = tempdir(),
 #'   save_format = "csv"
 #' )
 #' }
+
 run_univariate_logistic_regression <- function(data,
                                               outcomes,
                                               predictors,
                                               outcomes_map = NULL,
+                                               predictors_map = NULL,
                                               output_dir = NULL,
                                               save_format = c("csv", "txt", "none")) {
 
@@ -62,6 +68,9 @@ run_univariate_logistic_regression <- function(data,
   # Handle outcome mapping
   if (is.null(outcomes_map)) {
     outcomes_map <- setNames(outcomes, outcomes)  # Use original names as default
+  }
+  if (is.null(predictors_map)) {
+    predictors_map <- setNames(predictors, predictors)  # Use original names as default
   }
 
   # Store saved file paths
@@ -99,9 +108,13 @@ run_univariate_logistic_regression <- function(data,
 
       # Only process if predictor is in results
       if (predictor %in% rownames(coef_summary)) {
+        lab_outcome   <- outcomes_map[[outcome]]
+        if (is.null(lab_outcome))   lab_outcome   <- outcome
+        lab_predictor <- predictors_map[[predictor]]
+        if (is.null(lab_predictor)) lab_predictor <- predictor
         result_row <- data.frame(
-          predictor = predictor,
-          outcome = outcomes_map[[outcome]],
+          predictor = lab_predictor,
+          outcome = lab_outcome,
           p_value = coef_summary[predictor, 4],
           OR = exp(coef_summary[predictor, 1]),
           lower_ci = conf_int[1],
@@ -122,8 +135,8 @@ run_univariate_logistic_regression <- function(data,
             result_row,
             output_dir,
             save_format,
-            predictor,
-            outcomes_map[[outcome]]
+            lab_predictor,
+            lab_outcome
           )
           saved_files <- c(saved_files, file_saved)
         }

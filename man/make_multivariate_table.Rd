@@ -5,14 +5,14 @@
 \title{Create Multivariate Analysis Table}
 \usage{
 make_multivariate_table(
-  raw_df,
+  result_df,
   out_file = NULL,
   caption = "Multivariate analysis results",
   merge_predictor = TRUE
 )
 }
 \arguments{
-\item{raw_df}{Results data frame from multivariable analysis}
+\item{result_df}{Results data frame from multivariable analysis}
 
 \item{out_file}{Output Word file path (optional)}
 

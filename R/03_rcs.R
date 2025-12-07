@@ -5,6 +5,10 @@
 #' @param data Data frame containing all variables
 #' @param outcome Outcome variable name
 #' @param predictor Continuous predictor variable name for RCS
+#' @param outcomes_map  Optional named mapping from outcome variable names to
+#'   display labels, e.g. c("A_B" = "A B").
+#' @param predictors_map Optional named mapping from predictor variable names
+#'   to display labels.
 #' @param covariates Covariates for adjusted model (optional)
 #' @param knots Number of knots for RCS (default 4)
 #' @param output_dir Output directory (optional)
@@ -19,6 +23,8 @@
 generate_rcs_plot <- function(data,
                              outcome,
                              predictor,
+                              outcomes_map = NULL,
+                              predictors_map = NULL,
                              covariates = NULL,
                              knots = 4,
                              output_dir = NULL,
@@ -29,15 +35,14 @@ generate_rcs_plot <- function(data,
   dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
   if (!dir.exists(output_dir)) stop("Cannot create output_dir: ", output_dir)
 }
+    # Parameter validation
+  save_format <- match.arg(save_format)
   if (save_format %in% c("svg", "all")) {
   if (!requireNamespace("svglite", quietly = TRUE)) {
-    warning("svglite package not available, skipping SVG output")
+    warning("svglite package not available, please install")
     return(NULL)
   }
 }
-
-  # Parameter validation
-  save_format <- match.arg(save_format)
   if (!is.data.frame(data)) {
     stop("data must be a data frame")
   }
@@ -48,6 +53,12 @@ generate_rcs_plot <- function(data,
   }
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop("Please install.packages('ggplot2')")
+  }
+  if (is.null(outcomes_map)) {
+    outcomes_map <- setNames(outcome, outcome)
+  }
+  if (is.null(outcomes_map)) {
+    predictors_map <- setNames(predictor, predictor)
   }
 
   # Check if variables exist
@@ -65,9 +76,14 @@ generate_rcs_plot <- function(data,
   data_complete <- data[complete_cases, ]
 
   # Set up rms environment
-  options(rms = "4.0.0")
+  # options(rms = "4.0.0")
+  # dd <- rms::datadist(data_complete)
+  # options(datadist = dd)
+  old_dd <- getOption("datadist", default = NULL)
   dd <- rms::datadist(data_complete)
   options(datadist = dd)
+  on.exit(options(datadist = old_dd), add = TRUE)
+
 
   # Build formula
   if (is.null(covariates)) {
@@ -105,6 +121,8 @@ generate_rcs_plot <- function(data,
   p_nl <- format_p_value(anova_table[2, 3], name = "p for nonlinear")
   p_oa <- format_p_value(anova_table[1, 3], name = "p for overall")
 
+  lab_outcome <- map_label(outcome, outcomes_map)
+  lab_predictor <- map_label(predictor, predictors_map)
   # Create plot
   p <- ggplot2::ggplot() +
     ggplot2::geom_line(
@@ -128,7 +146,7 @@ generate_rcs_plot <- function(data,
       axis.line = ggplot2::element_line(linewidth = 1)
     ) +
     ggplot2::labs(
-      x = predictor,
+      x = lab_predictor,
       y = "OR (95% CI)",
       title = if (!is.null(covariates)) "Adjusted RCS Plot" else "Unadjusted RCS Plot"
     )
@@ -142,7 +160,7 @@ generate_rcs_plot <- function(data,
 
     # Generate filename
     if (is.null(filename)) {
-      base_name <- paste(predictor, outcome, sep = "_")
+      base_name <- paste(lab_predictor, lab_outcome, sep = "_")
       if (!is.null(covariates)) {
         base_name <- paste0(base_name, "_adjusted")
       }
@@ -197,9 +215,6 @@ generate_rcs_plot <- function(data,
     }
   }
 
-  # Clean up rms environment
-  options(datadist = NULL)
-
   # Return structured results
   return(list(
     plot = p,
@@ -228,8 +243,12 @@ generate_rcs_plot <- function(data,
 #' @param data Data frame containing all variables
 #' @param predictors Character vector of predictor variable names
 #' @param outcomes Character vector of outcome variable names
-#' @param outcomes_map Outcome variable mapping (optional)
+#' @param outcomes_map  Optional named mapping from outcome variable names to
+#'   display labels, e.g. c("A_B" = "A B").
+#' @param predictors_map Optional named mapping from predictor variable names
+#'   to display labels.
 #' @param covariates Covariates for adjusted models (optional)
+#' @param knots Number of knots for RCS (default 4)
 #' @param output_dir Output directory (optional)
 #' @param save_format Save format: "none", "tiff", "svg", "pdf", "all" (default "none")
 #'
@@ -251,8 +270,10 @@ run_analysis_rcs <- function(data,
                             predictors,
                             outcomes,
                             outcomes_map = NULL,
+                            predictors_map = NULL,
                             covariates = NULL,
                             output_dir = NULL,
+                                  knots = 4,
                             save_format = c("none", "tiff", "svg", "pdf", "all")) {
 
   # Parameter validation
@@ -265,6 +286,9 @@ run_analysis_rcs <- function(data,
   if (is.null(outcomes_map)) {
     outcomes_map <- setNames(outcomes, outcomes)
   }
+  if (is.null(outcomes_map)) {
+    predictors_map <- setNames(predictors, predictors)
+  }
 
   # Initialize results
   results_list <- list()
@@ -275,7 +299,9 @@ run_analysis_rcs <- function(data,
     for (outcome in outcomes) {
 
       # Generate base filename
-      base_filename <- paste(predictor, outcomes_map[[outcome]], sep = "_")
+      lab_outcome <- map_label(outcome, outcomes_map)
+      lab_predictor <- map_label(predictor, predictors_map)
+      base_filename <- paste(lab_predictor, lab_outcome, sep = "_")
 
       # Run unadjusted model
       result_unadjusted <-
@@ -283,7 +309,10 @@ run_analysis_rcs <- function(data,
           data = data,
           outcome = outcome,
           predictor = predictor,
+          outcomes_map = outcomes_map,
+          predictors_map = predictors_map,
           covariates = NULL,
+          knots = knots,
           output_dir = if (!is.null(output_dir)) file.path(output_dir, "unadjusted") else NULL,
           save_format = save_format,
           filename = paste0(base_filename, "_unadjusted")
@@ -293,8 +322,8 @@ run_analysis_rcs <- function(data,
       if (!is.null(result_unadjusted)) {
         # Add unadjusted results
         results_list[[paste(predictor, outcome, "unadjusted", sep = "__")]] <- data.frame(
-          predictor = predictor,
-          outcome = outcomes_map[[outcome]],
+          predictor = lab_predictor,
+          outcome = lab_outcome,
           model_type = "unadjusted",
           p_nonlinear = result_unadjusted$p_nonlinear,
           p_overall = result_unadjusted$p_overall,
@@ -317,7 +346,10 @@ run_analysis_rcs <- function(data,
             data = data,
             outcome = outcome,
             predictor = predictor,
+            outcomes_map = outcomes_map,
+            predictors_map = predictors_map,
             covariates = covariates,
+            knots = knots,
             output_dir = if (!is.null(output_dir)) file.path(output_dir, "adjusted") else NULL,
             save_format = save_format,
             filename = paste0(base_filename, "_adjusted")
@@ -327,8 +359,8 @@ run_analysis_rcs <- function(data,
         if (!is.null(result_adjusted)) {
           # Add adjusted results
           results_list[[paste(predictor, outcome, "adjusted", sep = "__")]] <- data.frame(
-            predictor = predictor,
-            outcome = outcomes_map[[outcome]],
+            predictor = lab_predictor,
+            outcome = lab_outcome,
             model_type = "adjusted",
             p_nonlinear = result_adjusted$p_nonlinear,
             p_overall = result_adjusted$p_overall,
@@ -379,16 +411,5 @@ run_analysis_rcs <- function(data,
     call = match.call()
   ))
 }
-
-# data(package = "survival", cancer)
-# # 保存所有结果
-# results <- run_analysis_rcs(
-#   data = colon,
-#   predictors = c("nodes"),
-#   outcomes = c("status"),
-#   covariates = c("sex", "age"),
-#   output_dir = "test_output/rcs",
-#   save_format = "all"
-# )
 
 utils::globalVariables(c("yhat", "lower", "upper"))

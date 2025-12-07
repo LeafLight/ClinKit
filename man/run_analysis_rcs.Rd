@@ -9,8 +9,10 @@ run_analysis_rcs(
   predictors,
   outcomes,
   outcomes_map = NULL,
+  predictors_map = NULL,
   covariates = NULL,
   output_dir = NULL,
+  knots = 4,
   save_format = c("none", "tiff", "svg", "pdf", "all")
 )
 }
@@ -21,11 +23,17 @@ run_analysis_rcs(
 
 \item{outcomes}{Character vector of outcome variable names}
 
-\item{outcomes_map}{Outcome variable mapping (optional)}
+\item{outcomes_map}{Optional named mapping from outcome variable names to
+display labels, e.g. c("A_B" = "A B").}
+
+\item{predictors_map}{Optional named mapping from predictor variable names
+to display labels.}
 
 \item{covariates}{Covariates for adjusted models (optional)}
 
 \item{output_dir}{Output directory (optional)}
+
+\item{knots}{Number of knots for RCS (default 4)}
 
 \item{save_format}{Save format: "none", "tiff", "svg", "pdf", "all" (default "none")}
 }

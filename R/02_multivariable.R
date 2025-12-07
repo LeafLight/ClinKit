@@ -4,7 +4,10 @@
 #' @param outcomes      Outcome variables (character vector)
 #' @param predictors    Predictor variables (character vector)
 #' @param models_list   Named list of length 3 with covariates for model2, model3, model4
-#' @param outcomes_map  Outcome variable mapping (optional)
+#' @param outcomes_map  Optional named mapping from outcome variable names to
+#'   display labels, e.g. c("A_B" = "A B").
+#' @param predictors_map Optional named mapping from predictor variable names
+#'   to display labels.
 #' @param output_dir    Output directory (optional, default no file saving)
 #' @param save_format   Save format: "none", "txt", "csv" (default "none")
 #'
@@ -31,8 +34,9 @@ run_multivariable_logistic_regression <- function(data,
                                                  predictors,
                                                  models_list,
                                                  outcomes_map = NULL,
+                                                  predictors_map = NULL,
                                                  output_dir = NULL,
-                                                 save_format = c("none", "txt", "csv")) {
+                                                 save_format = c("none", "docx", "csv")) {
 
   # Parameter validation
   save_format <- match.arg(save_format)
@@ -56,9 +60,32 @@ run_multivariable_logistic_regression <- function(data,
   if (is.null(outcomes_map)) {
     outcomes_map <- setNames(outcomes, outcomes)
   }
-
+    if (is.null(predictors_map)) {
+    predictors_map <- setNames(predictors, predictors)
+  }
   # Initialize results container
-  results_list <- list()
+  results_df <- data.frame(
+    predictor      = character(),
+    outcome        = character(),
+    OR_m1          = numeric(),
+    LCI_m1         = numeric(),
+    UCI_m1         = numeric(),
+    p_m1           = numeric(),
+    OR_m2          = numeric(),
+    LCI_m2         = numeric(),
+    UCI_m2         = numeric(),
+    p_m2           = numeric(),
+    OR_m3          = numeric(),
+    LCI_m3         = numeric(),
+    UCI_m3         = numeric(),
+    p_m3           = numeric(),
+    OR_m4          = numeric(),
+    LCI_m4         = numeric(),
+    UCI_m4         = numeric(),
+    p_m4           = numeric(),
+    n_observations = integer(),
+    stringsAsFactors = FALSE
+  )
   saved_files <- character(0)
 
   # Iterate through predictors and outcomes
@@ -140,9 +167,11 @@ run_multivariable_logistic_regression <- function(data,
       res4 <- fit_model(f4, "Model4")
 
       # Create result row
+      lab_outcome <- map_label(outcome, outcomes_map)
+      lab_predictor <- map_label(predictor, predictors_map)
       result_row <- data.frame(
-        predictor = predictor,
-        outcome = outcomes_map[[outcome]],
+        predictor = lab_predictor,
+        outcome = lab_outcome,
         OR_m1 = res1$OR,
         LCI_m1 = res1$lower_ci,
         UCI_m1 = res1$upper_ci,
@@ -165,29 +194,27 @@ run_multivariable_logistic_regression <- function(data,
 
       # Add to results
       if (requireNamespace("dplyr", quietly = TRUE)) {
-        results_list <- dplyr::bind_rows(results_list, result_row)
+        results_df <- dplyr::bind_rows(results_df, result_row)
       } else {
-        results_list <- rbind(results_list, result_row)
+        results_df <- rbind(results_df, result_row)
+        row.names(results_df) <- NULL
       }
 
       # Save individual file if requested
       if (save_format != "none" && !is.null(output_dir)) {
         file_saved <- save_multivariable_result(
-          result_row, output_dir, save_format, predictor, outcomes_map[[outcome]]
+          result_row, lab_outcome, lab_predictor, output_dir, save_format
         )
         saved_files <- c(saved_files, file_saved)
       }
     }
   }
 
-  # Reset row names if using base R
-  if (!requireNamespace("dplyr", quietly = TRUE) && !is.null(results_list)) {
-    row.names(results_list) <- NULL
-  }
+
 
   # Return structured results
   return(list(
-    results = results_list,
+    results = results_df,
     saved_files = if (length(saved_files) > 0) saved_files else NULL,
     call = match.call()
   ))
@@ -195,40 +222,31 @@ run_multivariable_logistic_regression <- function(data,
 
 #' Save Multivariable Analysis Results (Internal)
 #' @keywords internal
-save_multivariable_result <- function(result, output_dir, format, predictor, outcome_name) {
-# nocov start
+save_multivariable_result <- function(result, outcome, predictor, output_dir, format = c("none", "docx", "csv")) {
+  format <- match.arg(format)
+  # nocov start
   if (!dir.exists(output_dir)) {
     dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
   }
 
   safe_predictor <- gsub("[^a-zA-Z0-9]", "_", predictor)
-  safe_outcome <- gsub("[^a-zA-Z0-9]", "_", outcome_name)
+  safe_outcome <- gsub("[^a-zA-Z0-9]", "_", outcome)
   timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
 
-  if (format == "txt") {
-    filename <- file.path(output_dir,
-                         sprintf("multivariable_%s_%s_%s.txt",
+  if (format == "docx") {
+    filename_after_output_dir <- file.path(output_dir,
+                         sprintf("multivariable_%s_%s_%s.docx",
                                 safe_predictor, safe_outcome, timestamp))
-
-    content <- sprintf(
-      "Multivariable Logistic Regression Analysis Results\n\nPredictor: %s\nOutcome: %s\nSample Size: %d\n\nModel 1 (Unadjusted):\nOR = %.2f, 95%% CI [%.2f-%.2f], p = %.4f\n\nModel 2 (Adjusted for model2):\nOR = %.2f, 95%% CI [%.2f-%.2f], p = %.4f\n\nModel 3 (+model3):\nOR = %.2f, 95%% CI [%.2f-%.2f], p = %.4f\n\nModel 4 (+model4):\nOR = %.2f, 95%% CI [%.2f-%.2f], p = %.4f",
-      predictor, outcome_name, result$n_observations,
-      result$OR_m1, result$LCI_m1, result$UCI_m1, result$p_m1,
-      result$OR_m2, result$LCI_m2, result$UCI_m2, result$p_m2,
-      result$OR_m3, result$LCI_m3, result$UCI_m3, result$p_m3,
-      result$OR_m4, result$LCI_m4, result$UCI_m4, result$p_m4
-    )
-
-    writeLines(content, con = filename, useBytes = TRUE)
+    make_multivariate_table(result, out_file = filename_after_output_dir,)
 
   } else if (format == "csv") {
-    filename <- file.path(output_dir,
+    filename_after_output_dir <- file.path(output_dir,
                          sprintf("multivariable_%s_%s_%s.csv",
                                 safe_predictor, safe_outcome, timestamp))
-    utils::write.csv(result, file = filename, row.names = FALSE, fileEncoding = "UTF-8")
+    utils::write.csv(result, file = filename_after_output_dir, row.names = FALSE, fileEncoding = "UTF-8")
   }
 
-  return(filename)
+  return(filename_after_output_dir)
   # nocov end
 }
 
@@ -236,14 +254,14 @@ save_multivariable_result <- function(result, output_dir, format, predictor, out
 
 #' Create Multivariate Analysis Table
 #'
-#' @param raw_df Results data frame from multivariable analysis
+#' @param result_df Results data frame from multivariable analysis
 #' @param out_file Output Word file path (optional)
 #' @param caption Table caption
 #' @param merge_predictor Merge identical predictor cells vertically (default TRUE)
 #'
 #' @return If out_file is NULL, returns flextable object; otherwise writes to file and returns NULL
 #' @export
-make_multivariate_table <- function(raw_df,
+make_multivariate_table <- function(result_df,
                                     out_file = NULL,
                                     caption = "Multivariate analysis results",
                                     merge_predictor = TRUE) {
@@ -253,14 +271,12 @@ make_multivariate_table <- function(raw_df,
     stop("Please install.packages('flextable')")
   if (!requireNamespace("dplyr", quietly = TRUE))
     stop("Please install.packages('dplyr')")
-  if (!requireNamespace("tidyr", quietly = TRUE))
-    stop("Please install.packages('tidyr')")
 
   # Ensure data.frame
-  raw_df <- as.data.frame(raw_df, stringsAsFactors = FALSE)
+  result_df <- as.data.frame(result_df, stringsAsFactors = FALSE)
 
   # Data processing with separate OR and p-value columns
-  dat <- raw_df %>%
+  dat <- result_df %>%
     dplyr::mutate(
       Predictor = as.character(predictor),
       Outcome = as.character(outcome),
@@ -283,9 +299,6 @@ make_multivariate_table <- function(raw_df,
   # Create flextable
 
   ft <- flextable::flextable(dat) %>%
-    flextable::hline_top(border = officer::fp_border(width = 2), part = "header") %>%
-    flextable::hline_bottom(border = officer::fp_border(width = 2), part = "header") %>%
-    flextable::hline_bottom(border = officer::fp_border(width = 1), part = "body") %>%
     flextable::border_remove() %>%
     flextable::bold(part = "header") %>%
     flextable::align(align = "center", part = "all") %>%
@@ -458,16 +471,16 @@ run_multivariable_multinomial_logistic_regression <- function(data,
         if (is.null(tidy_result)) next
 
         # Filter for current predictor and add model info
-predictor_results <- tidy_result %>%
-  dplyr::filter(term == predictor) %>%
-  dplyr::mutate(
-    predictor = predictor,
-    outcome = outcome,
-    model = model_name,
-    n_observations = sum(complete_cases),
-    level = as.character(y.level),
-    comparison = paste0(level, " vs ", outcome_levels[1])
-  )
+        predictor_results <- tidy_result %>%
+          dplyr::filter(term == predictor) %>%
+          dplyr::mutate(
+            predictor = predictor,
+            outcome = outcome,
+            model = model_name,
+            n_observations = sum(complete_cases),
+            level = as.character(y.level),
+            comparison = paste0(level, " vs ", outcome_levels[1])
+          )
 
         model_results[[model_name]] <- predictor_results
       }
@@ -475,7 +488,33 @@ predictor_results <- tidy_result %>%
       # Combine results for current predictor-outcome pair
       if (length(model_results) > 0) {
         combined_results <- dplyr::bind_rows(model_results)
-        results_list <- append(results_list, list(combined_results))
+        # results_list <- append(results_list, list(combined_results))
+        p_o_key <- sprintf("%s__%s", predictor, outcome)
+        results_list[[p_o_key]] <- combined_results
+        # Save results respectively if requested
+        if (save_format != "none" && !is.null(output_dir)) {
+          if (!dir.exists(output_dir)) {
+            dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+          }
+
+          timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
+
+          safe_predictor <- gsub("[^a-zA-Z0-9]", "_", predictor)
+          safe_outcome <- gsub("[^a-zA-Z0-9]", "_", outcome)
+          if (save_format == "csv") {
+            csv_file <- file.path(output_dir,
+                     sprintf("multivariable_%s_%s_%s.csv",
+                            safe_predictor, safe_outcome, timestamp))
+            utils::write.csv(combined_results, csv_file, row.names = FALSE)
+            saved_files <- c(saved_files, csv_file)
+          } else if (save_format == "docx") {
+            docx_file <- file.path(output_dir,
+                      sprintf("multivariable_%s_%s_%s.docx",
+                            safe_predictor, safe_outcome, timestamp))
+            make_multivariable_multinomial_table(combined_results, docx_file)
+            saved_files <- c(saved_files, docx_file)
+          }
+        }
       }
     }
   }
@@ -491,24 +530,24 @@ predictor_results <- tidy_result %>%
     final_results <- data.frame()
   }
 
-  # Save results if requested
-  if (save_format != "none" && !is.null(output_dir)) {
-    if (!dir.exists(output_dir)) {
-      dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
-    }
-
-    timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
-
-    if (save_format == "csv") {
-      csv_file <- file.path(output_dir, sprintf("multinomial_results_%s.csv", timestamp))
-      utils::write.csv(final_results, csv_file, row.names = FALSE)
-      saved_files <- c(saved_files, csv_file)
-    } else if (save_format == "docx") {
-      docx_file <- file.path(output_dir, sprintf("multinomial_results_%s.docx", timestamp))
-      save_multinomial_table(final_results, docx_file)
-      saved_files <- c(saved_files, docx_file)
-    }
-  }
+  # # Save results as a whole if requested
+  # if (save_format != "none" && !is.null(output_dir)) {
+  #   if (!dir.exists(output_dir)) {
+  #     dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+  #   }
+  #
+  #   timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
+  #
+  #   if (save_format == "csv") {
+  #     csv_file <- file.path(output_dir, sprintf("multinomial_results_%s.csv", timestamp))
+  #     utils::write.csv(final_results, csv_file, row.names = FALSE)
+  #     saved_files <- c(saved_files, csv_file)
+  #   } else if (save_format == "docx") {
+  #     docx_file <- file.path(output_dir, sprintf("multinomial_results_%s.docx", timestamp))
+  #     make_multivariable_multinomial_table(final_results, docx_file)
+  #     saved_files <- c(saved_files, docx_file)
+  #   }
+  # }
 
   # Return structured results
   return(list(
@@ -520,7 +559,7 @@ predictor_results <- tidy_result %>%
 
 #' Save Multinomial Results Table (Internal)
 #' @keywords internal
-save_multinomial_table <- function(results, file_path) {
+make_multivariable_multinomial_table <- function(results, file_path) {
   # nocov start
   if (!requireNamespace("flextable", quietly = TRUE) ||
       !requireNamespace("officer", quietly = TRUE)) {

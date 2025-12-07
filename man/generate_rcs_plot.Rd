@@ -8,6 +8,8 @@ generate_rcs_plot(
   data,
   outcome,
   predictor,
+  outcomes_map = NULL,
+  predictors_map = NULL,
   covariates = NULL,
   knots = 4,
   output_dir = NULL,
@@ -21,6 +23,12 @@ generate_rcs_plot(
 \item{outcome}{Outcome variable name}
 
 \item{predictor}{Continuous predictor variable name for RCS}
+
+\item{outcomes_map}{Optional named mapping from outcome variable names to
+display labels, e.g. c("A_B" = "A B").}
+
+\item{predictors_map}{Optional named mapping from predictor variable names
+to display labels.}
 
 \item{covariates}{Covariates for adjusted model (optional)}
 
