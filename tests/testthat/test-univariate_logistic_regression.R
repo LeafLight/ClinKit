@@ -1,7 +1,4 @@
 if (tolower(Sys.info()[['sysname']]) == "darwin") skip("skip all tests on macOS: known segfaults in dependencies")
-
-library(testthat)
-library(ClinKit)
 test_that("univariate logistic regression works", {
               tmp_fp <- withr::local_tempdir()
               #out_file <- file.path(tmp, "table1.docx")

@@ -11,9 +11,6 @@ if (!requireNamespace("survival", quietly = TRUE)) {
 }
 library(survival)
 if (!exists("colon")) data(colon, package = "survival")
-
-library(ClinKit)
-library(testthat)
 test_that("mulivaraite logistic regression works", {
   is_mac <- tolower(Sys.info()[['sysname']]) == "darwin"
   tmp_fp <- withr::local_tempdir()

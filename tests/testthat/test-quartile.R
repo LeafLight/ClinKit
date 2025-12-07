@@ -1,5 +1,3 @@
-library(ClinKit)
-library(testthat)
 if (tolower(Sys.info()[['sysname']]) == "darwin") skip("skip all tests on macOS: known segfaults in dependencies")
 test_that("quartile analysis works", {
     tmp_fp <- withr::local_tempdir()
