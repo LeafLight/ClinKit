@@ -11,8 +11,9 @@ run_multivariable_logistic_regression(
   predictors,
   models_list,
   outcomes_map = NULL,
+  predictors_map = NULL,
   output_dir = NULL,
-  save_format = c("none", "txt", "csv")
+  save_format = c("none", "docx", "csv")
 )
 ```
 
@@ -36,7 +37,13 @@ run_multivariable_logistic_regression(
 
 - outcomes_map:
 
-  Outcome variable mapping (optional)
+  Optional named mapping from outcome variable names to display labels,
+  e.g. c("A_B" = "A B").
+
+- predictors_map:
+
+  Optional named mapping from predictor variable names to display
+  labels.
 
 - output_dir:
 

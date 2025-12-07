@@ -3,7 +3,7 @@ pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
   ClinKit-intro: ClinKit-intro.html
-last_built: 2025-12-07T07:48Z
+last_built: 2025-12-07T12:06Z
 urls:
   reference: https://leaflight.github.io/ClinKit/reference
   article: https://leaflight.github.io/ClinKit/articles

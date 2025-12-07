@@ -14,7 +14,9 @@
 <url><loc>https://leaflight.github.io/ClinKit/reference/index.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/reference/is_normal_overall.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/reference/make_baseline_table.html</loc></url>
+<url><loc>https://leaflight.github.io/ClinKit/reference/make_multivariable_multinomial_table.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/reference/make_multivariate_table.html</loc></url>
+<url><loc>https://leaflight.github.io/ClinKit/reference/map_label.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/reference/perform_normality_tests.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/reference/print_normality_summary.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/reference/quartile_logistic_analysis.html</loc></url>
@@ -28,7 +30,6 @@
 <url><loc>https://leaflight.github.io/ClinKit/reference/save_highlow_table.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/reference/save_interaction_table.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/reference/save_multinomial_quartile_table.html</loc></url>
-<url><loc>https://leaflight.github.io/ClinKit/reference/save_multinomial_table.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/reference/save_multivariable_result.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/reference/save_quartile_table.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/reference/scatter_lm.html</loc></url>

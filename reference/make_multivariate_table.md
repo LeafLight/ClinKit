@@ -6,7 +6,7 @@ Create Multivariate Analysis Table
 
 ``` r
 make_multivariate_table(
-  raw_df,
+  result_df,
   out_file = NULL,
   caption = "Multivariate analysis results",
   merge_predictor = TRUE
@@ -15,7 +15,7 @@ make_multivariate_table(
 
 ## Arguments
 
-- raw_df:
+- result_df:
 
   Results data frame from multivariable analysis
 

@@ -46,6 +46,8 @@
 <span>  <span class="va">data</span>,</span>
 <span>  <span class="va">outcome</span>,</span>
 <span>  <span class="va">predictor</span>,</span>
+<span>  outcomes_map <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  predictors_map <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  covariates <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  knots <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>  output_dir <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -68,6 +70,16 @@
 
 <dt id="arg-predictor">predictor<a class="anchor" aria-label="anchor" href="#arg-predictor"></a></dt>
 <dd><p>Continuous predictor variable name for RCS</p></dd>
+
+
+<dt id="arg-outcomes-map">outcomes_map<a class="anchor" aria-label="anchor" href="#arg-outcomes-map"></a></dt>
+<dd><p>Optional named mapping from outcome variable names to
+display labels, e.g. c("A_B" = "A B").</p></dd>
+
+
+<dt id="arg-predictors-map">predictors_map<a class="anchor" aria-label="anchor" href="#arg-predictors-map"></a></dt>
+<dd><p>Optional named mapping from predictor variable names
+to display labels.</p></dd>
 
 
 <dt id="arg-covariates">covariates<a class="anchor" aria-label="anchor" href="#arg-covariates"></a></dt>

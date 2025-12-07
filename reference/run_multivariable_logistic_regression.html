@@ -48,8 +48,9 @@
 <span>  <span class="va">predictors</span>,</span>
 <span>  <span class="va">models_list</span>,</span>
 <span>  outcomes_map <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  predictors_map <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  output_dir <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  save_format <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"none"</span>, <span class="st">"txt"</span>, <span class="st">"csv"</span><span class="op">)</span></span>
+<span>  save_format <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"none"</span>, <span class="st">"docx"</span>, <span class="st">"csv"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -74,7 +75,13 @@
 
 
 <dt id="arg-outcomes-map">outcomes_map<a class="anchor" aria-label="anchor" href="#arg-outcomes-map"></a></dt>
-<dd><p>Outcome variable mapping (optional)</p></dd>
+<dd><p>Optional named mapping from outcome variable names to
+display labels, e.g. c("A_B" = "A B").</p></dd>
+
+
+<dt id="arg-predictors-map">predictors_map<a class="anchor" aria-label="anchor" href="#arg-predictors-map"></a></dt>
+<dd><p>Optional named mapping from predictor variable names
+to display labels.</p></dd>
 
 
 <dt id="arg-output-dir">output_dir<a class="anchor" aria-label="anchor" href="#arg-output-dir"></a></dt>
