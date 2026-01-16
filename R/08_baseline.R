@@ -77,8 +77,19 @@ make_baseline_table <- function(
   data <- data %>% dplyr::select(all_of(outcome), all_of(vars))
 
   # 2. Identify continuous variables
-  continuous_vars <- vars[sapply(data[vars], is.numeric)]
-  categorical_vars <- setdiff(vars, continuous_vars)
+   # Let gtsummary decide variable types
+  tbl_tmp <- gtsummary::tbl_summary(
+    data = data,
+    by = all_of(outcome),
+    missing = "no"
+  )
+
+  var_types <- tbl_tmp$table_body %>%
+    dplyr::distinct(variable, var_type)
+
+  continuous_vars <- var_types$variable[var_types$var_type == "continuous"]
+  categorical_vars <- var_types$variable[var_types$var_type == "categorical"]
+
 
   # 3. Perform normality tests for continuous variables
   normality_results <- perform_normality_tests(
@@ -97,11 +108,9 @@ make_baseline_table <- function(
   # Add continuous variables with appropriate statistics
   for (var in continuous_vars) {
     if (is_normal_overall(normality_results, var)) {
-      # All groups normal: use mean (SD)
-      statistic_list[[paste0("all_continuous() == '", var, "'")]] <- "{mean} ({sd})"
+      statistic_list[[ var ]] <- "{mean} ({sd})"
     } else {
-      # At least one group non-normal: use median (IQR)
-      statistic_list[[paste0("all_continuous() == '", var, "'")]] <- "{median} ({p25}, {p75})"
+      statistic_list[[ var ]] <- "{median} ({p25}, {p75})"
     }
   }
 
@@ -278,23 +287,23 @@ print_normality_summary <- function(normality_results) {
   }
 }
 
-# # Example usage
-# make_baseline_table(
-#   data = mtcars,
-#   outcome = "vs",  # V-shaped vs Straight engine
-#   vars = NULL,     # Use all variables except outcome
-#   file = "./test_output/table1_complete.docx",
-#   label_list = list(
-#     mpg = "Miles per Gallon",
-#     cyl = "Number of Cylinders",
-#     disp = "Displacement (cu.in.)",
-#     hp = "Horsepower",
-#     drat = "Rear Axle Ratio",
-#     wt = "Weight (1000 lbs)",
-#     qsec = "Quarter Mile Time",
-#     gear = "Number of Forward Gears",
-#     carb = "Number of Carburetors"
-#   ),
-#   normality_test_method = "shapiro",
-#   export_normality = TRUE
-# )
+# Example usage
+make_baseline_table(
+  data = mtcars,
+  outcome = "vs",  # V-shaped vs Straight engine
+  vars = NULL,     # Use all variables except outcome
+  file = "./test_output/table1_complete.docx",
+  label_list = list(
+    mpg = "Miles per Gallon",
+    cyl = "Number of Cylinders",
+    disp = "Displacement (cu.in.)",
+    hp = "Horsepower",
+    drat = "Rear Axle Ratio",
+    wt = "Weight (1000 lbs)",
+    qsec = "Quarter Mile Time",
+    gear = "Number of Forward Gears",
+    carb = "Number of Carburetors"
+  ),
+  normality_test_method = "shapiro",
+  export_normality = TRUE
+)
