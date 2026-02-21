@@ -287,23 +287,3 @@ print_normality_summary <- function(normality_results) {
   }
 }
 
-# Example usage
-make_baseline_table(
-  data = mtcars,
-  outcome = "vs",  # V-shaped vs Straight engine
-  vars = NULL,     # Use all variables except outcome
-  file = "./test_output/table1_complete.docx",
-  label_list = list(
-    mpg = "Miles per Gallon",
-    cyl = "Number of Cylinders",
-    disp = "Displacement (cu.in.)",
-    hp = "Horsepower",
-    drat = "Rear Axle Ratio",
-    wt = "Weight (1000 lbs)",
-    qsec = "Quarter Mile Time",
-    gear = "Number of Forward Gears",
-    carb = "Number of Carburetors"
-  ),
-  normality_test_method = "shapiro",
-  export_normality = TRUE
-)
