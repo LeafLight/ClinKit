@@ -208,7 +208,7 @@ if (!requireNamespace("ggpmisc", quietly = TRUE)) {
       theme_classic()
   } else {
     # With color grouping
-    p_main <- ggplot(data, aes(!!x_sym, !!y_sym, color = !!sym(color))) +
+    p_main <- ggplot(data, aes(!!x_sym, !!y_sym, color = factor(!!sym(color)))) +
       geom_point(alpha = 0.5, na.rm = TRUE) +
       ggpmisc::stat_poly_line(formula = y ~ x) +
       ggpmisc::stat_poly_eq(
@@ -216,7 +216,7 @@ if (!requireNamespace("ggpmisc", quietly = TRUE)) {
         formula = y ~ x,
         parse = TRUE
       ) +
-      scale_color_npg() +
+      ggsci::scale_color_npg() +
       guides(colour = "none", size = "none") +
       theme_classic()
   }
