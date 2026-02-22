@@ -197,8 +197,8 @@ if (!requireNamespace("ggpmisc", quietly = TRUE)) {
     color <- ".no_color"
     p_main <- ggplot(data, aes(!!x_sym, !!y_sym, color = !!sym(color))) +
       geom_point(alpha = 0.5, na.rm = TRUE) +
-      stat_poly_line(formula = y ~ x) +
-      stat_poly_eq(
+      ggpmisc::stat_poly_line(formula = y ~ x) +
+      ggpmisc::stat_poly_eq(
         aes(label = paste(..eq.label.., ..rr.label.., ..p.value.label.., sep = "*\", \"*")),
         formula = y ~ x,
         parse = TRUE
