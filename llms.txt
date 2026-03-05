@@ -143,6 +143,8 @@ details.
   : Multivariable Logistic Regression (4-layer models)
 - [`run_multivariable_multinomial_logistic_regression()`](https://leaflight.github.io/ClinKit/reference/run_multivariable_multinomial_logistic_regression.md)
   : Multivariable Multinomial Logistic Regression Analysis
+- [`run_reclassification_analysis()`](https://leaflight.github.io/ClinKit/reference/run_reclassification_analysis.md)
+  : Reclassification Analysis (NRI & IDI)
 - [`run_univariate_logistic_regression()`](https://leaflight.github.io/ClinKit/reference/run_univariate_logistic_regression.md)
   : Univariate Logistic Regression Analysis
 - [`scatter_lm()`](https://leaflight.github.io/ClinKit/reference/scatter_lm.md)
