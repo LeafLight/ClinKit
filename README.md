@@ -1,4 +1,4 @@
-```markdown
+
 # ClinKit 
 
 [![Codecov test coverage](https://codecov.io/gh/LeafLight/ClinKit/graph/badge.svg)](https://app.codecov.io/gh/LeafLight/ClinKit)
@@ -23,9 +23,8 @@ You can install the development version of ClinKit from GitHub:
 # install.packages("devtools")
 devtools::install_github("LeafLight/ClinKit")
 
-```
-
 ---
+
 
 ## 🚀 The ClinKit Workflow (Standard Operating Procedure)
 
@@ -103,18 +102,3 @@ Methodological contributions, bug reports, and pull requests are welcome!
 
 * **Author**: [Hualin Wang]([LeafLight](https://github.com/LeafLight))
 * **License**: MIT
-
-```
-
----
-
-### 🏁 Next Step: Launching Phase 2
-
-Now that your "digital storefront" is ready in perfect English:
-
-1.  **Commit and Push** this `README.md`.
-2.  **Start the Golden Case**: I will guide you through running `use_clinkit_project()` in a clean directory and using the `survival::colon` dataset to generate a full set of results.
-
-**Are you ready to see ClinKit in action for a real study?**
-
-```
