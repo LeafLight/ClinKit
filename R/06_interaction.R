@@ -167,29 +167,42 @@ highlow_analysis <- function(
       dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
     }
 
-    timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
+    #timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
 
     if (save_format %in% c("docx", "all")) {
       # Save main results table
       print(table_results)
       if (nrow(table_results) > 0) {
-        main_file <- file.path(output_dir, sprintf("%s_main_%s.docx", filename_base, timestamp))
+        #main_file <- file.path(output_dir, sprintf("%s_main_%s.docx", filename_base, timestamp))
+        main_file <- generate_filepath(
+          base_name =  sprintf("%s_main", filename_base),
+          ext = "docx",
+          output_dir = output_dir
+        )
         save_highlow_table(table_results, main_file, "Joint Association Analysis")
         saved_files <- c(saved_files, main_file)
       }
 
       # Save interaction results
       if (!is.null(interaction_result)) {
-        int_file <- file.path(output_dir, sprintf("%s_interaction", filename_base))
-        dir.create(file.path(output_dir,"%s_interaction"))
-        save_interaction_table(interaction_result, int_file)
-        saved_files <- c(saved_files,  paste0(int_file, "\\interaction.docx", collapse = ""))
+        int_file_path <- generate_filepath(
+          base_name = sprintf("%s_interaction", filename_base),
+          ext = "docx",
+          output_dir = output_dir
+        )
+        save_interaction_table(interaction_result, int_file_path)
+        saved_files <- c(saved_files, int_file_path)
       }
     }
 
     if (save_format == "all") {
       # Save raw data
-      data_file <- file.path(output_dir, sprintf("%s_data_%s.csv", filename_base, timestamp))
+      #data_file <- file.path(output_dir, sprintf("%s_data_%s.csv", filename_base, timestamp))
+      data_file <- generate_filepath(
+          base_name =  sprintf("%s_data", filename_base),
+          ext = "csv",
+          output_dir = output_dir
+        )
       utils::write.csv(table_results, data_file, row.names = FALSE)
       saved_files <- c(saved_files, data_file)
     }
@@ -234,13 +247,26 @@ save_interaction_table <- function(interaction_result, file_path) {
   if (is.null(interaction_result)) return(NULL)
 
   # Round numeric values
-  interaction_result$dframe <- as.data.frame(
+  df <- as.data.frame(
     lapply(interaction_result$dframe, function(x) {
       if(is.numeric(x)) round(x, 4) else x
-    })
+    }),
+    stringsAsFactors = FALSE
   )
-print(file_path)
-  interactionR::interactionR_table(interaction_result, p.value = TRUE, file_path = file_path)
+  ft <- flextable::flextable(df) %>%
+    flextable::border_remove() %>%
+    flextable::hline_top(border = officer::fp_border(width = 2), part = "all") %>%
+    flextable::hline_bottom(border = officer::fp_border(width = 1), part = "header") %>%
+    flextable::hline_bottom(border = officer::fp_border(width = 2), part = "body") %>%
+    flextable::bold(part = "header") %>%
+    flextable::align(align = "center", part = "all") %>%
+    flextable::fontsize(size = 10, part = "all") %>%
+    flextable::font(fontname = "Times New Roman", part = "all") %>%
+    flextable::set_caption("Additive Interaction Measures") %>%
+    flextable::autofit()
+  officer::read_docx() %>%
+      flextable::body_add_flextable(ft) %>%
+      print(target = file_path)
 }
 
 utils::globalVariables(c("group", "term", "estimate", "conf.low", "conf.high", "p.value", "OR_CI", "P_value", "Cases"))

@@ -164,12 +164,13 @@ save_analysis_result <- function(result, output_dir, format, predictor, outcome_
   # Generate safe file names
   safe_predictor <- gsub("[^a-zA-Z0-9]", "_", predictor)
   safe_outcome <- gsub("[^a-zA-Z0-9]", "_", outcome_name)
-  timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
 
   if (format == "txt") {
-    filename <- file.path(output_dir,
-                         sprintf("univariate_%s_%s_%s.txt",
-                                safe_predictor, safe_outcome, timestamp))
+    filename <- generate_filepath(
+      base_name =  sprintf("univariate_%s_%s", safe_predictor, safe_outcome),
+      ext = "txt",
+      output_dir = output_dir
+    )
 
     content <- sprintf(
       "Univariate Logistic Regression Analysis Results\n\nPredictor: %s\nOutcome: %s\nSample Size: %d\nOR: %.3f\n95%% Confidence Interval: [%.3f, %.3f]\nP-value: %.4f\nAnalysis Time: %s",
@@ -181,9 +182,11 @@ save_analysis_result <- function(result, output_dir, format, predictor, outcome_
     writeLines(content, con = filename, useBytes = TRUE)
 
   } else if (format == "csv") {
-    filename <- file.path(output_dir,
-                         sprintf("univariate_%s_%s_%s.csv",
-                                safe_predictor, safe_outcome, timestamp))
+    filename <- generate_filepath(
+      base_name =  sprintf("univariate_%s_%s", safe_predictor, safe_outcome),
+      ext = "csv",
+      output_dir = output_dir
+    )
     utils::write.csv(result, file = filename, row.names = FALSE, fileEncoding = "UTF-8")
   }
 

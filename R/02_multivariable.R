@@ -231,18 +231,21 @@ save_multivariable_result <- function(result, outcome, predictor, output_dir, fo
 
   safe_predictor <- gsub("[^a-zA-Z0-9]", "_", predictor)
   safe_outcome <- gsub("[^a-zA-Z0-9]", "_", outcome)
-  timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
 
   if (format == "docx") {
-    filename_after_output_dir <- file.path(output_dir,
-                         sprintf("multivariable_%s_%s_%s.docx",
-                                safe_predictor, safe_outcome, timestamp))
-    make_multivariate_table(result, out_file = filename_after_output_dir,)
+    filename_after_output_dir <- generate_filepath(
+      base_name =  sprintf("multivariable_%s_%s", safe_predictor, safe_outcome),
+      ext = "docx",
+      output_dir = output_dir
+    )
+    make_multivariate_table(result, out_file = filename_after_output_dir)
 
   } else if (format == "csv") {
-    filename_after_output_dir <- file.path(output_dir,
-                         sprintf("multivariable_%s_%s_%s.csv",
-                                safe_predictor, safe_outcome, timestamp))
+    filename_after_output_dir <- generate_filepath(
+      base_name =  sprintf("multivariable_%s_%s", safe_predictor, safe_outcome),
+      ext = "csv",
+      output_dir = output_dir
+    )
     utils::write.csv(result, file = filename_after_output_dir, row.names = FALSE, fileEncoding = "UTF-8")
   }
 
@@ -497,20 +500,30 @@ run_multivariable_multinomial_logistic_regression <- function(data,
             dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
           }
 
-          timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
+          #timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
 
           safe_predictor <- gsub("[^a-zA-Z0-9]", "_", predictor)
           safe_outcome <- gsub("[^a-zA-Z0-9]", "_", outcome)
           if (save_format == "csv") {
-            csv_file <- file.path(output_dir,
-                     sprintf("multivariable_%s_%s_%s.csv",
-                            safe_predictor, safe_outcome, timestamp))
+            # csv_file <- file.path(output_dir,
+            #          sprintf("multivariable_%s_%s_%s.csv",
+            #                 safe_predictor, safe_outcome, timestamp))
+            csv_file <- generate_filepath(
+              base_name =  sprintf("multivariable_%s_%s", safe_predictor, safe_outcome),
+              ext = "csv",
+              output_dir = output_dir
+            )
             utils::write.csv(combined_results, csv_file, row.names = FALSE)
             saved_files <- c(saved_files, csv_file)
           } else if (save_format == "docx") {
-            docx_file <- file.path(output_dir,
-                      sprintf("multivariable_%s_%s_%s.docx",
-                            safe_predictor, safe_outcome, timestamp))
+            # docx_file <- file.path(output_dir,
+            #           sprintf("multivariable_%s_%s_%s.docx",
+            #                 safe_predictor, safe_outcome, timestamp))
+            docx_file <- generate_filepath(
+              base_name =  sprintf("multivariable_%s_%s", safe_predictor, safe_outcome),
+              ext = "docx",
+              output_dir = output_dir
+            )
             make_multivariable_multinomial_table(combined_results, docx_file)
             saved_files <- c(saved_files, docx_file)
           }

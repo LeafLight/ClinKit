@@ -253,17 +253,27 @@ roc_analysis <- function(data,
       dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
     }
 
-    timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
+    #timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
 
     if (save_format %in% c("data", "all")) {
       # Save AUC summary
-      auc_file <- file.path(output_dir, sprintf("roc_auc_summary_%s.csv", timestamp))
+      #auc_file <- file.path(output_dir, sprintf("roc_auc_summary_%s.csv", timestamp))
+      auc_file <- generate_filepath(
+        base_name =  "roc_auc_summary",
+        ext = "csv",
+        output_dir = output_dir
+      )
       utils::write.csv(auc_summary, auc_file, row.names = FALSE)
       saved_files <- c(saved_files, auc_file)
 
       # Save DeLong test results
       if (!is.null(delong_results)) {
-        delong_file <- file.path(output_dir, sprintf("roc_delong_test_%s.csv", timestamp))
+        #delong_file <- file.path(output_dir, sprintf("roc_delong_test_%s.csv", timestamp))
+        delong_file <- generate_filepath(
+          base_name =  "roc_delong_test",
+          ext = "csv",
+          output_dir = output_dir
+        )
         utils::write.csv(delong_results, delong_file, row.names = FALSE)
         saved_files <- c(saved_files, delong_file)
       }
@@ -271,9 +281,19 @@ roc_analysis <- function(data,
 
     if (save_format %in% c("plot", "all") && length(roc_list) > 0) {
       # Save plots
-      tiff_file <- file.path(output_dir, sprintf("roc_curve_%s.tiff", timestamp))
-      svg_file <- file.path(output_dir, sprintf("roc_curve_%s.svg", timestamp))
+      # tiff_file <- file.path(output_dir, sprintf("roc_curve_%s.tiff", timestamp))
+      # svg_file <- file.path(output_dir, sprintf("roc_curve_%s.svg", timestamp))
 
+      tiff_file <- generate_filepath(
+          base_name =  "roc_curve",
+          ext = "tiff",
+          output_dir = output_dir
+      )
+      svg_file <- generate_filepath(
+          base_name =  "roc_curve",
+          ext = "svg",
+          output_dir = output_dir
+      )
       # Save TIFF
       grDevices::tiff(tiff_file, width = plot_width, height = plot_height,
                      units = "px", bg = "white", res = plot_res)

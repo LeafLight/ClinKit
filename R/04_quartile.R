@@ -204,16 +204,26 @@ for (outcome in outcomes) {
       dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
     }
 
-    timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
+    #timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
 
     if (save_format %in% c("docx", "all")) {
-      docx_file <- file.path(output_dir, sprintf("quartile_results_%s.docx", timestamp))
+      #docx_file <- file.path(output_dir, sprintf("quartile_results_%s.docx", timestamp))
+      docx_file <- generate_filepath(
+        base_name =  "quartile_results",
+        ext = "docx",
+        output_dir = output_dir
+      )
       save_quartile_table(final_results, docx_file)
       saved_files <- c(saved_files, docx_file)
     }
 
     if (save_format %in% c("csv", "all")) {
-      csv_file <- file.path(output_dir, sprintf("quartile_results_%s.csv", timestamp))
+      # csv_file <- file.path(output_dir, sprintf("quartile_results_%s.csv", timestamp))
+      csv_file <- generate_filepath(
+        base_name =  "quartile_results",
+        ext = "csv",
+        output_dir = output_dir
+      )
       utils::write.csv(final_results, csv_file, row.names = FALSE)
       saved_files <- c(saved_files, csv_file)
     }
@@ -493,16 +503,26 @@ quartile_multinomial_analysis <- function(data,
       dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
     }
 
-    timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
+    #timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
 
     if (save_format %in% c("docx", "all")) {
-      docx_file <- file.path(output_dir, sprintf("quartile_multinomial_results_%s.docx", timestamp))
+      #docx_file <- file.path(output_dir, sprintf("quartile_multinomial_results_%s.docx", timestamp))
+      docx_file <- generate_filepath(
+        base_name =  "quartile_multinomial_results",
+        ext = "docx",
+        output_dir = output_dir
+      )
       save_multinomial_quartile_table(final_results, docx_file)
       saved_files <- c(saved_files, docx_file)
     }
 
     if (save_format %in% c("csv", "all")) {
-      csv_file <- file.path(output_dir, sprintf("quartile_multinomial_results_%s.csv", timestamp))
+      #csv_file <- file.path(output_dir, sprintf("quartile_multinomial_results_%s.csv", timestamp))
+      csv_file <- generate_filepath(
+        base_name =  "quartile_multinomial_results",
+        ext = "csv",
+        output_dir = output_dir
+      )
       utils::write.csv(final_results, csv_file, row.names = FALSE)
       saved_files <- c(saved_files, csv_file)
     }

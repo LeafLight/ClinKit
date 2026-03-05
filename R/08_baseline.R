@@ -287,3 +287,4 @@ print_normality_summary <- function(normality_results) {
   }
 }
 
+utils::globalVariables(c("variable", "var_type"))

@@ -197,17 +197,27 @@ subgroup_forest <- function(data,
       dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
     }
 
-    timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
+    #timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
 
     if (save_format %in% c("data", "all")) {
       # save raw data
-      csv_file <- file.path(output_dir, sprintf("subgroup_forest_raw_%s.csv", timestamp))
+      #csv_file <- file.path(output_dir, sprintf("subgroup_forest_raw_%s.csv", timestamp))
+      csv_file <- generate_filepath(
+        base_name =  "subgroup_forest_raw",
+        ext = "csv",
+        output_dir = output_dir
+      )
       utils::write.csv(plot_res, csv_file, row.names = FALSE)
       saved_files <- c(saved_files, csv_file)
 
       # save formated data
       if (prepare_plot) {
-        formatted_file <- file.path(output_dir, sprintf("subgroup_forest_formatted_%s.csv", timestamp))
+        #formatted_file <- file.path(output_dir, sprintf("subgroup_forest_formatted_%s.csv", timestamp))
+        formatted_file <- generate_filepath(
+          base_name =  "subgroup_forest_formatted",
+          ext = "csv",
+          output_dir = output_dir
+        )
         utils::write.csv(final_data, formatted_file, row.names = FALSE)
         saved_files <- c(saved_files, formatted_file)
       }
@@ -215,7 +225,12 @@ subgroup_forest <- function(data,
 
     if (save_format %in% c("plot", "all") && !is.null(forest_plot)) {
   # Save pdf by Cairo
-  pdf_file <- file.path(output_dir, sprintf("subgroup_forest_%s.pdf", timestamp))
+      #pdf_file <- file.path(output_dir, sprintf("subgroup_forest_%s.pdf", timestamp))
+      pdf_file <- generate_filepath(
+        base_name =  "subgroup_forest",
+        ext = "pdf",
+        output_dir = output_dir
+      )
   grDevices::cairo_pdf(pdf_file, width = 10, height = 6, family = "Times New Roman")
   print(forest_plot)
   grDevices::dev.off()

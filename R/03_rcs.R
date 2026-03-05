@@ -168,30 +168,59 @@ generate_rcs_plot <- function(data,
       base_name <- filename
     }
 
-    timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
+    # timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
 
     # Handle different save formats
     if (save_format == "tiff") {
-      tiff_file <- file.path(output_dir, sprintf("%s_%s.tiff", base_name, timestamp))
+      # tiff_file <- file.path(output_dir, sprintf("%s_%s.tiff", base_name, timestamp))
+      tiff_file <- generate_filepath(
+              base_name =  sprintf("rcs_%s", base_name),
+              ext = "tiff",
+              output_dir = output_dir
+            )
       ggplot2::ggsave(tiff_file, plot = p, width = 6, height = 5.5, dpi = 300)
       saved_files <- c(saved_files, tiff_file)
 
     } else if (save_format == "svg") {
-      svg_file <- file.path(output_dir, sprintf("%s_%s.svg", base_name, timestamp))
+      #svg_file <- file.path(output_dir, sprintf("%s_%s.svg", base_name, timestamp))
+      svg_file <- generate_filepath(
+            base_name =  sprintf("rcs_%s", base_name),
+            ext = "svg",
+            output_dir = output_dir
+          )
       ggplot2::ggsave(svg_file, plot = p, width = 6, height = 5.5)
       saved_files <- c(saved_files, svg_file)
 
     } else if (save_format == "pdf") {
-      pdf_file <- file.path(output_dir, sprintf("%s_%s.pdf", base_name, timestamp))
+      #pdf_file <- file.path(output_dir, sprintf("%s_%s.pdf", base_name, timestamp))
+      pdf_file <- generate_filepath(
+        base_name =  sprintf("rcs_%s", base_name),
+        ext = "pdf",
+        output_dir = output_dir
+      )
       ggplot2::ggsave(pdf_file, plot = p, width = 6, height = 5.5)
       saved_files <- c(saved_files, pdf_file)
 
     } else if (save_format == "all") {
       # Save all formats
-      tiff_file <- file.path(output_dir, sprintf("%s_%s.tiff", base_name, timestamp))
-      svg_file <- file.path(output_dir, sprintf("%s_%s.svg", base_name, timestamp))
-      pdf_file <- file.path(output_dir, sprintf("%s_%s.pdf", base_name, timestamp))
-
+      # tiff_file <- file.path(output_dir, sprintf("%s_%s.tiff", base_name, timestamp))
+      # svg_file <- file.path(output_dir, sprintf("%s_%s.svg", base_name, timestamp))
+      # pdf_file <- file.path(output_dir, sprintf("%s_%s.pdf", base_name, timestamp))
+      tiff_file <- generate_filepath(
+              base_name =  sprintf("rcs_%s", base_name),
+              ext = "tiff",
+              output_dir = output_dir
+            )
+      svg_file <- generate_filepath(
+        base_name =  sprintf("rcs_%s", base_name),
+        ext = "svg",
+        output_dir = output_dir
+      )
+      pdf_file <- generate_filepath(
+        base_name =  sprintf("rcs_%s", base_name),
+        ext = "pdf",
+        output_dir = output_dir
+      )
       ggplot2::ggsave(tiff_file, plot = p, width = 6, height = 5.5, dpi = 300)
       ggplot2::ggsave(svg_file, plot = p, width = 6, height = 5.5)
       ggplot2::ggsave(pdf_file, plot = p, width = 6, height = 5.5)
@@ -209,7 +238,12 @@ generate_rcs_plot <- function(data,
         stringsAsFactors = FALSE
       )
 
-      csv_file <- file.path(output_dir, sprintf("%s_results_%s.csv", base_name, timestamp))
+      #csv_file <- file.path(output_dir, sprintf("%s_results_%s.csv", base_name, timestamp))
+      csv_file <- generate_filepath(
+        base_name =  sprintf("rcs_stat_results_%s", base_name),
+        ext = "csv",
+        output_dir = output_dir
+      )
       utils::write.csv(results_summary, csv_file, row.names = FALSE)
       saved_files <- c(saved_files, csv_file)
     }
@@ -398,8 +432,13 @@ run_analysis_rcs <- function(data,
 
   # Save summary table if requested
   if (save_format != "none" && !is.null(output_dir) && nrow(final_results) > 0) {
-    summary_file <- file.path(output_dir,
-                             sprintf("rcs_summary_%s.csv", format(Sys.time(), "%Y%m%d_%H%M%S")))
+    # summary_file <- file.path(output_dir,
+    #                          sprintf("rcs_summary_%s.csv", format(Sys.time(), "%Y%m%d_%H%M%S")))
+    summary_file <- generate_filepath(
+      base_name = "rcs_summary",
+      ext = "csv",
+      output_dir = output_dir
+    )
     utils::write.csv(final_results, summary_file, row.names = FALSE)
     all_saved_files <- c(all_saved_files, summary_file)
   }
