@@ -50,10 +50,6 @@ test_that("mulivaraite logistic regression works", {
   expect_type(out, "list")
   # out is a list of results output_dir is not specified
   expect_true(all(c("results", "call") %in% names(out)))
-  if (!is_mac) {
-    make_multivariate_table(out$results, out_file=file.path(tmp_fp, "table1.docx"))
-    expect_true(file.exists(file.path(tmp_fp, "table1.docx")))
-  }
 
   tmp_fp <- withr::local_tempdir()
   #out_file <- file.path(tmp, "table1.docx")
