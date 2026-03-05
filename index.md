@@ -1,39 +1,49 @@
-``` markdown
-# ClinKit 
+# ClinKit
 
-[![Codecov test coverage](https://codecov.io/gh/LeafLight/ClinKit/graph/badge.svg)](https://app.codecov.io/gh/LeafLight/ClinKit)
+[![Codecov test
+coverage](https://codecov.io/gh/LeafLight/ClinKit/graph/badge.svg)](https://app.codecov.io/gh/LeafLight/ClinKit)
 [![R-CMD-check](https://github.com/LeafLight/ClinKit/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/LeafLight/ClinKit/actions/workflows/R-CMD-check.yaml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-**ClinKit** is an advanced R framework tailored for clinical researchers and epidemiologists. It transforms cleaned datasets into publication-ready artifacts (Word tables and high-resolution figures) through a standardized, modular, and highly reproducible workflow.
+[![License:
+MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+**ClinKit** is an advanced R framework tailored for clinical researchers
+and epidemiologists. It transforms cleaned datasets into
+publication-ready artifacts (Word tables and high-resolution figures)
+through a standardized, modular, and highly reproducible workflow.
 
 ## 🌟 Key Highlights
 
-* **⚡ Interactive Scaffolding**: Deploy a complete clinical project structure and master control center with a single command.
-* **📈 Hierarchical Sequential Modeling**: Automatically generate Model 1 (Unadjusted) through Model N (Fully Adjusted) for Logistic, Cox PH, and Multinomial regressions.
-* **🧪 Built-in Methodological Rigor**: Automated normality testing for intelligent descriptive statistics and "Anti-Cartesian" alignment for multi-level outcome reporting.
-* **📄 Journal-Ready Outputs**: Unified I/O routing with auto-formatted `.docx` tables (standardized Times New Roman and three-line table layout).
+- **⚡ Interactive Scaffolding**: Deploy a complete clinical project
+  structure and master control center with a single command.
+- **📈 Hierarchical Sequential Modeling**: Automatically generate Model
+  1 (Unadjusted) through Model N (Fully Adjusted) for Logistic, Cox PH,
+  and Multinomial regressions.
+- **🧪 Built-in Methodological Rigor**: Automated normality testing for
+  intelligent descriptive statistics and “Anti-Cartesian” alignment for
+  multi-level outcome reporting.
+- **📄 Journal-Ready Outputs**: Unified I/O routing with auto-formatted
+  `.docx` tables (standardized Times New Roman and three-line table
+  layout).
 
----
+------------------------------------------------------------------------
 
 ## 📦 Installation
 
 You can install the development version of ClinKit from GitHub:
 
-```r
+``` r
 # install.packages("devtools")
 devtools::install_github("LeafLight/ClinKit")
-```
 
-------------------------------------------------------------------------
+---
+
 
 ## 🚀 The ClinKit Workflow (Standard Operating Procedure)
 
-ClinKit enforces a “Configuration-Driven” modular workflow to ensure
-your research is audit-proof and reproducible.
+ClinKit enforces a "Configuration-Driven" modular workflow to ensure your research is audit-proof and reproducible.
 
 ### Step 1: Initialize the Environment
 
-``` r
+```r
 library(ClinKit)
 use_clinkit_project() 
 ```
@@ -117,16 +127,3 @@ welcome!
 
 - **Author**: [Hualin Wang](NA)
 - **License**: MIT
-
-&nbsp;
-
-    ---
-
-    ### 🏁 Next Step: Launching Phase 2
-
-    Now that your "digital storefront" is ready in perfect English:
-
-    1.  **Commit and Push** this `README.md`.
-    2.  **Start the Golden Case**: I will guide you through running `use_clinkit_project()` in a clean directory and using the `survival::colon` dataset to generate a full set of results.
-
-    **Are you ready to see ClinKit in action for a real study?**
