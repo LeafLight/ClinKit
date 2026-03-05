@@ -2,6 +2,8 @@
 <url><loc>https://leaflight.github.io/ClinKit/404.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/LICENSE-text.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/LICENSE.html</loc></url>
+<url><loc>https://leaflight.github.io/ClinKit/articles/ClinKit-intro.html</loc></url>
+<url><loc>https://leaflight.github.io/ClinKit/articles/index.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/authors.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/index.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/reference/facet_violin.html</loc></url>
@@ -9,7 +11,9 @@
 <url><loc>https://leaflight.github.io/ClinKit/reference/forest_multiGLM.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/reference/format_p_value.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/reference/generate_background_levels.html</loc></url>
+<url><loc>https://leaflight.github.io/ClinKit/reference/generate_filepath.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/reference/generate_rcs_plot.html</loc></url>
+<url><loc>https://leaflight.github.io/ClinKit/reference/get_clinkit_opt.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/reference/get_forest_theme.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/reference/highhighlowlow.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/reference/highlow_analysis.html</loc></url>
@@ -17,7 +21,9 @@
 <url><loc>https://leaflight.github.io/ClinKit/reference/interaction_table.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/reference/is_normal_overall.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/reference/make_baseline_table.html</loc></url>
+<url><loc>https://leaflight.github.io/ClinKit/reference/make_multivariable_multinomial_table.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/reference/make_multivariate_table.html</loc></url>
+<url><loc>https://leaflight.github.io/ClinKit/reference/map_label.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/reference/perform_normality_tests.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/reference/print_normality_summary.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/reference/quartile_logistic_analysis.html</loc></url>
@@ -27,6 +33,7 @@
 <url><loc>https://leaflight.github.io/ClinKit/reference/run_analysis_rcs.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/reference/run_multivariable_logistic_regression.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/reference/run_multivariable_multinomial_logistic_regression.html</loc></url>
+<url><loc>https://leaflight.github.io/ClinKit/reference/run_reclassification_analysis.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/reference/run_univariate_logistic_regression.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/reference/save_analysis_result.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/reference/save_highlow_table.html</loc></url>
@@ -35,6 +42,7 @@
 <url><loc>https://leaflight.github.io/ClinKit/reference/save_multinomial_table.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/reference/save_multivariable_result.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/reference/save_quartile_table.html</loc></url>
+<url><loc>https://leaflight.github.io/ClinKit/reference/save_reclassification_table.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/reference/scatter_lm.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/reference/scatter_lm_marginal.html</loc></url>
 <url><loc>https://leaflight.github.io/ClinKit/reference/setup_font_config.html</loc></url>

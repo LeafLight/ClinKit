@@ -16,6 +16,10 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/ClinKit-intro.html">ClinKit: Streamlined Clinical Data Analysis in R</a></li>
+  </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/leaflight/ClinKit/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
@@ -42,6 +46,8 @@
 <span>  <span class="va">data</span>,</span>
 <span>  <span class="va">outcome</span>,</span>
 <span>  <span class="va">predictor</span>,</span>
+<span>  outcomes_map <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  predictors_map <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  covariates <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  knots <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>  output_dir <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -64,6 +70,16 @@
 
 <dt id="arg-predictor">predictor<a class="anchor" aria-label="anchor" href="#arg-predictor"></a></dt>
 <dd><p>Continuous predictor variable name for RCS</p></dd>
+
+
+<dt id="arg-outcomes-map">outcomes_map<a class="anchor" aria-label="anchor" href="#arg-outcomes-map"></a></dt>
+<dd><p>Optional named mapping from outcome variable names to
+display labels, e.g. c("A_B" = "A B").</p></dd>
+
+
+<dt id="arg-predictors-map">predictors_map<a class="anchor" aria-label="anchor" href="#arg-predictors-map"></a></dt>
+<dd><p>Optional named mapping from predictor variable names
+to display labels.</p></dd>
 
 
 <dt id="arg-covariates">covariates<a class="anchor" aria-label="anchor" href="#arg-covariates"></a></dt>
