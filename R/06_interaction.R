@@ -261,7 +261,7 @@ save_interaction_table <- function(interaction_result, file_path) {
     flextable::bold(part = "header") %>%
     flextable::align(align = "center", part = "all") %>%
     flextable::fontsize(size = 10, part = "all") %>%
-    flextable::font(fontname = "Times New Roman", part = "all") %>%
+    flextable::font(fontname = get_pkg_font(), part = "all") %>%
     flextable::set_caption("Additive Interaction Measures") %>%
     flextable::autofit()
   officer::read_docx() %>%

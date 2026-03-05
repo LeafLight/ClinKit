@@ -118,7 +118,7 @@ run_multivariable_logistic_regression <- function(data,
 
       if (save_format == "docx") {
         ft <- gtsummary::as_flex_table(master_tbl)
-        ft <- flextable::font(ft, fontname = "Times New Roman", part = "all")
+        ft <- flextable::font(ft, fontname = get_pkg_font(), part = "all")
         flextable::save_as_docx(flextable::autofit(ft), path = file_path)
       } else if (save_format == "csv") {
         utils::write.csv(results_df, file_path, row.names = FALSE)
@@ -264,7 +264,7 @@ run_multivariable_multinomial_logistic_regression <- function(data,
 
       if (save_format == "docx") {
         ft <- gtsummary::as_flex_table(master_tbl)
-        ft <- flextable::font(ft, fontname = "Times New Roman", part = "all")
+        ft <- flextable::font(ft, fontname = get_pkg_font(), part = "all")
         flextable::save_as_docx(flextable::autofit(ft), path = file_path)
       } else if (save_format == "csv") {
         utils::write.csv(results_df, file_path, row.names = FALSE)
@@ -369,7 +369,7 @@ run_multivariable_cox_regression <- function(data,
 
     if (save_format == "docx") {
       ft <- gtsummary::as_flex_table(master_tbl)
-      ft <- flextable::font(ft, fontname = "Times New Roman", part = "all")
+      ft <- flextable::font(ft, fontname = get_pkg_font(), part = "all")
       flextable::save_as_docx(flextable::autofit(ft), path = file_path)
     } else if (save_format == "csv") {
       utils::write.csv(results_df, file_path, row.names = FALSE)

@@ -163,7 +163,7 @@ save_reclassification_table <- function(results_df, file_path) {
     flextable::align(align = "center", part = "all") %>%
     flextable::align(j = 1, align = "left", part = "all") %>%
     flextable::fontsize(size = 10, part = "all") %>%
-    flextable::font(fontname = "Times New Roman", part = "all") %>%
+    flextable::font(fontname = get_pkg_font(), part = "all") %>%
     flextable::set_caption("Reclassification and Discrimination Improvement") %>%
     flextable::autofit()
 

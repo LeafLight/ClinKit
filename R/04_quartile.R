@@ -260,6 +260,7 @@ save_quartile_table <- function(results, file_path) {
 
   # Create three-line table
   ft <- flextable::flextable(table_data) %>%
+    flextable::font(fontname = get_pkg_font(), part = "all") %>%
     flextable::border_remove() %>%
     flextable::hline_top(border = officer::fp_border(width = 2), part = "all") %>%
     flextable::hline_bottom(border = officer::fp_border(width = 2), part = "header") %>%

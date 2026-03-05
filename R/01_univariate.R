@@ -114,7 +114,7 @@ run_univariate_logistic_regression <- function(data,
     } else if (save_format == "docx") {
       if (requireNamespace("flextable", quietly = TRUE)) {
         ft <- gtsummary::as_flex_table(final_tbl)
-        ft <- flextable::font(ft, fontname = "Times New Roman", part = "all")
+        ft <- flextable::font(ft, fontname = get_pkg_font(), part = "all")
         ft <- flextable::autofit(ft)
         flextable::save_as_docx(ft, path = file_path)
       } else {

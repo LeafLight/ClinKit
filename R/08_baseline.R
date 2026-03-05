@@ -147,6 +147,9 @@ make_baseline_table <- function(
   # 7. Export to Word
   dir.create(dirname(file), showWarnings = FALSE, recursive = TRUE)
   ft <- gtsummary::as_flex_table(tbl)
+  # Ensure Table 1 uses the same environment-aware font
+  ft <- flextable::font(ft, fontname = get_pkg_font(), part = "all")
+  ft <- flextable::autofit(ft)
   officer::read_docx() %>%
     flextable::body_add_flextable(ft) %>%
     print(target = file)
