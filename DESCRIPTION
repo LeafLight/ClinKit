@@ -22,8 +22,6 @@ Imports:
     ggExtra,
     ggplot2,
     ggpmisc,
-    ggprism,
-    ggsci,
     gtsummary,
     interactionR,
     nnet,
@@ -37,7 +35,9 @@ Imports:
     tidyr,
     forestploter,
     jstable,
-    utils
+    utils,
+    parameters,
+    broom.helpers (>= 1.20.0)
 Suggests:
     pkgdown,
     svglite,
@@ -45,6 +45,8 @@ Suggests:
     withr (>= 2.5.0),
     survival (>= 3.2.0),
     knitr,
+    ggsci,
+    ggprism,
     rmarkdown,
     Hmisc
 Encoding: UTF-8

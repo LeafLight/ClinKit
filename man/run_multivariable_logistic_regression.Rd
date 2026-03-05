@@ -2,7 +2,7 @@
 % Please edit documentation in R/02_multivariable.R
 \name{run_multivariable_logistic_regression}
 \alias{run_multivariable_logistic_regression}
-\title{Multivariable Logistic Regression (4-layer models)}
+\title{Dynamic Sequential Multivariable Logistic Regression}
 \usage{
 run_multivariable_logistic_regression(
   data,
@@ -12,47 +12,52 @@ run_multivariable_logistic_regression(
   outcomes_map = NULL,
   predictors_map = NULL,
   output_dir = NULL,
-  save_format = c("none", "docx", "csv")
+  save_format = c("none", "docx", "csv", "txt")
 )
 }
 \arguments{
-\item{data}{Data frame}
+\item{data}{A data frame containing the variables.}
 
-\item{outcomes}{Outcome variables (character vector)}
+\item{outcomes}{Character vector of outcome variable names (Binary).}
 
-\item{predictors}{Predictor variables (character vector)}
+\item{predictors}{Character vector of primary predictors to be evaluated.}
 
-\item{models_list}{Named list of length 3 with covariates for model2, model3, model4}
+\item{models_list}{A NAMED list where each element contains new covariates
+to be added sequentially (e.g., list(Base = c("age"), Clinical = c("nodes"))).}
 
-\item{outcomes_map}{Optional named mapping from outcome variable names to
-display labels, e.g. c("A_B" = "A B").}
+\item{outcomes_map}{Optional named mapping for outcome display labels.}
 
-\item{predictors_map}{Optional named mapping from predictor variable names
-to display labels.}
+\item{predictors_map}{Optional named mapping for predictor display labels.}
 
-\item{output_dir}{Output directory (optional, default no file saving)}
+\item{output_dir}{Optional path to save output files.}
 
-\item{save_format}{Save format: "none", "txt", "csv" (default "none")}
+\item{save_format}{Save format: "none", "docx", "csv", or "txt".}
 }
 \value{
-List containing results data frame and optional saved file paths
+A list containing a consolidated results data frame and saved file paths.
 }
 \description{
-Multivariable Logistic Regression (4-layer models)
+Fits cumulative multivariable logistic regression models across N-layers defined by
+\code{models_list}. The function ensures reference categories (1.00 (Ref)) are
+consistently maintained and horizontally aligned across all adjustment levels.
 }
 \examples{
 \dontrun{
-models_list <- list(
-  model2 = c("cyl", "gear"),
-  model3 = c("carb"),
-  model4 = c("hp")
+library(survival)
+data(colon)
+df <- colon \%>\% dplyr::filter(etype == 2) \%>\% dplyr::mutate(status = as.factor(status))
+
+models <- list(
+  "Demographics" = c("age", "sex"),
+  "Pathology"    = c("nodes", "extent")
 )
 
-result <- run_multivariable_logistic_regression(
-  data = mtcars,
-  outcomes = "vs",
-  predictors = c("mpg", "wt"),
-  models_list = models_list
+run_multivariable_logistic_regression(
+  data = df,
+  outcomes = "status",
+  predictors = "adhere",
+  models_list = models,
+  save_format = "docx"
 )
 }
 }

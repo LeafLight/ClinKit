@@ -11,7 +11,7 @@ run_univariate_logistic_regression(
   outcomes_map = NULL,
   predictors_map = NULL,
   output_dir = NULL,
-  save_format = c("csv", "txt", "none")
+  save_format = c("csv", "txt", "docx", "none")
 )
 }
 \arguments{
@@ -29,7 +29,7 @@ to display labels.}
 
 \item{output_dir}{Output directory (optional; files are not saved if NULL).}
 
-\item{save_format}{Save format: "csv", "txt", or "none" (default "csv").}
+\item{save_format}{Save format: "csv", "txt", "docx", or "none" (default "csv").}
 }
 \value{
 A list with components \code{results}, \code{saved_files} and
@@ -37,23 +37,4 @@ A list with components \code{results}, \code{saved_files} and
 }
 \description{
 Univariate Logistic Regression Analysis
-}
-\examples{
-\dontrun{
-# Basic usage
-result <- run_univariate_logistic_regression(
-  data = mtcars,
-  outcomes = "vs",
-  predictors = c("mpg", "drat")
-)
-
-# Save as CSV files
-result <- run_univariate_logistic_regression(
-  data = mtcars,
-  outcomes = "vs",
-  predictors = c("mpg", "drat"),
-  output_dir = tempdir(),
-  save_format = "csv"
-)
-}
 }

@@ -169,7 +169,7 @@ subgroup_forest <- function(data,
     if (sum(valid_rows) > 0) {
       forest_plot <- tryCatch({
         forestploter::forest(
-          final_data[, c(1,10,7,9,8)],,
+          final_data[, c(1,10,7,9,8)],
           est = final_data$OR,
           lower = final_data$Lower,
           upper = final_data$Upper,

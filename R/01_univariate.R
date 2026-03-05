@@ -8,187 +8,133 @@
 #' @param predictors_map Optional named mapping from predictor variable names
 #'   to display labels.
 #' @param output_dir    Output directory (optional; files are not saved if NULL).
-#' @param save_format   Save format: "csv", "txt", or "none" (default "csv").
+#' @param save_format   Save format: "csv", "txt", "docx", or "none" (default "csv").
 #'
 #' @return A list with components \code{results}, \code{saved_files} and
 #'   \code{call}.
 #' @export
-#'
-#' @examples
-#' \dontrun{
-#' # Basic usage
-#' result <- run_univariate_logistic_regression(
-#'   data = mtcars,
-#'   outcomes = "vs",
-#'   predictors = c("mpg", "drat")
-#' )
-#'
-#' # Save as CSV files
-#' result <- run_univariate_logistic_regression(
-#'   data = mtcars,
-#'   outcomes = "vs",
-#'   predictors = c("mpg", "drat"),
-#'   output_dir = tempdir(),
-#'   save_format = "csv"
-#' )
-#' }
-
 run_univariate_logistic_regression <- function(data,
-                                              outcomes,
-                                              predictors,
-                                              outcomes_map = NULL,
+                                               outcomes,
+                                               predictors,
+                                               outcomes_map = NULL,
                                                predictors_map = NULL,
-                                              output_dir = NULL,
-                                              save_format = c("csv", "txt", "none")) {
+                                               output_dir = NULL,
+                                               save_format = c("csv", "txt", "docx", "none")) {
 
-  # Parameter validation
   save_format <- match.arg(save_format)
-  if (!is.data.frame(data)) {
-    stop("data must be a data frame")
+  saved_files <- character()
+
+  # =========================================================================
+  # 1. Label Mapping (Variable Dictionaries)
+  # =========================================================================
+  pred_labels <- NULL
+  if (!is.null(predictors_map)) {
+    pred_labels <- as.list(predictors_map)
   }
 
-  # Check if variables exist
-  missing_vars <- setdiff(c(outcomes, predictors), names(data))
-  if (length(missing_vars) > 0) {
-    stop("Variables not found in data: ", paste(missing_vars, collapse = ", "))
+  out_labels <- outcomes
+  if (!is.null(outcomes_map)) {
+    out_labels <- sapply(outcomes, function(x) {
+      if (x %in% names(outcomes_map)) outcomes_map[[x]] else x
+    })
   }
 
-  # Initialize results data frame
-  results_df <- data.frame(
-    predictor = character(),
-    outcome = character(),
-    p_value = numeric(),
-    OR = numeric(),
-    lower_ci = numeric(),
-    upper_ci = numeric(),
-    n_observations = integer(),
-    stringsAsFactors = FALSE
-  )
+  # =========================================================================
+  # 2. Core Engine: Fit univariable models using gtsummary
+  # =========================================================================
+  tables_list <- lapply(outcomes, function(out) {
+    tbl <- data %>%
+      dplyr::select(dplyr::all_of(c(out, predictors))) %>%
+      gtsummary::tbl_uvregression(
+        method = glm,
+        y = dplyr::sym(out),
+        method.args = list(family = binomial),
+        exponentiate = TRUE,
+        label = pred_labels
+      ) %>%
+      gtsummary::add_global_p() %>%
+      # [ARCHITECTURAL FIX]: Apply reference styling BEFORE merging
+      # This ensures 'reference_row' is always found perfectly.
+      gtsummary::modify_table_styling(
+        columns = dplyr::starts_with("estimate"),
+        rows = reference_row %in% TRUE,
+        missing_symbol = "1.00 (Ref)"
+      ) %>%
+      gtsummary::modify_table_styling(
+        columns = dplyr::starts_with("conf.low"),
+        rows = reference_row %in% TRUE,
+        missing_symbol = ""
+      )
 
-  # Handle outcome mapping
-  if (is.null(outcomes_map)) {
-    outcomes_map <- setNames(outcomes, outcomes)  # Use original names as default
+    return(tbl)
+  })
+
+  # =========================================================================
+  # 3. Merge Outcomes and Extract Data Frame
+  # =========================================================================
+  if (length(outcomes) == 1) {
+    final_tbl <- tables_list[[1]]
+  } else {
+    final_tbl <- gtsummary::tbl_merge(
+      tbls = tables_list,
+      tab_spanner = out_labels
+    )
   }
-  if (is.null(predictors_map)) {
-    predictors_map <- setNames(predictors, predictors)  # Use original names as default
-  }
 
-  # Store saved file paths
-  saved_files <- character(0)
+  results_df <- gtsummary::as_tibble(final_tbl, col_labels = TRUE)
 
-  # Iterate through predictors and outcomes
-  for (predictor in predictors) {
-    for (outcome in outcomes) {
+  # =========================================================================
+  # 4. Integrated I/O Routing
+  # =========================================================================
+  if (!is.null(output_dir) && save_format != "none") {
 
-      # Remove missing values
-      complete_cases <- complete.cases(data[[predictor]], data[[outcome]])
-      if (sum(complete_cases) < 10) {  # Skip if sample size too small
-        warning(sprintf("Insufficient complete cases for %s ~ %s (n=%d)",
-                       outcome, predictor, sum(complete_cases)))
-        next
-      }
+    # Ensure output directory exists
+    if (!dir.exists(output_dir)) {
+      dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+    }
 
-      # Build model
-      formula <- as.formula(paste(outcome, "~", predictor))
-      fit <- tryCatch({
-        glm(formula, data = data[complete_cases, ], family = binomial())
-      }, error = function(e) {
-        warning(sprintf("Model failed for %s ~ %s: %s", outcome, predictor, e$message))
-        return(NULL)
-      })
+    # Generate safe file prefix replacing non-alphanumeric characters
+    raw_prefix <- ifelse(length(outcomes) == 1, outcomes[1], "Multiple_Outcomes")
+    safe_prefix <- gsub("[^a-zA-Z0-9]", "_", raw_prefix)
 
-      if (is.null(fit)) next
+    # Use ClinKit's internal generate_filepath if available, otherwise fallback to base R
+    if (exists("generate_filepath", mode = "function")) {
+      file_path <- generate_filepath(
+        base_name  = sprintf("Univariate_Logistic_%s", safe_prefix),
+        ext        = save_format,
+        output_dir = output_dir
+      )
+    } else {
+      file_name <- sprintf("Univariate_Logistic_%s.%s", safe_prefix, save_format)
+      file_path <- file.path(output_dir, file_name)
+    }
 
-      # Extract results
-      coef_summary <- coef(summary(fit))
-      conf_int <- tryCatch({
-        ci <- confint(fit)[predictor, ]
-        setNames(as.numeric(exp(ci)), NULL)  # 移除行名
-      }, error = function(e) c(NA, NA))
-
-      # Only process if predictor is in results
-      if (predictor %in% rownames(coef_summary)) {
-        lab_outcome   <- outcomes_map[[outcome]]
-        if (is.null(lab_outcome))   lab_outcome   <- outcome
-        lab_predictor <- predictors_map[[predictor]]
-        if (is.null(lab_predictor)) lab_predictor <- predictor
-        result_row <- data.frame(
-          predictor = lab_predictor,
-          outcome = lab_outcome,
-          p_value = coef_summary[predictor, 4],
-          OR = exp(coef_summary[predictor, 1]),
-          lower_ci = conf_int[1],
-          upper_ci = conf_int[2],
-          n_observations = sum(complete_cases),
-          stringsAsFactors = FALSE
-        )
-
-        if (requireNamespace("dplyr", quietly = TRUE)) {
-          results_df <- dplyr::bind_rows(results_df, result_row)
-        } else {
-          results_df <- rbind(results_df, result_row)
-          row.names(results_df) <- NULL
-        }
-        # Save file if needed
-        if (save_format != "none" && !is.null(output_dir)) {
-          file_saved <- save_analysis_result(
-            result_row,
-            output_dir,
-            save_format,
-            lab_predictor,
-            lab_outcome
-          )
-          saved_files <- c(saved_files, file_saved)
-        }
+    # Save according to the requested format
+    if (save_format == "csv") {
+      utils::write.csv(results_df, file = file_path, row.names = FALSE, fileEncoding = "UTF-8", na = "")
+    } else if (save_format == "txt") {
+      utils::write.table(results_df, file = file_path, sep = "\t", row.names = FALSE, quote = FALSE, fileEncoding = "UTF-8", na = "")
+    } else if (save_format == "docx") {
+      if (requireNamespace("flextable", quietly = TRUE)) {
+        ft <- gtsummary::as_flex_table(final_tbl)
+        ft <- flextable::font(ft, fontname = "Times New Roman", part = "all")
+        ft <- flextable::autofit(ft)
+        flextable::save_as_docx(ft, path = file_path)
+      } else {
+        warning("Package 'flextable' is required to save as docx. Please install it.")
       }
     }
+
+    saved_files <- file_path
+    message(sprintf("Results successfully saved to: %s", file_path))
   }
 
-  # Return structured results
+  # =========================================================================
+  # 5. Assemble Output List
+  # =========================================================================
   return(list(
-    results = results_df,
-    saved_files = if (length(saved_files) > 0) saved_files else NULL,
-    call = match.call()
+    results     = results_df,
+    saved_files = saved_files,
+    call        = match.call()
   ))
-}
-
-#' Save Analysis Results (Internal Function)
-#' @keywords internal
-save_analysis_result <- function(result, output_dir, format, predictor, outcome_name) {
-
-  # Ensure output directory exists
-  if (!dir.exists(output_dir)) {
-    dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
-  }
-
-  # Generate safe file names
-  safe_predictor <- gsub("[^a-zA-Z0-9]", "_", predictor)
-  safe_outcome <- gsub("[^a-zA-Z0-9]", "_", outcome_name)
-
-  if (format == "txt") {
-    filename <- generate_filepath(
-      base_name =  sprintf("univariate_%s_%s", safe_predictor, safe_outcome),
-      ext = "txt",
-      output_dir = output_dir
-    )
-
-    content <- sprintf(
-      "Univariate Logistic Regression Analysis Results\n\nPredictor: %s\nOutcome: %s\nSample Size: %d\nOR: %.3f\n95%% Confidence Interval: [%.3f, %.3f]\nP-value: %.4f\nAnalysis Time: %s",
-      predictor, outcome_name, result$n_observations,
-      result$OR, result$lower_ci, result$upper_ci, result$p_value,
-      format(Sys.time(), "%Y-%m-%d %H:%M:%S")
-    )
-
-    writeLines(content, con = filename, useBytes = TRUE)
-
-  } else if (format == "csv") {
-    filename <- generate_filepath(
-      base_name =  sprintf("univariate_%s_%s", safe_predictor, safe_outcome),
-      ext = "csv",
-      output_dir = output_dir
-    )
-    utils::write.csv(result, file = filename, row.names = FALSE, fileEncoding = "UTF-8")
-  }
-
-  return(filename)
 }

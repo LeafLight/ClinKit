@@ -2,7 +2,7 @@
 % Please edit documentation in R/02_multivariable.R
 \name{run_multivariable_multinomial_logistic_regression}
 \alias{run_multivariable_multinomial_logistic_regression}
-\title{Multivariable Multinomial Logistic Regression Analysis}
+\title{Dynamic Sequential Multivariable Multinomial Logistic Regression}
 \usage{
 run_multivariable_multinomial_logistic_regression(
   data,
@@ -11,32 +11,45 @@ run_multivariable_multinomial_logistic_regression(
   models_list,
   ref_level = NULL,
   output_dir = NULL,
-  save_format = c("none", "docx", "csv")
+  save_format = c("none", "docx", "csv", "txt")
 )
 }
 \arguments{
-\item{data}{Data frame containing all variables}
+\item{data}{A data frame containing the variables.}
 
-\item{outcomes}{Character vector of outcome variable names}
+\item{outcomes}{Character vector of multinomial outcome variables.}
 
-\item{predictors}{Character vector of continuous predictor variable names}
+\item{predictors}{Character vector of primary predictors.}
 
-\item{models_list}{Named list of length 3 with covariates for model2, model3, model4}
+\item{models_list}{A NAMED list defining sequential adjustment layers.}
 
-\item{ref_level}{Reference level for multinomial outcome (optional)}
+\item{ref_level}{Optional string to set the reference level of the outcome.}
 
-\item{output_dir}{Output directory (optional)}
+\item{output_dir}{Optional path to save output files.}
 
-\item{save_format}{Save format: "none", "docx", "csv" (default "none")}
+\item{save_format}{Save format: "none", "docx", "csv", or "txt".}
 }
 \value{
-List containing results data frame and optional saved file paths
+A list containing results data frame and saved file paths.
 }
 \description{
-Fits multinomial logistic regression models for continuous predictors:
-\enumerate{
-\item Model1 (unadjusted)
-\item Model2/3/4 (sequentially adding covariates)
-Calculates OR, 95\% CI and P-value per unit increase.
+Fits sequential multinomial logistic regression models using \code{nnet::multinom}.
+Implements an "Anti-Cartesian" row-indexing strategy to ensure perfect alignment
+of multi-level categorical outcomes across adjustment layers.
+}
+\examples{
+\dontrun{
+# Example with 3-level categorical outcome
+library(nnet)
+df_test <- survival::colon \%>\%
+  dplyr::mutate(extent = factor(extent, labels = c("Sub", "Mus", "Ser", "Con")))
+
+run_multivariable_multinomial_logistic_regression(
+  data = df_test,
+  outcomes = "extent",
+  predictors = "sex",
+  models_list = list("Basic" = c("age"), "Clinical" = c("obstruct")),
+  save_format = "docx"
+)
 }
 }

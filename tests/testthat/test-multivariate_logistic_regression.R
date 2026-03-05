@@ -90,3 +90,49 @@ test_that("mulivaraite logistic regression works", {
   # out is a list of results output_dir is not specified
   expect_true(all(c("results", "call") %in% names(out)))
 })
+test_that("multivariable cox regression works", {
+  is_mac <- tolower(Sys.info()[['sysname']]) == "darwin"
+  tmp_fp <- withr::local_tempdir()
+  
+  # Ensure dataset is loaded
+  data(package = "survival", "cancer")
+  
+  # ---------------------------------------------------------
+  # Test 1: With output_dir and save_format = "csv"
+  # ---------------------------------------------------------
+  out_cox_with_io <- run_multivariable_cox_regression(
+    data = colon,
+    time = "time",
+    status = "status",
+    predictors = c("age", "nodes"),
+    models_list = list(
+      model2 = c("sex"),
+      model3 = NULL,
+      model4 = NULL
+    ),
+    output_dir = tmp_fp,
+    save_format = "csv"
+  )
+  
+  expect_type(out_cox_with_io, "list")
+  expect_true(all(file.exists(out_cox_with_io$saved_files)))
+  
+  # ---------------------------------------------------------
+  # Test 2: Without output_dir (Pure computation)
+  # ---------------------------------------------------------
+  out_cox_no_io <- run_multivariable_cox_regression(
+    data = colon,
+    time = "time",
+    status = "status",
+    predictors = c("age", "nodes"),
+    models_list = list(
+      model2 = c("sex"),
+      model3 = NULL,
+      model4 = NULL
+    )
+  )
+  
+  expect_type(out_cox_no_io, "list")
+  expect_true(all(c("results", "call") %in% names(out_cox_no_io)))
+  
+})
