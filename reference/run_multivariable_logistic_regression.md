@@ -1,6 +1,9 @@
-# Multivariable Logistic Regression (4-layer models)
+# Dynamic Sequential Multivariable Logistic Regression
 
-Multivariable Logistic Regression (4-layer models)
+Fits cumulative multivariable logistic regression models across N-layers
+defined by `models_list`. The function ensures reference categories
+(1.00 (Ref)) are consistently maintained and horizontally aligned across
+all adjustment levels.
 
 ## Usage
 
@@ -13,7 +16,7 @@ run_multivariable_logistic_regression(
   outcomes_map = NULL,
   predictors_map = NULL,
   output_dir = NULL,
-  save_format = c("none", "docx", "csv")
+  save_format = c("none", "docx", "csv", "txt")
 )
 ```
 
@@ -21,57 +24,61 @@ run_multivariable_logistic_regression(
 
 - data:
 
-  Data frame
+  A data frame containing the variables.
 
 - outcomes:
 
-  Outcome variables (character vector)
+  Character vector of outcome variable names (Binary).
 
 - predictors:
 
-  Predictor variables (character vector)
+  Character vector of primary predictors to be evaluated.
 
 - models_list:
 
-  Named list of length 3 with covariates for model2, model3, model4
+  A NAMED list where each element contains new covariates to be added
+  sequentially (e.g., list(Base = c("age"), Clinical = c("nodes"))).
 
 - outcomes_map:
 
-  Optional named mapping from outcome variable names to display labels,
-  e.g. c("A_B" = "A B").
+  Optional named mapping for outcome display labels.
 
 - predictors_map:
 
-  Optional named mapping from predictor variable names to display
-  labels.
+  Optional named mapping for predictor display labels.
 
 - output_dir:
 
-  Output directory (optional, default no file saving)
+  Optional path to save output files.
 
 - save_format:
 
-  Save format: "none", "txt", "csv" (default "none")
+  Save format: "none", "docx", "csv", or "txt".
 
 ## Value
 
-List containing results data frame and optional saved file paths
+A list containing a consolidated results data frame and saved file
+paths.
 
 ## Examples
 
 ``` r
 if (FALSE) { # \dontrun{
-models_list <- list(
-  model2 = c("cyl", "gear"),
-  model3 = c("carb"),
-  model4 = c("hp")
+library(survival)
+data(colon)
+df <- colon %>% dplyr::filter(etype == 2) %>% dplyr::mutate(status = as.factor(status))
+
+models <- list(
+  "Demographics" = c("age", "sex"),
+  "Pathology"    = c("nodes", "extent")
 )
 
-result <- run_multivariable_logistic_regression(
-  data = mtcars,
-  outcomes = "vs",
-  predictors = c("mpg", "wt"),
-  models_list = models_list
+run_multivariable_logistic_regression(
+  data = df,
+  outcomes = "status",
+  predictors = "adhere",
+  models_list = models,
+  save_format = "docx"
 )
 } # }
 ```

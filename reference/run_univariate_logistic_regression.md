@@ -12,7 +12,7 @@ run_univariate_logistic_regression(
   outcomes_map = NULL,
   predictors_map = NULL,
   output_dir = NULL,
-  save_format = c("csv", "txt", "none")
+  save_format = c("csv", "txt", "docx", "none")
 )
 ```
 
@@ -46,30 +46,8 @@ run_univariate_logistic_regression(
 
 - save_format:
 
-  Save format: "csv", "txt", or "none" (default "csv").
+  Save format: "csv", "txt", "docx", or "none" (default "csv").
 
 ## Value
 
 A list with components `results`, `saved_files` and `call`.
-
-## Examples
-
-``` r
-if (FALSE) { # \dontrun{
-# Basic usage
-result <- run_univariate_logistic_regression(
-  data = mtcars,
-  outcomes = "vs",
-  predictors = c("mpg", "drat")
-)
-
-# Save as CSV files
-result <- run_univariate_logistic_regression(
-  data = mtcars,
-  outcomes = "vs",
-  predictors = c("mpg", "drat"),
-  output_dir = tempdir(),
-  save_format = "csv"
-)
-} # }
-```

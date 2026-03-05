@@ -1,11 +1,9 @@
-# Multivariable Multinomial Logistic Regression Analysis
+# Dynamic Sequential Multivariable Multinomial Logistic Regression
 
-Fits multinomial logistic regression models for continuous predictors:
-
-1.  Model1 (unadjusted)
-
-2.  Model2/3/4 (sequentially adding covariates) Calculates OR, 95% CI
-    and P-value per unit increase.
+Fits sequential multinomial logistic regression models using
+[`nnet::multinom`](https://rdrr.io/pkg/nnet/man/multinom.html).
+Implements an "Anti-Cartesian" row-indexing strategy to ensure perfect
+alignment of multi-level categorical outcomes across adjustment layers.
 
 ## Usage
 
@@ -17,7 +15,7 @@ run_multivariable_multinomial_logistic_regression(
   models_list,
   ref_level = NULL,
   output_dir = NULL,
-  save_format = c("none", "docx", "csv")
+  save_format = c("none", "docx", "csv", "txt")
 )
 ```
 
@@ -25,32 +23,51 @@ run_multivariable_multinomial_logistic_regression(
 
 - data:
 
-  Data frame containing all variables
+  A data frame containing the variables.
 
 - outcomes:
 
-  Character vector of outcome variable names
+  Character vector of multinomial outcome variables.
 
 - predictors:
 
-  Character vector of continuous predictor variable names
+  Character vector of primary predictors.
 
 - models_list:
 
-  Named list of length 3 with covariates for model2, model3, model4
+  A NAMED list defining sequential adjustment layers.
 
 - ref_level:
 
-  Reference level for multinomial outcome (optional)
+  Optional string to set the reference level of the outcome.
 
 - output_dir:
 
-  Output directory (optional)
+  Optional path to save output files.
 
 - save_format:
 
-  Save format: "none", "docx", "csv" (default "none")
+  Save format: "none", "docx", "csv", or "txt".
 
 ## Value
 
-List containing results data frame and optional saved file paths
+A list containing results data frame and saved file paths.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# Example with 3-level categorical outcome
+library(nnet)
+df_test <- survival::colon %>%
+  dplyr::mutate(extent = factor(extent, labels = c("Sub", "Mus", "Ser", "Con")))
+
+run_multivariable_multinomial_logistic_regression(
+  data = df_test,
+  outcomes = "extent",
+  predictors = "sex",
+  models_list = list("Basic" = c("age"), "Clinical" = c("obstruct")),
+  save_format = "docx"
+)
+} # }
+```

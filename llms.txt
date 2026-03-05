@@ -125,8 +125,6 @@ details.
   : Check if all groups for a variable are normal
 - [`make_baseline_table()`](https://leaflight.github.io/ClinKit/reference/make_baseline_table.md)
   : One-Click Baseline Characteristics Table (gtsummary version)
-- [`make_multivariate_table()`](https://leaflight.github.io/ClinKit/reference/make_multivariate_table.md)
-  : Create Multivariate Analysis Table
 - [`perform_normality_tests()`](https://leaflight.github.io/ClinKit/reference/perform_normality_tests.md)
   : Perform normality tests for continuous variables by group
 - [`print_normality_summary()`](https://leaflight.github.io/ClinKit/reference/print_normality_summary.md)
@@ -139,10 +137,12 @@ details.
   : ROC Curve Analysis with AUC Comparison and Optimal Cutoff
 - [`run_analysis_rcs()`](https://leaflight.github.io/ClinKit/reference/run_analysis_rcs.md)
   : Batch RCS Analysis
+- [`run_multivariable_cox_regression()`](https://leaflight.github.io/ClinKit/reference/run_multivariable_cox_regression.md)
+  : Dynamic Sequential Multivariable Cox Proportional Hazards Regression
 - [`run_multivariable_logistic_regression()`](https://leaflight.github.io/ClinKit/reference/run_multivariable_logistic_regression.md)
-  : Multivariable Logistic Regression (4-layer models)
+  : Dynamic Sequential Multivariable Logistic Regression
 - [`run_multivariable_multinomial_logistic_regression()`](https://leaflight.github.io/ClinKit/reference/run_multivariable_multinomial_logistic_regression.md)
-  : Multivariable Multinomial Logistic Regression Analysis
+  : Dynamic Sequential Multivariable Multinomial Logistic Regression
 - [`run_reclassification_analysis()`](https://leaflight.github.io/ClinKit/reference/run_reclassification_analysis.md)
   : Reclassification Analysis (NRI & IDI)
 - [`run_univariate_logistic_regression()`](https://leaflight.github.io/ClinKit/reference/run_univariate_logistic_regression.md)
@@ -154,6 +154,22 @@ details.
   (Enhanced Version)
 - [`subgroup_forest()`](https://leaflight.github.io/ClinKit/reference/subgroup_forest.md)
   : Forest Plot for Subgroup Analysis
+- [`use_clinkit_project()`](https://leaflight.github.io/ClinKit/reference/use_clinkit_project.md)
+  : Initialize a ClinKit Analysis Project
+- [`use_module_baseline()`](https://leaflight.github.io/ClinKit/reference/use_module_baseline.md)
+  : Generate Baseline Table Module Script
+- [`use_module_forest()`](https://leaflight.github.io/ClinKit/reference/use_module_forest.md)
+  : Generate Subgroup Forest Plot Module Script
+- [`use_module_highlow()`](https://leaflight.github.io/ClinKit/reference/use_module_highlow.md)
+  : Generate High-Low Joint Analysis Module Script
+- [`use_module_multivariable()`](https://leaflight.github.io/ClinKit/reference/use_module_multivariable.md)
+  : Generate Multivariable Analysis Module Script
+- [`use_module_nri()`](https://leaflight.github.io/ClinKit/reference/use_module_nri.md)
+  : Generate Reclassification Analysis Module Script
+- [`use_module_rcs()`](https://leaflight.github.io/ClinKit/reference/use_module_rcs.md)
+  : Generate RCS Plot Module Script
+- [`use_module_univariate()`](https://leaflight.github.io/ClinKit/reference/use_module_univariate.md)
+  : Generate Univariate Analysis Module Script
 
 # Articles
 
