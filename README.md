@@ -4,6 +4,7 @@
 [![Codecov test coverage](https://codecov.io/gh/LeafLight/ClinKit/graph/badge.svg)](https://app.codecov.io/gh/LeafLight/ClinKit)
 [![R-CMD-check](https://github.com/LeafLight/ClinKit/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/LeafLight/ClinKit/actions/workflows/R-CMD-check.yaml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 **ClinKit** is an advanced R framework tailored for clinical researchers and epidemiologists. It transforms cleaned datasets into publication-ready artifacts (Word tables and high-resolution figures) through a standardized, modular, and highly reproducible workflow.
 
 ## 🌟 Key Highlights
