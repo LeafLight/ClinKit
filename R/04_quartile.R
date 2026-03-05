@@ -154,10 +154,12 @@ for (outcome in outcomes) {
 
         # Extract trend p-value
         trend_p <- tryCatch({
-          broom::tidy(fit_trend)$p.value[2]
+          broom::tidy(fit_trend) %>%
+            dplyr::filter(term == "quartile_num") %>%
+            dplyr::pull(p.value)
         }, error = function(e) {
           warning(sprintf("Trend p-value extraction failed for %s ~ %s (%s): %s",
-                         outcome, predictor, model_name, e$message))
+                          outcome, predictor, model_name, e$message))
           return(NA)
         })
 

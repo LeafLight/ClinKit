@@ -9,7 +9,6 @@
 #' for a standardized clinical research workflow.
 #'
 #' @param path Target directory path (defaults to current working directory).
-#' @param path Character. Target file path for the generated script.
 #' @export
 use_clinkit_project <- function(path = ".") {
 
@@ -72,6 +71,7 @@ use_clinkit_project <- function(path = ".") {
   )
 
   config_file <- file.path(path, "00_Master_Config.R")
+  dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
   writeLines(config_content, config_file)
 
   message("[SUCCESS] ClinKit project initialized.")
@@ -97,6 +97,7 @@ use_module_baseline <- function(path = "scripts/01_baseline_table.R") {
     "  file = 'results/tables/Table1_Baseline.docx'",
     ")"
   )
+  dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
   writeLines(content, path)
   message(sprintf("[SUCCESS] Module created: %s", path))
 }
@@ -119,6 +120,7 @@ use_module_univariate <- function(path = "scripts/02_univariate_analysis.R") {
     "  save_format = 'docx'",
     ")"
   )
+  dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
   writeLines(content, path)
   message(sprintf("[SUCCESS] Module created: %s", path))
 }
@@ -144,6 +146,7 @@ use_module_multivariable <- function(path = "scripts/03_multivariable_analysis.R
     "  save_format = 'docx'",
     ")"
   )
+  dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
   writeLines(content, path)
   message(sprintf("[SUCCESS] Module created: %s", path))
 }
@@ -168,6 +171,7 @@ use_module_rcs <- function(path = "scripts/04_rcs_analysis.R") {
     "  save_format = 'all'",
     ")"
   )
+  dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
   writeLines(content, path)
   message(sprintf("[SUCCESS] Module created: %s", path))
 }
@@ -193,6 +197,7 @@ use_module_forest <- function(path = "scripts/05_subgroup_forest.R") {
     "  tm = 'blue'",
     ")"
   )
+  dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
   writeLines(content, path)
   message(sprintf("[SUCCESS] Module created: %s", path))
 }
@@ -221,6 +226,7 @@ use_module_nri <- function(path = "scripts/06_nri_idi_analysis.R") {
     "  save_format = 'all'",
     ")"
   )
+  dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
   writeLines(content, path)
   message(sprintf("[SUCCESS] Module created: %s", path))
 }
@@ -246,6 +252,7 @@ use_module_highlow <- function(path = "scripts/07_highlow_analysis.R") {
     "  save_format = 'all'",
     ")"
   )
+  dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
   writeLines(content, path)
   message(sprintf("[SUCCESS] Module created: %s", path))
 }

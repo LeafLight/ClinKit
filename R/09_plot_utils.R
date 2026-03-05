@@ -25,6 +25,7 @@
 #' @importFrom dplyr select
 #' @importFrom tidyr pivot_longer
 facet_violin <- function(data, vars, groupby) {
+  if (!requireNamespace("ggprism", quietly = TRUE)) stop("Please install.packages('ggprism')")
 
   # Select columns and convert to long format
   plot_dat <- data %>%
@@ -167,6 +168,7 @@ scatter_lm_marginal <- function(data, x, y,
 if (!requireNamespace("ggplot2", quietly = TRUE)) {
   stop("Package 'ggplot2' is required. Please install it with: install.packages('ggplot2')")
 }
+if (!requireNamespace("ggsci", quietly = TRUE)) stop("Please install.packages('ggsci')")
 # Check if ggpmisc is installed (without loading it into the search path)
 # If not installed, stop execution and inform the user
 if (!requireNamespace("ggpmisc", quietly = TRUE)) {

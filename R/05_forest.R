@@ -155,7 +155,7 @@ subgroup_forest <- function(data,
     final_data[is.na(final_data$CI_title), CI_title] <- " "
   }
   if(is.character(tm)){
-  if(tm %in% c("blue", "green", "cyan")) {
+  if(tm %in% c("blue", "green", "cyan", "default")) {
     tm <- get_forest_theme(tm, background_levels = generate_background_levels(final_data))
   }
   }

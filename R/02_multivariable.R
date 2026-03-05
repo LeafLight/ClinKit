@@ -369,4 +369,4 @@ run_multivariable_cox_regression <- function(data,
   return(list(results = results_df, saved_files = saved_files, call=match.call()))
 }
 # Ensure global variables for R CMD check
-utils::globalVariables(c("reference_row"))
+utils::globalVariables(c("reference_row", "variable", "label"))

@@ -320,7 +320,7 @@ run_analysis_rcs <- function(data,
   if (is.null(outcomes_map)) {
     outcomes_map <- setNames(outcomes, outcomes)
   }
-  if (is.null(outcomes_map)) {
+  if (is.null(predictors_map)) {
     predictors_map <- setNames(predictors, predictors)
   }
 

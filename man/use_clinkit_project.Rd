@@ -7,7 +7,7 @@
 use_clinkit_project(path = ".")
 }
 \arguments{
-\item{path}{Character. Target file path for the generated script.}
+\item{path}{Target directory path (defaults to current working directory).}
 }
 \description{
 Creates the core directory structure and the master configuration file

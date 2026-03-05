@@ -34,6 +34,7 @@ roc_analysis <- function(data,
                         plot_height = 2000,
                         plot_res = 300,
                          direction = "<") {
+  if (!requireNamespace("ggsci", quietly = TRUE)) stop("Please install.packages('ggsci')")
 
   # Parameter validation
   save_format <- match.arg(save_format)
