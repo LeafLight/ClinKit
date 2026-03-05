@@ -98,16 +98,13 @@ run_univariate_logistic_regression <- function(data,
     safe_prefix <- gsub("[^a-zA-Z0-9]", "_", raw_prefix)
 
     # Use ClinKit's internal generate_filepath if available, otherwise fallback to base R
-    if (exists("generate_filepath", mode = "function")) {
-      file_path <- generate_filepath(
-        base_name  = sprintf("Univariate_Logistic_%s", safe_prefix),
-        ext        = save_format,
-        output_dir = output_dir
-      )
-    } else {
-      file_name <- sprintf("Univariate_Logistic_%s.%s", safe_prefix, save_format)
-      file_path <- file.path(output_dir, file_name)
-    }
+
+    file_path <- generate_filepath(
+      base_name  = sprintf("Univariate_Logistic_%s", safe_prefix),
+      ext        = save_format,
+      output_dir = output_dir
+    )
+
 
     # Save according to the requested format
     if (save_format == "csv") {

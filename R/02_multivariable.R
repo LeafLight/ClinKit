@@ -110,7 +110,11 @@ run_multivariable_logistic_regression <- function(data,
     if (save_format != "none" && !is.null(output_dir)) {
       if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
       safe_outcome <- gsub("[^a-zA-Z0-9]", "_", outcome)
-      file_path <- file.path(output_dir, sprintf("Sequential_Logistic_%s.%s", safe_outcome, save_format))
+      file_path <- generate_filepath(
+        base_name  = sprintf("Sequential_Logistic_%s", safe_outcome),
+        ext        = save_format,
+        output_dir = output_dir
+      )
 
       if (save_format == "docx") {
         ft <- gtsummary::as_flex_table(master_tbl)
@@ -252,7 +256,11 @@ run_multivariable_multinomial_logistic_regression <- function(data,
     if (save_format != "none" && !is.null(output_dir)) {
       if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
       safe_outcome <- gsub("[^a-zA-Z0-9]", "_", outcome)
-      file_path <- file.path(output_dir, sprintf("Sequential_Multinomial_%s.%s", safe_outcome, save_format))
+      file_path <- generate_filepath(
+        base_name  = sprintf("Sequential_Multinomial_%s", safe_outcome),
+        ext        = save_format,
+        output_dir = output_dir
+      )
 
       if (save_format == "docx") {
         ft <- gtsummary::as_flex_table(master_tbl)
@@ -353,7 +361,11 @@ run_multivariable_cox_regression <- function(data,
 
   if (save_format != "none" && !is.null(output_dir)) {
     if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
-    file_path <- file.path(output_dir, sprintf("Sequential_Cox_%s.%s", status, save_format))
+    file_path <- generate_filepath(
+      base_name  = sprintf("Sequential_Cox_%s", status),
+      ext        = save_format,
+      output_dir = output_dir
+    )
 
     if (save_format == "docx") {
       ft <- gtsummary::as_flex_table(master_tbl)
