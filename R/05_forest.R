@@ -231,7 +231,7 @@ subgroup_forest <- function(data,
         ext = "pdf",
         output_dir = output_dir
       )
-  grDevices::cairo_pdf(pdf_file, width = 10, height = 6, family = "Times New Roman")
+  grDevices::cairo_pdf(pdf_file, width = 10, height = 6, family = get_pkg_font())
   print(forest_plot)
   grDevices::dev.off()
   saved_files <- c(saved_files, pdf_file)
@@ -276,7 +276,7 @@ setup_font_config <- function(math_font = NULL, ensure_italic_p = TRUE) {
   <alias>
     <family>serif</family>
     <prefer>
-      <family>Times New Roman</family>
+      <family>%s</family>
       <family>%s</family>
     </prefer>
   </alias>
@@ -304,7 +304,7 @@ setup_font_config <- function(math_font = NULL, ensure_italic_p = TRUE) {
       <string>%s</string>
     </edit>
   </match>
-</fontconfig>', math_font, math_font, math_font, math_font)
+</fontconfig>', get_pkg_font(), math_font, math_font, math_font, math_font)
 
   writeLines(config_content, fc)
   return(fc)
@@ -371,7 +371,7 @@ get_forest_theme <- function(theme_name = c("blue", "green", "cyan", "default"),
   # create theme
   theme <- forestploter::forest_theme(
     base_size = base_size,
-    base_family = "Times New Roman",
+    base_family = get_pkg_font(),
 
     # Confidence interval settings
     ci_pch = 16,
@@ -398,7 +398,7 @@ get_forest_theme <- function(theme_name = c("blue", "green", "cyan", "default"),
     footnote_gp = grid::gpar(cex = 0.7, fontface = "italic", col = scheme$footnote_col),
 
     # X-axis
-    xaxis_gp = grid::gpar(fontsize = base_size, fontfamily = "Times New Roman", lwd = 1.5),
+    xaxis_gp = grid::gpar(fontsize = base_size, fontfamily = get_pkg_font(), lwd = 1.5),
 
     # Core styling with background colors if provided
     core = list(
@@ -407,7 +407,7 @@ get_forest_theme <- function(theme_name = c("blue", "green", "cyan", "default"),
 
     # Column headers
     colhead = list(
-      fg_params = list(hjust = 0.5, x = 0.5, fontfamily = "Times New Roman")
+      fg_params = list(hjust = 0.5, x = 0.5, fontfamily = get_pkg_font())
     )
   )
 

@@ -1,82 +1,120 @@
-# ClinKit
+```markdown
+# ClinKit 
 
-<!-- badges: start -->
 [![Codecov test coverage](https://codecov.io/gh/LeafLight/ClinKit/graph/badge.svg)](https://app.codecov.io/gh/LeafLight/ClinKit)
 [![R-CMD-check](https://github.com/LeafLight/ClinKit/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/LeafLight/ClinKit/actions/workflows/R-CMD-check.yaml)
-<!-- badges: end -->
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+**ClinKit** is an advanced R framework tailored for clinical researchers and epidemiologists. It transforms cleaned datasets into publication-ready artifacts (Word tables and high-resolution figures) through a standardized, modular, and highly reproducible workflow.
 
-ClinKit is an integrated R package designed to transform cleaned clinical datasets directly into publication-ready figures and statistical outputs, while preserving access to raw analysis objects for complete methodological transparency and customization.
+## 🌟 Key Highlights
 
-## Installation
+* **⚡ Interactive Scaffolding**: Deploy a complete clinical project structure and master control center with a single command.
+* **📈 Hierarchical Sequential Modeling**: Automatically generate Model 1 (Unadjusted) through Model N (Fully Adjusted) for Logistic, Cox PH, and Multinomial regressions.
+* **🧪 Built-in Methodological Rigor**: Automated normality testing for intelligent descriptive statistics and "Anti-Cartesian" alignment for multi-level outcome reporting.
+* **📄 Journal-Ready Outputs**: Unified I/O routing with auto-formatted `.docx` tables (standardized Times New Roman and three-line table layout).
+
+---
+
+## 📦 Installation
 
 You can install the development version of ClinKit from GitHub:
 
 ```r
 # install.packages("devtools")
 devtools::install_github("LeafLight/ClinKit")
+
 ```
 
-## Example Usage
+---
 
-Below is a minimal example using built-in or example data:
+## 🚀 The ClinKit Workflow (Standard Operating Procedure)
+
+ClinKit enforces a "Configuration-Driven" modular workflow to ensure your research is audit-proof and reproducible.
+
+### Step 1: Initialize the Environment
 
 ```r
 library(ClinKit)
-# Example: Generate a baseline table
-data <- data.frame(
-  group = rep(c("A", "B"), each = 50),
-  age = rnorm(100, 60, 10),
-  gender = sample(c("Male", "Female"), 100, replace = TRUE)
-)
-result <- make_baseline_table(data, group_var = "group")
-print(result$summary)
-# Export to Word
-gtsummary::as_flextable(result$summary) |> flextable::save_as_docx(path = "baseline_table.docx")
+use_clinkit_project() 
+
 ```
 
-## Core Analytical Modules
+This creates a standardized directory structure (`data/`, `scripts/`, `results/`) and the **`00_Master_Config.R`** dashboard.
 
-- **make_baseline_table()**: Automated baseline characteristic tables with intelligent test selection. Wraps gtsummary::tbl_summary() with built-in normality testing to automatically choose appropriate parametric or non-parametric tests, exporting directly to formatted Word documents.
-- **Regression Analysis Suite**: Comprehensive modeling with progressive adjustment:
-  - run_univariate_logistic_regression(): Single predictor analysis
-  - run_multivariable_logistic_regression(): Sequential multivariable models (Model 1-4) with incremental covariate adjustment
-  - run_multivariable_multinomial_logistic_regression(): Multi-category outcome analysis
-- **Visualization Tools**:
-  - scatter_lm(): Clean scatter plots with linear regression
-  - scatter_lm_marginal(): Enhanced versions with marginal distributions
-  - subgroup_forest(): Publication-ready forest plots with 4 built-in themes and comprehensive p-value reporting
-- **Specialized Analytical Methods**:
-  - highlow_analysis(): Variable interaction analysis with intuitive high/low grouping
-  - quartile_logistic_analysis(), quartile_multinomial_analysis(): Streamlined quartile-based analysis (Q1-Q4) for continuous predictors
-  - roc_analysis(): ROC curve visualization with tidy DeLong test results
+### Step 2: Global Variable Configuration
 
-## Key Advantages
+Open `00_Master_Config.R` to define your outcomes, primary predictors, and hierarchical adjustment layers (Model 1-N).
 
-- Progressive Modeling: Sequential multivariable regression with incremental covariate adjustment (Models 1-4)
-- Reproducible Research: All functions return raw analysis objects alongside formatted outputs
-- Methodological Rigor: Automated statistical appropriateness checks
-- Publication-Ready: Direct export to journal-compatible formats
-- Clinical Focus: Specialized methods for common clinical research scenarios
+### Step 3: Deploy Analysis Modules
 
-## Dependencies
+Run the following functions within your config center to generate standalone, task-specific scripts:
 
-ClinKit depends on several R packages, including `gtsummary`, `flextable`, `ggplot2`, and others. All dependencies will be installed automatically.
+```r
+use_module_baseline()      # Deploys Table 1 (Patient Characteristics)
+use_module_multivariable() # Deploys Table 3 (Sequential Adjusted Models)
+use_module_rcs()           # Deploys Non-linear Trend Analysis (RCS)
+use_module_forest()        # Deploys Subgroup Interaction Plots
 
-## Example Data
+```
 
-You can use your own cleaned clinical dataset, or refer to the example in the usage section above.
+---
 
-## Contributing
+## 🛠 Core Analytical Suite
 
-Contributions, bug reports, and feature requests are welcome! Please open an issue or submit a pull request on GitHub.
+### 1. Automated Baseline Reporting (`make_baseline_table`)
 
-## Contact
+Features built-in Shapiro-Wilk/KS testing. It automatically switches between `Mean ± SD` and `Median (IQR)` based on distribution and exports directly to publication-quality Word documents.
 
-For questions or support, please contact [LeafLight](mailto:leaflight@domain.com) or open an issue on the GitHub repository.
+### 2. Hierarchical Regression Engines
 
-## License
+* **`run_multivariable_logistic_regression()`**: Standardized Adjusted Odds Ratios (aOR).
+* **`run_multivariable_cox_regression()`**: Sequential Adjusted Hazard Ratios (aHR).
+* **`run_multivariable_multinomial_logistic_regression()`**: Handling multi-category outcomes with perfect row alignment across adjustment levels.
 
-This project is licensed under the MIT License. See the LICENSE file for details.
+### 3. Advanced Visualization & Analytics
 
-## Documents & Tutorial
-[ClinKit Documents](https://leaflight.github.io/ClinKit/index.html)
+* **`generate_rcs_plot()`**: Restricted Cubic Splines with multi-model support.
+* **`subgroup_forest()`**: Subgroup interaction forest plots with professional color themes (Blue, Green, Cyan).
+* **`run_reclassification_analysis()`**: Comprehensive calculation of NRI (Net Reclassification Index) and IDI (Integrated Discrimination Improvement).
+
+---
+
+## 💎 Why ClinKit?
+
+| Feature | ClinKit Framework | Traditional R Scripting |
+| --- | --- | --- |
+| **Adjustment Layers** | Automated (Model 1-N) | Manual formula rewriting |
+| **Reference Categories** | Auto-persisted (1.00 (Ref)) | Manual row insertions |
+| **I/O Management** | Unified routing & timestamps | Scattered `ggsave` / `write.csv` |
+| **Reproducibility** | Config-driven modularity | Fragile, monolithic scripts |
+
+---
+
+## 📖 Documentation
+
+For full function references and step-by-step case studies, please visit:
+**[ClinKit Documentation Portal](https://leaflight.github.io/ClinKit/index.html)**
+
+---
+
+## 🤝 Contributing
+
+Methodological contributions, bug reports, and pull requests are welcome!
+
+* **Author**: [Hualin Wang]([LeafLight](https://github.com/LeafLight))
+* **License**: MIT
+
+```
+
+---
+
+### 🏁 Next Step: Launching Phase 2
+
+Now that your "digital storefront" is ready in perfect English:
+
+1.  **Commit and Push** this `README.md`.
+2.  **Start the Golden Case**: I will guide you through running `use_clinkit_project()` in a clean directory and using the `survival::colon` dataset to generate a full set of results.
+
+**Are you ready to see ClinKit in action for a real study?**
+
+```

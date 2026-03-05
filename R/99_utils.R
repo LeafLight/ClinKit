@@ -111,3 +111,17 @@ map_label <- function(name, mapping = NULL) {
     val
   }
 }
+#' @keywords internal
+get_pkg_font <- function() {
+  opt <- getOption("clinkit.base_family")
+  if (!is.null(opt)) return(opt)
+
+  if (requireNamespace("systemfonts", quietly = TRUE)) {
+    all_fonts <- systemfonts::system_fonts()$family
+    if ("Times New Roman" %in% all_fonts) {
+      return("Times New Roman")
+    }
+  }
+
+  return("serif")
+}

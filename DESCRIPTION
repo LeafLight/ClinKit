@@ -37,7 +37,8 @@ Imports:
     jstable,
     utils,
     parameters,
-    broom.helpers (>= 1.20.0)
+    broom.helpers (>= 1.20.0),
+    systemfonts
 Suggests:
     pkgdown,
     svglite,
