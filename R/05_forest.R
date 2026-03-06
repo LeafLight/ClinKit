@@ -22,8 +22,6 @@
 #' @param CI_title title of Confidence Interval, default "OR(95%CI)"
 #' @param xlim xlim of the forest plot, default NULL
 #' @param ticks_at a numeric vector to specify the x tick of the forestplot
-#' @param math_font the font you want to use to display math charactor(those not included in normal fonts)
-#' @param ensure_italic_p TRUE if you want to use italic p
 #'
 #'
 #' @return List containing forest plot data, plot object, and optional saved file paths
@@ -41,13 +39,11 @@ subgroup_forest <- function(data,
                            line = FALSE,
                            prepare_plot = TRUE,
                            tm = "blue",
-                            xlim = NULL,
-                            ticks_at = NULL,
+                           xlim = NULL,
+                           ticks_at = NULL,
                            plot_title = "Forest Plot of Subgroup Analysis",
                            xlab = "Odds Ratio",
-                            CI_title = "OR(95%CI)",
-                            math_font = NULL,  # Math font like "STIX Two Math"
-                           ensure_italic_p = TRUE
+                           CI_title = "OR(95%CI)"
 ) {
 
   # Parameter validation
@@ -62,34 +58,6 @@ subgroup_forest <- function(data,
   }
   if (!requireNamespace("jstable", quietly = TRUE)) {
     stop("Please install.packages('jstable')")
-  }
-  # font config for italic p
-  font_config_file <- NULL
-  old_font_config <- NULL
-
-  if (!is.null(math_font) || ensure_italic_p) {
-
-      # create font config
-      font_config_file <- setup_font_config(math_font, ensure_italic_p)
-
-      if (!is.null(font_config_file)) {
-        # save old font config
-        old_font_config <- Sys.getenv("FONTCONFIG_FILE")
-        Sys.setenv(FONTCONFIG_FILE = font_config_file)
-
-        # restore original config
-        on.exit({
-          if (!is.null(old_font_config) && nzchar(old_font_config)) {
-            Sys.setenv(FONTCONFIG_FILE = old_font_config)
-          } else {
-            Sys.unsetenv("FONTCONFIG_FILE")
-          }
-          if (!is.null(font_config_file) && file.exists(font_config_file)) {
-            unlink(font_config_file)
-          }
-        })
-      }
-
   }
 
   # Check if variables exist
@@ -133,8 +101,8 @@ subgroup_forest <- function(data,
   if (prepare_plot) {
     final_data <- plot_res
     colnames(final_data)[1] <- "Subgroup"
-    colnames(final_data)[7] <- "\U0001D443  value"
-    colnames(final_data)[8] <- "\U0001D443  for interaction"
+    colnames(final_data)[7] <- "P value"
+    colnames(final_data)[8] <- "P for interaction"
     final_data$Subgroup <- ifelse(is.na(final_data$OR),
                                  final_data$Subgroup,
                                  paste0("        ", final_data$Subgroup))
@@ -247,68 +215,7 @@ subgroup_forest <- function(data,
     call = match.call()
   ))
 }
-#' Setup Font Configuration for Math Symbols (Internal)
-#' @keywords internal
-setup_font_config <- function(math_font = NULL, ensure_italic_p = TRUE) {
-  message("trying to setup font config")
-  if (is.null(math_font)) {
-    math_font <- "STIX Two Math"
-  }
-  # # check the availablity of font
-  #
-  # if (!extrafont::fonts() %>% grepl(math_font, .) %>% any()) {
-  #   warning("Math font '", math_font, "' not found.")
-  #   extrafont::font_import()
-  #    if (!extrafont::fonts() %>% grepl(math_font, .) %>% any()) {
-  #        warning("Math font '", math_font, "' not found after importing.")
-  #      return(NULL)}
-  #
-  # }
 
-  # creat font config
-  fc <- tempfile(fileext = ".conf")
-
-  config_content <- sprintf(
-'<?xml version="1.0"?>
-<!DOCTYPE fontconfig SYSTEM "fonts.dtd">
-<fontconfig>
-  <!-- Math symbol fallback for italic P characters -->
-  <alias>
-    <family>serif</family>
-    <prefer>
-      <family>%s</family>
-      <family>%s</family>
-    </prefer>
-  </alias>
-  <alias>
-    <family>sans-serif</family>
-    <prefer>
-      <family>Arial</family>
-      <family>%s</family>
-    </prefer>
-  </alias>
-  <alias>
-    <family>monospace</family>
-    <prefer>
-      <family>Courier New</family>
-      <family>%s</family>
-    </prefer>
-  </alias>
-
-  <!-- Specific handling for mathematical italic P (U+1D443) -->
-  <match target="pattern">
-    <test name="charset" compare="contains">
-      <string>U+1D443</string> <!-- Mathematical Italic Capital P -->
-    </test>
-    <edit name="family" mode="prepend" binding="strong">
-      <string>%s</string>
-    </edit>
-  </match>
-</fontconfig>', get_pkg_font(), math_font, math_font, math_font, math_font)
-
-  writeLines(config_content, fc)
-  return(fc)
-}
 #' Get Predefined Forest Plot Themes
 #'
 #' Provides several predefined color themes for forest plots with Times New Roman font.
