@@ -26,9 +26,7 @@ subgroup_forest(
   ticks_at = NULL,
   plot_title = "Forest Plot of Subgroup Analysis",
   xlab = "Odds Ratio",
-  CI_title = "OR(95%CI)",
-  math_font = NULL,
-  ensure_italic_p = TRUE
+  CI_title = "OR(95%CI)"
 )
 ```
 
@@ -108,15 +106,6 @@ subgroup_forest(
 - CI_title:
 
   title of Confidence Interval, default "OR(95%CI)"
-
-- math_font:
-
-  the font you want to use to display math charactor(those not included
-  in normal fonts)
-
-- ensure_italic_p:
-
-  TRUE if you want to use italic p
 
 ## Value
 
