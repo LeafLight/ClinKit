@@ -1,5 +1,5 @@
 Package: ClinKit
-Title: What the Package Does (One Line, Title Case)
+Title: A Robust Scaffolding Framework for Automated Clinical Reporting
 Version: 0.0.0.9
 Authors@R: 
     person("Hualin", "Wang", , "wanghualin@stu.njmu.edu.cn", role = c("aut", "cre"))
@@ -18,26 +18,14 @@ Depends:
 Imports:
     broom,
     dplyr,
-    flextable,
-    ggExtra,
     ggplot2,
-    ggpmisc,
     gtsummary,
-    interactionR,
-    nnet,
-    officer,
-    pROC,
     purrr,
     rlang,
-    rms,
     stats,
     tibble,
     tidyr,
-    forestploter,
-    jstable,
     utils,
-    parameters,
-    broom.helpers (>= 1.20.0),
     systemfonts
 Suggests:
     pkgdown,
@@ -49,7 +37,19 @@ Suggests:
     ggsci,
     ggprism,
     rmarkdown,
-    Hmisc
+    Hmisc,
+    pROC,
+    rms,
+    nnet,
+    interactionR,
+    forestploter,
+    jstable,
+    flextable,
+    officer,
+    ggExtra,
+    ggpmisc,
+    parameters,
+    broom.helpers
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3

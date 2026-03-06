@@ -41,8 +41,6 @@
 #'
 #' @importFrom dplyr all_of select filter pull
 #' @importFrom gtsummary tbl_summary add_p modify_fmt_fun add_overall bold_labels as_flex_table
-#' @importFrom officer read_docx
-#' @importFrom flextable body_add_flextable
 #' @importFrom purrr map_dfr
 #' @importFrom tibble tibble
 #' @export

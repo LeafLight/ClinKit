@@ -347,7 +347,7 @@ run_analysis_rcs <- function(data,
           predictors_map = predictors_map,
           covariates = NULL,
           knots = knots,
-          output_dir = if (!is.null(output_dir)) file.path(output_dir, "unadjusted") else NULL,
+          output_dir = if (!is.null(output_dir)) file.path(output_dir, "RCS_plots", "unadjusted") else NULL,
           save_format = save_format,
           filename = paste0(base_filename, "_unadjusted")
         )
@@ -384,7 +384,7 @@ run_analysis_rcs <- function(data,
             predictors_map = predictors_map,
             covariates = covariates,
             knots = knots,
-            output_dir = if (!is.null(output_dir)) file.path(output_dir, "adjusted") else NULL,
+            output_dir = if (!is.null(output_dir)) file.path(output_dir, "RCS_plots", "adjusted") else NULL,
             save_format = save_format,
             filename = paste0(base_filename, "_adjusted")
           )
@@ -437,7 +437,7 @@ run_analysis_rcs <- function(data,
     summary_file <- generate_filepath(
       base_name = "rcs_summary",
       ext = "csv",
-      output_dir = output_dir
+      output_dir = if (!is.null(output_dir)) file.path(output_dir, "RCS_plots")
     )
     utils::write.csv(final_results, summary_file, row.names = FALSE)
     all_saved_files <- c(all_saved_files, summary_file)

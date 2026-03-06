@@ -26,12 +26,4 @@
 
 # Import ggpubr function: Nature Publishing Group (NPG) color scale (resolves warnings in scatter_lm_marginal)
 
-#' @importFrom forestploter forest forest_theme  
-# Import forestploter functions: Core forest plot generation (forest) and theme customization (forest_theme) (required for subgroup_forest)
-
-#' @importFrom jstable TableSubgroupMultiGLM  
-# Import jstable function: Subgroup analysis with GLM (core dependency for subgroup_forest to generate subgroup-specific results)
-
-#' @importFrom broom.helpers tidy_plus_plus
-#' @importFrom parameters model_parameters
 NULL  # Empty object to avoid "no visible return value" notes (only for import declaration, no functional code)

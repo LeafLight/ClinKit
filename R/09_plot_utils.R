@@ -150,8 +150,6 @@ scatter_lm <- function(data, x, y,
 #' }
 #'
 #' @importFrom ggplot2 ggplot aes geom_point theme_classic guides theme
-#' @importFrom ggpmisc stat_poly_line stat_poly_eq
-#' @importFrom ggExtra ggMarginal
 #' @importFrom rlang sym
 #' @export
 scatter_lm_marginal <- function(data, x, y,
