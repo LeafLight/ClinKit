@@ -29,8 +29,6 @@
   : Quartile-based Logistic Regression Analysis
 - [`quartile_multinomial_analysis()`](https://leaflight.github.io/ClinKit/reference/quartile_multinomial_analysis.md)
   : Quartile-based Multinomial Logistic Regression Analysis
-- [`roc_analysis()`](https://leaflight.github.io/ClinKit/reference/roc_analysis.md)
-  : ROC Curve Analysis with AUC Comparison and Optimal Cutoff
 - [`run_analysis_rcs()`](https://leaflight.github.io/ClinKit/reference/run_analysis_rcs.md)
   : Batch RCS Analysis
 - [`run_multivariable_cox_regression()`](https://leaflight.github.io/ClinKit/reference/run_multivariable_cox_regression.md)
@@ -41,6 +39,8 @@
   : Dynamic Sequential Multivariable Multinomial Logistic Regression
 - [`run_reclassification_analysis()`](https://leaflight.github.io/ClinKit/reference/run_reclassification_analysis.md)
   : Reclassification Analysis (NRI & IDI)
+- [`run_roc_analysis()`](https://leaflight.github.io/ClinKit/reference/run_roc_analysis.md)
+  : ROC Curve Analysis with AUC Comparison and Optimal Cutoff
 - [`run_univariate_logistic_regression()`](https://leaflight.github.io/ClinKit/reference/run_univariate_logistic_regression.md)
   : Univariate Logistic Regression Analysis
 - [`scatter_lm()`](https://leaflight.github.io/ClinKit/reference/scatter_lm.md)
