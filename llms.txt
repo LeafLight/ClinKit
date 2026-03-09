@@ -38,17 +38,18 @@ You can install the development version of ClinKit from GitHub:
 ``` r
 # install.packages("devtools")
 devtools::install_github("LeafLight/ClinKit")
+```
 
----
-
+------------------------------------------------------------------------
 
 ## 🚀 The ClinKit Workflow (Standard Operating Procedure)
 
-ClinKit enforces a "Configuration-Driven" modular workflow to ensure your research is traceable and reproducible.
+ClinKit enforces a “Configuration-Driven” modular workflow to ensure
+your research is traceable and reproducible.
 
 ### Step 1: Initialize the Environment
 
-```r
+``` r
 library(ClinKit)
 use_clinkit_project() 
 ```
