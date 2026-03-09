@@ -64,7 +64,7 @@ use_clinkit_project <- function(path = ".") {
     "# ClinKit::use_module_forest()",
     "",
     "# [Module 6]: Reclassification & Incremental Value (NRI/IDI)",
-    "# ClinKit::use_module_nri()",
+    "# ClinKit::use_module_reclassification()",
     "",
     "# [Module 7]: Joint Exposure Analysis (High-Low Interaction)",
     "# ClinKit::use_module_highlow()"
@@ -205,7 +205,7 @@ use_module_forest <- function(path = "scripts/05_subgroup_forest.R") {
 #' Generate Reclassification Analysis Module Script
 #' @param path Character. Target file path for the generated script.
 #' @export
-use_module_reclassification <- function(path = "scripts/06_nri_idi_analysis.R") {
+use_module_reclassification <- function(path = "scripts/06_reclassification_analysis.R") {
   content <- c(
     "# Module 6: Reclassification & Discrimination (NRI/IDI)",
     "source('00_Master_Config.R')",

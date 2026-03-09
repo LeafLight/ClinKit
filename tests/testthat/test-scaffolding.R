@@ -41,7 +41,7 @@ test_that("module generators create correct scripts", {
     list(func = use_module_multivariable,  file = "03_multivariable_analysis.R"),
     list(func = use_module_rcs,            file = "04_rcs_analysis.R"),
     list(func = use_module_forest,         file = "05_subgroup_forest.R"),
-    list(func = use_module_nri,            file = "06_nri_idi_analysis.R"),
+    list(func = use_module_reclassification,            file = "06_reclassification_analysis.R"),
     list(func = use_module_highlow,        file = "07_highlow_analysis.R")
   )
   
