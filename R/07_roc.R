@@ -53,7 +53,17 @@ run_roc_analysis <- function(data,
   if (length(missing_vars) > 0) {
     stop("Variables not found in data: ", paste(missing_vars, collapse = ", "))
   }
-
+  # Create a unified cohort to ensure all ROCs and DeLong tests are evaluated on the exact same subjects.
+    complete_idx <- complete.cases(data[, all_vars, drop = FALSE])
+    data_complete <- data[complete_idx, ]
+    dropped_n <- nrow(data) - nrow(data_complete)
+    if (dropped_n > 0) {
+      message(sprintf("[ClinKit] ROC Analysis: %d observations removed due to missing values. Unified Effective N = %d",
+                      dropped_n, nrow(data_complete)))
+    }
+    if (nrow(data_complete) < 10) {
+      stop("Insufficient complete cases for ROC analysis across the specified variables.")
+    }
   # Set random seed for reproducibility
   set.seed(seed)
 
