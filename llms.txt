@@ -196,10 +196,12 @@ welcome!
   : Generate High-Low Joint Analysis Module Script
 - [`use_module_multivariable()`](https://leaflight.github.io/ClinKit/reference/use_module_multivariable.md)
   : Generate Multivariable Analysis Module Script
-- [`use_module_nri()`](https://leaflight.github.io/ClinKit/reference/use_module_nri.md)
-  : Generate Reclassification Analysis Module Script
 - [`use_module_rcs()`](https://leaflight.github.io/ClinKit/reference/use_module_rcs.md)
   : Generate RCS Plot Module Script
+- [`use_module_reclassification()`](https://leaflight.github.io/ClinKit/reference/use_module_reclassification.md)
+  : Generate Reclassification Analysis Module Script
+- [`use_module_roc()`](https://leaflight.github.io/ClinKit/reference/use_module_roc.md)
+  : Generate ROC Analysis Module Script
 - [`use_module_univariate()`](https://leaflight.github.io/ClinKit/reference/use_module_univariate.md)
   : Generate Univariate Analysis Module Script
 
