@@ -1,7 +1,7 @@
 if (tolower(Sys.info()[['sysname']]) == "darwin") skip("skip all tests on macOS: known segfaults in dependencies")
 test_that("roc works", {
   tmp_fp <- withr::local_tempdir()
-  out <- roc_analysis(
+  out <- run_roc_analysis(
   data = mtcars,
   outcome = "vs",
   predictors = c("mpg", "wt", "disp"),

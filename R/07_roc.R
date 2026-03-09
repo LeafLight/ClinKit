@@ -20,20 +20,20 @@
 #' @param direction roc direction, "auto" for automatic selection, default `<`
 #' @return List containing ROC objects, AUC summary, and optional saved file paths
 #' @export
-roc_analysis <- function(data,
-                        outcome,
-                        predictors,
-                        combined_models = NULL,
-                        output_dir = NULL,
-                        save_format = c("none", "plot", "data", "all"),
-                        delong_test = FALSE,
-                        colors = NULL,
-                        legend_labels = NULL,
-                        seed = 123,
-                        plot_width = 2000,
-                        plot_height = 2000,
-                        plot_res = 300,
-                         direction = "<") {
+run_roc_analysis <- function(data,
+                             outcome,
+                             predictors,
+                             combined_models = NULL,
+                             output_dir = NULL,
+                             save_format = c("none", "plot", "data", "all"),
+                             delong_test = FALSE,
+                             colors = NULL,
+                             legend_labels = NULL,
+                             seed = 123,
+                             plot_width = 2000,
+                             plot_height = 2000,
+                             plot_res = 300,
+                             direction = "<") {
   if (!requireNamespace("ggsci", quietly = TRUE)) stop("Please install.packages('ggsci')")
 
   # Parameter validation
