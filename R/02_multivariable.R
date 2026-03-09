@@ -103,7 +103,7 @@ run_multivariable_logistic_regression <- function(data,
     if (length(predictor_tables) == 0) next
 
     master_tbl <- gtsummary::tbl_stack(predictor_tables) %>%
-      gtsummary::modify_caption(sprintf("**Sequential Models for: %s**", outcome))
+      gtsummary::modify_caption(sprintf("Sequential Models for: %s", outcome))
 
     results_df <- gtsummary::as_tibble(master_tbl, col_labels = TRUE)
 
@@ -249,7 +249,7 @@ run_multivariable_multinomial_logistic_regression <- function(data,
     if (length(predictor_tables) == 0) next
 
     master_tbl <- gtsummary::tbl_stack(predictor_tables) %>%
-      gtsummary::modify_caption(sprintf("**Dynamic Multinomial Models for: %s**", outcome))
+      gtsummary::modify_caption(sprintf("Dynamic Multinomial Models for: %s", outcome))
 
     results_df <- gtsummary::as_tibble(master_tbl, col_labels = TRUE)
 
@@ -355,7 +355,7 @@ run_multivariable_cox_regression <- function(data,
   if (length(predictor_tables) == 0) return(NULL)
 
   master_tbl <- gtsummary::tbl_stack(predictor_tables) %>%
-    gtsummary::modify_caption(sprintf("**Sequential Cox PH Models for: %s**", status))
+    gtsummary::modify_caption(sprintf("Sequential Cox PH Models for: %s", status))
 
   results_df <- gtsummary::as_tibble(master_tbl, col_labels = TRUE)
 

@@ -205,7 +205,7 @@ use_module_forest <- function(path = "scripts/05_subgroup_forest.R") {
 #' Generate Reclassification Analysis Module Script
 #' @param path Character. Target file path for the generated script.
 #' @export
-use_module_nri <- function(path = "scripts/06_nri_idi_analysis.R") {
+use_module_reclassification <- function(path = "scripts/06_nri_idi_analysis.R") {
   content <- c(
     "# Module 6: Reclassification & Discrimination (NRI/IDI)",
     "source('00_Master_Config.R')",
@@ -250,6 +250,36 @@ use_module_highlow <- function(path = "scripts/07_highlow_analysis.R") {
     "  model2 = unlist(MODELS_LIST),",
     "  output_dir = 'results/tables',",
     "  save_format = 'all'",
+    ")"
+  )
+  dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
+  writeLines(content, path)
+  message(sprintf("[SUCCESS] Module created: %s", path))
+}
+
+#' Generate ROC Analysis Module Script
+#' @param path Character. Target file path for the generated script.
+#' @export
+use_module_roc <- function(path = "scripts/08_roc_analysis.R") {
+  content <- c(
+    "# Module 8: ROC Curve Analysis and AUC Comparison",
+    "source('00_Master_Config.R')",
+    "",
+    "df_clean <- survival::colon %>% filter(etype == 2)",
+    "# Ensure outcome is numeric 0/1 for pROC",
+    "df_clean[[OUTCOME_VAR]] <- as.numeric(as.character(df_clean[[OUTCOME_VAR]]))",
+    "",
+    "run_roc_analysis(",
+    "  data = df_clean,",
+    "  outcome = OUTCOME_VAR,",
+    "  predictors = PREDICTORS, # Individual predictors defined in SSOT",
+    "  combined_models = list(",
+    "    'Full_Model' = PREDICTORS",
+    "  ),",
+    "  output_dir = 'results/figures',",
+    "  save_format = 'all',",
+    "  delong_test = TRUE,",
+    "  direction = 'auto'",
     ")"
   )
   dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
