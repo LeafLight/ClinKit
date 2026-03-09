@@ -25,7 +25,7 @@ You can install the development version of ClinKit from GitHub:
 ```r
 # install.packages("devtools")
 devtools::install_github("LeafLight/ClinKit")
-
+```
 ---
 
 
