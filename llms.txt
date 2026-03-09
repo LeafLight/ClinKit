@@ -11,6 +11,10 @@ and epidemiologists. It transforms cleaned datasets into
 publication-ready artifacts (Word tables and high-resolution figures)
 through a standardized, modular, and highly reproducible workflow.
 
+![ClinKit Architecture](reference/figures/cheatsheet.png)
+
+ClinKit Architecture
+
 ## 🌟 Key Highlights
 
 - **⚡ Interactive Scaffolding**: Deploy a complete clinical project
@@ -40,7 +44,7 @@ devtools::install_github("LeafLight/ClinKit")
 
 ## 🚀 The ClinKit Workflow (Standard Operating Procedure)
 
-ClinKit enforces a "Configuration-Driven" modular workflow to ensure your research is audit-proof and reproducible.
+ClinKit enforces a "Configuration-Driven" modular workflow to ensure your research is traceable and reproducible.
 
 ### Step 1: Initialize the Environment
 
