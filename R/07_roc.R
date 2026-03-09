@@ -57,6 +57,7 @@ run_roc_analysis <- function(data,
     complete_idx <- complete.cases(data[, all_vars, drop = FALSE])
     data_complete <- data[complete_idx, ]
     dropped_n <- nrow(data) - nrow(data_complete)
+    data <- data_complete
     if (dropped_n > 0) {
       message(sprintf("[ClinKit] ROC Analysis: %d observations removed due to missing values. Unified Effective N = %d",
                       dropped_n, nrow(data_complete)))
@@ -153,7 +154,7 @@ run_roc_analysis <- function(data,
 
       # Create ROC object from predicted probabilities
       roc_obj <- tryCatch({
-        pROC::roc(data[[outcome]], fit$fitted.values, ci = TRUE)
+        pROC::roc(data[[outcome]], fit$fitted.values, ci = TRUE, direction = direction)
       }, error = function(e) {
         warning(sprintf("ROC analysis failed for %s: %s", model_name, e$message))
         return(NULL)
