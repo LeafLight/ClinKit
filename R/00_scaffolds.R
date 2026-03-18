@@ -165,6 +165,7 @@ use_module_rcs <- function(path = "scripts/04_rcs_analysis.R") {
     "  data = df_clean,",
     "  predictors = 'nodes',",
     "  outcomes = OUTCOME_VAR,",
+    "  time = if (exists('TIME_VAR')) TIME_VAR else NULL, # Auto-detect survival mode",
     "  covariates = unlist(MODELS_LIST),",
     "  knots = 4,",
     "  output_dir = 'results/figures',",
