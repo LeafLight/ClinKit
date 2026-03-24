@@ -2,13 +2,14 @@
 % Please edit documentation in R/05_forest.R
 \name{subgroup_forest}
 \alias{subgroup_forest}
-\title{Forest Plot for Subgroup Analysis}
+\title{Forest Plot for Subgroup Analysis (Dynamic Logistic/Cox Routing)}
 \usage{
 subgroup_forest(
   data,
   outcome,
   exposure,
   subgroups,
+  time = NULL,
   covariates = NULL,
   family = "binomial",
   output_dir = NULL,
@@ -21,22 +22,24 @@ subgroup_forest(
   xlim = NULL,
   ticks_at = NULL,
   plot_title = "Forest Plot of Subgroup Analysis",
-  xlab = "Odds Ratio",
-  CI_title = "OR(95\%CI)"
+  xlab = NULL,
+  CI_title = NULL
 )
 }
 \arguments{
 \item{data}{Data frame containing outcome, exposure and all subgroup/covariate variables}
 
-\item{outcome}{Character scalar, outcome variable name}
+\item{outcome}{Character scalar, outcome/status variable name}
 
 \item{exposure}{Character scalar, exposure variable name (main effect)}
 
 \item{subgroups}{Character vector, subgroup variable names}
 
+\item{time}{Optional. Character scalar, follow-up time variable. If provided, fits Cox models (HR).}
+
 \item{covariates}{Character vector, additional covariates, default NULL}
 
-\item{family}{GLM family, default "binomial"; can be "gaussian" etc.}
+\item{family}{GLM family, default "binomial". Ignored if time is provided.}
 
 \item{output_dir}{Output directory for saving results, default NULL}
 
@@ -50,7 +53,7 @@ subgroup_forest(
 
 \item{prepare_plot}{Logical, whether to prepare data for forestploter, default TRUE}
 
-\item{tm}{Forest plot theme, default "blue", you can alse choose green, cyan or passing a custom theme by forestploter::forest_theme}
+\item{tm}{Forest plot theme, default "blue"}
 
 \item{xlim}{xlim of the forest plot, default NULL}
 
@@ -58,15 +61,14 @@ subgroup_forest(
 
 \item{plot_title}{Plot title, default "Forest Plot of Subgroup Analysis"}
 
-\item{xlab}{X-axis label, default "Odds Ratio"}
+\item{xlab}{X-axis label, default NULL (auto-detected)}
 
-\item{CI_title}{title of Confidence Interval, default "OR(95\%CI)"}
+\item{CI_title}{title of Confidence Interval, default NULL (auto-detected)}
 }
 \value{
 List containing forest plot data, plot object, and optional saved file paths
 }
 \description{
-Fits generalized linear models for specified exposure variable on outcome
-and calculates effect sizes (default OR) with 95\% CI, P-values, and sample
-proportions within multiple subgroups. Returns formatted data and forest plot.
+Fits generalized linear models or Cox models for specified exposure variable
+and calculates effect sizes (OR or HR) with 95\% CI.
 }

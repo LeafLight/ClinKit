@@ -1,49 +1,49 @@
-#' Forest Plot for Subgroup Analysis
+#' Forest Plot for Subgroup Analysis (Dynamic Logistic/Cox Routing)
 #'
-#' Fits generalized linear models for specified exposure variable on outcome
-#' and calculates effect sizes (default OR) with 95% CI, P-values, and sample
-#' proportions within multiple subgroups. Returns formatted data and forest plot.
+#' Fits generalized linear models or Cox models for specified exposure variable
+#' and calculates effect sizes (OR or HR) with 95% CI.
 #'
 #' @param data Data frame containing outcome, exposure and all subgroup/covariate variables
-#' @param outcome Character scalar, outcome variable name
+#' @param outcome Character scalar, outcome/status variable name
 #' @param exposure Character scalar, exposure variable name (main effect)
 #' @param subgroups Character vector, subgroup variable names
+#' @param time Optional. Character scalar, follow-up time variable. If provided, fits Cox models (HR).
 #' @param covariates Character vector, additional covariates, default NULL
-#' @param family GLM family, default "binomial"; can be "gaussian" etc.
+#' @param family GLM family, default "binomial". Ignored if time is provided.
 #' @param output_dir Output directory for saving results, default NULL
 #' @param save_format Save format: "none", "data", "plot", "all", default "none"
 #' @param decimal_estimate Decimal places for effect estimates, default 2
 #' @param decimal_pvalue Decimal places for P-values, default 3
 #' @param line Logical, whether to draw separation lines between subgroups, default FALSE
 #' @param prepare_plot Logical, whether to prepare data for forestploter, default TRUE
-#' @param tm Forest plot theme, default "blue", you can alse choose green, cyan or passing a custom theme by forestploter::forest_theme
+#' @param tm Forest plot theme, default "blue"
 #' @param plot_title Plot title, default "Forest Plot of Subgroup Analysis"
-#' @param xlab X-axis label, default "Odds Ratio"
-#' @param CI_title title of Confidence Interval, default "OR(95%CI)"
+#' @param xlab X-axis label, default NULL (auto-detected)
+#' @param CI_title title of Confidence Interval, default NULL (auto-detected)
 #' @param xlim xlim of the forest plot, default NULL
 #' @param ticks_at a numeric vector to specify the x tick of the forestplot
-#'
 #'
 #' @return List containing forest plot data, plot object, and optional saved file paths
 #' @export
 subgroup_forest <- function(data,
-                           outcome,
-                           exposure,
-                           subgroups,
-                           covariates = NULL,
-                           family = "binomial",
-                           output_dir = NULL,
-                           save_format = c("none", "data", "plot", "all"),
-                           decimal_estimate = 2,
-                           decimal_pvalue = 3,
-                           line = FALSE,
-                           prepare_plot = TRUE,
-                           tm = "blue",
-                           xlim = NULL,
-                           ticks_at = NULL,
-                           plot_title = "Forest Plot of Subgroup Analysis",
-                           xlab = "Odds Ratio",
-                           CI_title = "OR(95%CI)"
+                            outcome,
+                            exposure,
+                            subgroups,
+                            time = NULL,       # [NEW] Added time variable
+                            covariates = NULL,
+                            family = "binomial",
+                            output_dir = NULL,
+                            save_format = c("none", "data", "plot", "all"),
+                            decimal_estimate = 2,
+                            decimal_pvalue = 3,
+                            line = FALSE,
+                            prepare_plot = TRUE,
+                            tm = "blue",
+                            xlim = NULL,
+                            ticks_at = NULL,
+                            plot_title = "Forest Plot of Subgroup Analysis",
+                            xlab = NULL,       # [NEW] Auto-detect
+                            CI_title = NULL    # [NEW] Auto-detect
 ) {
 
   # Parameter validation
@@ -53,95 +53,125 @@ subgroup_forest <- function(data,
   }
 
   # Check dependencies
-  if (!requireNamespace("forestploter", quietly = TRUE)) {
-    stop("Please install.packages('forestploter')")
-  }
-  if (!requireNamespace("jstable", quietly = TRUE)) {
-    stop("Please install.packages('jstable')")
-  }
+  if (!requireNamespace("forestploter", quietly = TRUE)) stop("Please install.packages('forestploter')")
+  if (!requireNamespace("jstable", quietly = TRUE)) stop("Please install.packages('jstable')")
 
   # Check if variables exist
-  all_vars <- unique(c(outcome, exposure, subgroups, covariates))
+  all_vars <- unique(c(time, outcome, exposure, subgroups, covariates))
   missing_vars <- setdiff(all_vars, names(data))
   if (length(missing_vars) > 0) {
     stop("Variables not found in data: ", paste(missing_vars, collapse = ", "))
   }
 
-  # check the vars
+  # Check factors
   data_processed <- data
   for (subgroup_var in subgroups) {
     if (!is.factor(data_processed[[subgroup_var]])) {
-      warning(sprintf("Subgroup variable '%s' is not a factor. Converting to factor automatically.", subgroup_var))
+      warning(sprintf("Subgroup variable '%s' is not a factor. Converting automatically.", subgroup_var))
       data_processed[[subgroup_var]] <- as.factor(data_processed[[subgroup_var]])
     }
   }
 
-  # construct formular
-  formula <- as.formula(paste(outcome, "~", exposure))
+  # [NEW] DYNAMIC ROUTING: Logistic vs Cox
+  is_survival <- !is.null(time)
 
-  # analysis by jstable
-  res <- jstable::TableSubgroupMultiGLM(
-    formula        = formula,
-    var_subgroups  = subgroups,
-    var_cov        = covariates,
-    data           = data_processed,
-    family         = family,
-    decimal.estimate = decimal_estimate,
-    decimal.percent  = 1,
-    decimal.pvalue   = decimal_pvalue,
-    line             = line
-  )
+  if (is.null(xlab)) {
+    xlab <- ifelse(is_survival, "Hazard Ratio", "Odds Ratio")
+  }
+  if (is.null(CI_title)) {
+    CI_title <- ifelse(is_survival, "HR (95% CI)", "OR (95% CI)")
+  }
+  target_col <- ifelse(is_survival, "HR", "OR")
+
+  if (is_survival) {
+    # COX MODEL
+    data_processed[[outcome]] <- as.numeric(as.character(data_processed[[outcome]]))
+    formula <- as.formula(sprintf("survival::Surv(%s, %s) ~ %s", time, outcome, exposure))
+
+    res <- jstable::TableSubgroupMultiCox(
+      formula        = formula,
+      var_subgroups  = subgroups,
+      var_cov        = covariates,
+      data           = data_processed,
+      decimal.estimate = decimal_estimate,
+      decimal.percent  = 1,
+      decimal.pvalue   = decimal_pvalue,
+      line             = line
+    )
+  } else {
+    # GLM MODEL
+    formula <- as.formula(paste(outcome, "~", exposure))
+
+    res <- jstable::TableSubgroupMultiGLM(
+      formula        = formula,
+      var_subgroups  = subgroups,
+      var_cov        = covariates,
+      data           = data_processed,
+      family         = family,
+      decimal.estimate = decimal_estimate,
+      decimal.percent  = 1,
+      decimal.pvalue   = decimal_pvalue,
+      line             = line
+    )
+  }
+
   # clean the data
   plot_res <- res
   cols_to_blank <- c(2, 3, 7, 8)
   plot_res[cols_to_blank][is.na(plot_res[cols_to_blank])] <- " "
   plot_res$` ` <- paste(rep(" ", nrow(plot_res)), collapse = " ")
   plot_res[, 4:6] <- apply(plot_res[, 4:6], 2, as.numeric)
+
   final_data <- plot_res
+
   if (prepare_plot) {
-    final_data <- plot_res
+    # Dynamically rename OR or HR to 'Estimate' for unified plotting
+    colnames(final_data)[colnames(final_data) == target_col] <- "Estimate"
+
     colnames(final_data)[1] <- "Subgroup"
     colnames(final_data)[7] <- "P value"
     colnames(final_data)[8] <- "P for interaction"
-    final_data$Subgroup <- ifelse(is.na(final_data$OR),
-                                 final_data$Subgroup,
-                                 paste0("        ", final_data$Subgroup))
 
-    final_data$` ` <- "                                                                  "
+    final_data$Subgroup <- ifelse(is.na(final_data$Estimate),
+                                  final_data$Subgroup,
+                                  paste0("        ", final_data$Subgroup))
+
+    final_data$` ` <- "                                                     "
 
     final_data <- final_data %>%
       dplyr::mutate(
-        OR = as.numeric(OR),
+        Estimate = as.numeric(Estimate),
         Lower = as.numeric(Lower),
         Upper = as.numeric(Upper),
         !!CI_title :=  ifelse(
-          !is.na(OR) & !is.na(Lower) & !is.na(Upper),
-          sprintf("    %.2f (%.2f-%.2f)    ", OR, Lower, Upper),
+          !is.na(Estimate) & !is.na(Lower) & !is.na(Upper),
+          sprintf("    %.2f (%.2f-%.2f)    ", Estimate, Lower, Upper),
           " "
         )
       )
-    final_data[is.na(final_data$CI_title), CI_title] <- " "
+    final_data[is.na(final_data[[CI_title]]), CI_title] <- " "
   }
-  if(is.character(tm)){
-  if(tm %in% c("blue", "green", "cyan", "default")) {
-    tm <- get_forest_theme(tm, background_levels = generate_background_levels(final_data))
-  }
-  }
-  else if(!is.list(tm)){
+
+  if (is.character(tm)) {
+    if (tm %in% c("blue", "green", "cyan", "default")) {
+      tm <- get_forest_theme(tm, background_levels = generate_background_levels(final_data))
+    }
+  } else if (!is.list(tm)) {
      tm <- "default"
   }
-  # Make Forest Plot ####
+
+  # Make Forest Plot
   forest_plot <- NULL
   if (nrow(final_data) > 0 && prepare_plot) {
-    valid_rows <- !is.na(final_data$OR) & !is.na(final_data$Lower) & !is.na(final_data$Upper)
+    valid_rows <- !is.na(final_data$Estimate) & !is.na(final_data$Lower) & !is.na(final_data$Upper)
     if (sum(valid_rows) > 0) {
       forest_plot <- tryCatch({
         forestploter::forest(
-          final_data[, c(1,10,7,9,8)],
-          est = final_data$OR,
+          final_data[, c(1, 10, 7, 9, 8)],
+          est = final_data$Estimate,   # [FIXED] Use unified Estimate
           lower = final_data$Lower,
           upper = final_data$Upper,
-          ci_column = 4,  # blank col for forest plot
+          ci_column = 4,
           ref_line = 1,
           is_summary = c(TRUE, rep(FALSE, nrow(final_data) - 1)),
           xlab = xlab,
@@ -159,54 +189,32 @@ subgroup_forest <- function(data,
     }
   }
 
+  # (The I/O saving part remains exactly the same as your original code)
   saved_files <- character(0)
   if (save_format != "none" && !is.null(output_dir)) {
-    if (!dir.exists(output_dir)) {
-      dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
-    }
-
-    #timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
+    if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
 
     if (save_format %in% c("data", "all")) {
-      # save raw data
-      #csv_file <- file.path(output_dir, sprintf("subgroup_forest_raw_%s.csv", timestamp))
-      csv_file <- generate_filepath(
-        base_name =  "subgroup_forest_raw",
-        ext = "csv",
-        output_dir = output_dir
-      )
+      csv_file <- generate_filepath(base_name = "subgroup_forest_raw", ext = "csv", output_dir = output_dir)
       utils::write.csv(plot_res, csv_file, row.names = FALSE)
       saved_files <- c(saved_files, csv_file)
 
-      # save formated data
       if (prepare_plot) {
-        #formatted_file <- file.path(output_dir, sprintf("subgroup_forest_formatted_%s.csv", timestamp))
-        formatted_file <- generate_filepath(
-          base_name =  "subgroup_forest_formatted",
-          ext = "csv",
-          output_dir = output_dir
-        )
+        formatted_file <- generate_filepath(base_name = "subgroup_forest_formatted", ext = "csv", output_dir = output_dir)
         utils::write.csv(final_data, formatted_file, row.names = FALSE)
         saved_files <- c(saved_files, formatted_file)
       }
     }
 
     if (save_format %in% c("plot", "all") && !is.null(forest_plot)) {
-  # Save pdf by Cairo
-      #pdf_file <- file.path(output_dir, sprintf("subgroup_forest_%s.pdf", timestamp))
-      pdf_file <- generate_filepath(
-        base_name =  "subgroup_forest",
-        ext = "pdf",
-        output_dir = output_dir
-      )
-  grDevices::cairo_pdf(pdf_file, width = 10, height = 6, family = get_pkg_font())
-  print(forest_plot)
-  grDevices::dev.off()
-  saved_files <- c(saved_files, pdf_file)
-}
+      pdf_file <- generate_filepath(base_name = "subgroup_forest", ext = "pdf", output_dir = output_dir)
+      grDevices::cairo_pdf(pdf_file, width = 10, height = 6, family = get_pkg_font())
+      print(forest_plot)
+      grDevices::dev.off()
+      saved_files <- c(saved_files, pdf_file)
+    }
   }
 
-  # return list
   return(list(
     raw_data = plot_res,
     plot_data = final_data,
@@ -376,7 +384,7 @@ tm_default <- function(base_size = 12, background_levels = NULL) {
   get_forest_theme("default", base_size, background_levels)
 }
 
-utils::globalVariables(c("OR", "Lower", "Upper"))
+utils::globalVariables(c("OR", "Lower", "Upper", "Estimate"))
 
 
 ###### test

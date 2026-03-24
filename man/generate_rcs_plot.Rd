@@ -2,12 +2,13 @@
 % Please edit documentation in R/03_rcs.R
 \name{generate_rcs_plot}
 \alias{generate_rcs_plot}
-\title{Restricted Cubic Splines (RCS) Logistic Regression with Plot}
+\title{Restricted Cubic Splines (RCS) Regression with Plot (Logistic & Cox)}
 \usage{
 generate_rcs_plot(
   data,
   outcome,
   predictor,
+  time = NULL,
   outcomes_map = NULL,
   predictors_map = NULL,
   covariates = NULL,
@@ -20,15 +21,15 @@ generate_rcs_plot(
 \arguments{
 \item{data}{Data frame containing all variables}
 
-\item{outcome}{Outcome variable name}
+\item{outcome}{Outcome variable name (status/event indicator)}
 
 \item{predictor}{Continuous predictor variable name for RCS}
 
-\item{outcomes_map}{Optional named mapping from outcome variable names to
-display labels, e.g. c("A_B" = "A B").}
+\item{time}{Optional. Follow-up time variable name. If provided, fits a Cox model.}
 
-\item{predictors_map}{Optional named mapping from predictor variable names
-to display labels.}
+\item{outcomes_map}{Optional named mapping from outcome variable names to display labels.}
+
+\item{predictors_map}{Optional named mapping from predictor variable names to display labels.}
 
 \item{covariates}{Covariates for adjusted model (optional)}
 
@@ -44,5 +45,6 @@ to display labels.}
 List containing plot object, p-values, and optional saved file paths
 }
 \description{
-Fits RCS logistic regression models and generates publication-ready plots
+Fits RCS logistic or Cox proportional hazards regression models and generates publication-ready plots.
+Automatically switches to Cox regression if a \code{time} variable is provided.
 }

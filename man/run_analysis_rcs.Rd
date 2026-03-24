@@ -8,11 +8,12 @@ run_analysis_rcs(
   data,
   predictors,
   outcomes,
+  time = NULL,
   outcomes_map = NULL,
   predictors_map = NULL,
   covariates = NULL,
-  output_dir = NULL,
   knots = 4,
+  output_dir = NULL,
   save_format = c("none", "tiff", "svg", "pdf", "all")
 )
 }
@@ -23,17 +24,17 @@ run_analysis_rcs(
 
 \item{outcomes}{Character vector of outcome variable names}
 
-\item{outcomes_map}{Optional named mapping from outcome variable names to
-display labels, e.g. c("A_B" = "A B").}
+\item{time}{Optional. Character scalar of the follow-up time variable.}
 
-\item{predictors_map}{Optional named mapping from predictor variable names
-to display labels.}
+\item{outcomes_map}{Optional named mapping from outcome variable names to display labels.}
+
+\item{predictors_map}{Optional named mapping from predictor variable names to display labels.}
 
 \item{covariates}{Covariates for adjusted models (optional)}
 
-\item{output_dir}{Output directory (optional)}
-
 \item{knots}{Number of knots for RCS (default 4)}
+
+\item{output_dir}{Output directory (optional)}
 
 \item{save_format}{Save format: "none", "tiff", "svg", "pdf", "all" (default "none")}
 }
@@ -41,17 +42,6 @@ to display labels.}
 Data frame with predictor, outcome, model_type, p-values, and optional saved file paths
 }
 \description{
-Runs multiple RCS analyses for different predictors and outcomes
-}
-\examples{
-\dontrun{
-results <- run_analysis_rcs(
-  data = mtcars,
-  predictors = c("mpg", "wt"),
-  outcomes = c("vs", "am"),
-  covariates = c("cyl", "gear"),
-  output_dir = tempdir(),
-  save_format = "none"
-)
-}
+Runs multiple RCS analyses for different predictors and outcomes.
+Supports both binary outcomes (Logistic) and time-to-event outcomes (Cox).
 }

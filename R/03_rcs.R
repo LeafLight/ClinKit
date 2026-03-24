@@ -141,13 +141,13 @@ generate_rcs_plot <- function(data,
   # Create plot
   p <- ggplot2::ggplot() +
     ggplot2::geom_line(
-      data = predictions %>% dplyr::select(dplyr::all_of(predictor), yhat, lower, upper),
-      ggplot2::aes(x = !!sym(predictor), y = yhat, color = "Prediction"),
+      data = predictions %>% dplyr::select(dplyr::all_of(predictor), .data$yhat, .data$lower, .data$upper),
+      ggplot2::aes(x = !!sym(predictor), y = .data$yhat, color = "Prediction"),
       linetype = "solid", linewidth = 1, alpha = 0.9
     ) +
     ggplot2::geom_ribbon(
       data = predictions,
-      ggplot2::aes(x = !!sym(predictor), ymin = lower, ymax = upper, fill = "Confidence Interval"),
+      ggplot2::aes(x = !!sym(predictor), ymin = .data$lower, ymax = .data$upper, fill = "Confidence Interval"),
       alpha = 0.2
     ) +
     ggplot2::scale_color_manual(values = c("Prediction" = "#d63031")) +
