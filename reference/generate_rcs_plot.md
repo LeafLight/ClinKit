@@ -1,7 +1,8 @@
-# Restricted Cubic Splines (RCS) Logistic Regression with Plot
+# Restricted Cubic Splines (RCS) Regression with Plot (Logistic & Cox)
 
-Fits RCS logistic regression models and generates publication-ready
-plots
+Fits RCS logistic or Cox proportional hazards regression models and
+generates publication-ready plots. Automatically switches to Cox
+regression if a `time` variable is provided.
 
 ## Usage
 
@@ -10,6 +11,7 @@ generate_rcs_plot(
   data,
   outcome,
   predictor,
+  time = NULL,
   outcomes_map = NULL,
   predictors_map = NULL,
   covariates = NULL,
@@ -28,16 +30,19 @@ generate_rcs_plot(
 
 - outcome:
 
-  Outcome variable name
+  Outcome variable name (status/event indicator)
 
 - predictor:
 
   Continuous predictor variable name for RCS
 
+- time:
+
+  Optional. Follow-up time variable name. If provided, fits a Cox model.
+
 - outcomes_map:
 
-  Optional named mapping from outcome variable names to display labels,
-  e.g. c("A_B" = "A B").
+  Optional named mapping from outcome variable names to display labels.
 
 - predictors_map:
 

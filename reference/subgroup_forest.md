@@ -1,9 +1,7 @@
-# Forest Plot for Subgroup Analysis
+# Forest Plot for Subgroup Analysis (Dynamic Logistic/Cox Routing)
 
-Fits generalized linear models for specified exposure variable on
-outcome and calculates effect sizes (default OR) with 95% CI, P-values,
-and sample proportions within multiple subgroups. Returns formatted data
-and forest plot.
+Fits generalized linear models or Cox models for specified exposure
+variable and calculates effect sizes (OR or HR) with 95% CI.
 
 ## Usage
 
@@ -13,6 +11,7 @@ subgroup_forest(
   outcome,
   exposure,
   subgroups,
+  time = NULL,
   covariates = NULL,
   family = "binomial",
   output_dir = NULL,
@@ -25,8 +24,8 @@ subgroup_forest(
   xlim = NULL,
   ticks_at = NULL,
   plot_title = "Forest Plot of Subgroup Analysis",
-  xlab = "Odds Ratio",
-  CI_title = "OR(95%CI)"
+  xlab = NULL,
+  CI_title = NULL
 )
 ```
 
@@ -39,7 +38,7 @@ subgroup_forest(
 
 - outcome:
 
-  Character scalar, outcome variable name
+  Character scalar, outcome/status variable name
 
 - exposure:
 
@@ -49,13 +48,18 @@ subgroup_forest(
 
   Character vector, subgroup variable names
 
+- time:
+
+  Optional. Character scalar, follow-up time variable. If provided, fits
+  Cox models (HR).
+
 - covariates:
 
   Character vector, additional covariates, default NULL
 
 - family:
 
-  GLM family, default "binomial"; can be "gaussian" etc.
+  GLM family, default "binomial". Ignored if time is provided.
 
 - output_dir:
 
@@ -84,8 +88,7 @@ subgroup_forest(
 
 - tm:
 
-  Forest plot theme, default "blue", you can alse choose green, cyan or
-  passing a custom theme by forestploter::forest_theme
+  Forest plot theme, default "blue"
 
 - xlim:
 
@@ -101,11 +104,11 @@ subgroup_forest(
 
 - xlab:
 
-  X-axis label, default "Odds Ratio"
+  X-axis label, default NULL (auto-detected)
 
 - CI_title:
 
-  title of Confidence Interval, default "OR(95%CI)"
+  title of Confidence Interval, default NULL (auto-detected)
 
 ## Value
 

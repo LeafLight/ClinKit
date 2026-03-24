@@ -143,7 +143,7 @@ welcome!
 - [`format_p_value()`](https://leaflight.github.io/ClinKit/reference/format_p_value.md)
   : Format p-value as plotmath expression string
 - [`generate_rcs_plot()`](https://leaflight.github.io/ClinKit/reference/generate_rcs_plot.md)
-  : Restricted Cubic Splines (RCS) Logistic Regression with Plot
+  : Restricted Cubic Splines (RCS) Regression with Plot (Logistic & Cox)
 - [`get_forest_theme()`](https://leaflight.github.io/ClinKit/reference/get_forest_theme.md)
   [`tm_blue()`](https://leaflight.github.io/ClinKit/reference/get_forest_theme.md)
   [`tm_green()`](https://leaflight.github.io/ClinKit/reference/get_forest_theme.md)
@@ -185,7 +185,7 @@ welcome!
   : Scatter Plot with Marginal Density/Histogram and Regression Equation
   (Enhanced Version)
 - [`subgroup_forest()`](https://leaflight.github.io/ClinKit/reference/subgroup_forest.md)
-  : Forest Plot for Subgroup Analysis
+  : Forest Plot for Subgroup Analysis (Dynamic Logistic/Cox Routing)
 - [`use_clinkit_project()`](https://leaflight.github.io/ClinKit/reference/use_clinkit_project.md)
   : Initialize a ClinKit Analysis Project
 - [`use_module_baseline()`](https://leaflight.github.io/ClinKit/reference/use_module_baseline.md)
