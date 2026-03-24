@@ -81,7 +81,7 @@ subgroup_forest <- function(data,
   if (is.null(CI_title)) {
     CI_title <- ifelse(is_survival, "HR (95% CI)", "OR (95% CI)")
   }
-  target_col <- ifelse(is_survival, "HR", "OR")
+  target_col <- ifelse(is_survival, "Estimate", "OR")
 
   if (is_survival) {
     # COX MODEL
