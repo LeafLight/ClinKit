@@ -11,7 +11,7 @@ Returns p-values in common journal formats:
 Outputs as `plotmath` expressions that can be directly used in
 [`ggplot2::annotate()`](https://ggplot2.tidyverse.org/reference/annotate.html)
 or
-[`ggpmisc::stat_poly_eq()`](https://docs.r4photobiology.info/ggpmisc/reference/stat_poly_eq.html)
+[`ggpmisc::stat_poly_eq()`](https://rdrr.io/pkg/ggpmisc/man/stat_poly_eq.html)
 label parameters.
 
 ## Usage
