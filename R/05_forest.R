@@ -93,7 +93,7 @@ subgroup_forest <- function(data,
       var_subgroups  = subgroups,
       var_cov        = covariates,
       data           = data_processed,
-      decimal.estimate = decimal_estimate,
+      decimal.hr = decimal_estimate,
       decimal.percent  = 1,
       decimal.pvalue   = decimal_pvalue,
       line             = line
