@@ -117,7 +117,8 @@ subgroup_forest <- function(data,
 
   # clean the data
   plot_res <- res
-  cols_to_blank <- c(2, 3, 7, 8)
+  # cols_to_blank <- c(2, 3, 7, 8)
+  cols_to_blank <- which(colnames(plot_res) %in% c("Count", "Percent", "P value", "P for interaction"))
   plot_res[cols_to_blank][is.na(plot_res[cols_to_blank])] <- " "
   plot_res$` ` <- paste(rep(" ", nrow(plot_res)), collapse = " ")
   plot_res[, 4:6] <- apply(plot_res[, 4:6], 2, as.numeric)
@@ -128,9 +129,9 @@ subgroup_forest <- function(data,
     # Dynamically rename OR or HR to 'Estimate' for unified plotting
     colnames(final_data)[colnames(final_data) == target_col] <- "Estimate"
 
-    colnames(final_data)[1] <- "Subgroup"
-    colnames(final_data)[7] <- "P value"
-    colnames(final_data)[8] <- "P for interaction"
+    colnames(final_data)[which(colnames(plot_res) == "Variable")] <- "Subgroup"
+    colnames(final_data)[which(colnames(plot_res) == "P value")] <- "P value"
+    colnames(final_data)[which(colnames(plot_res) == "P for interaction")] <- "P for interaction"
 
     final_data$Subgroup <- ifelse(is.na(final_data$Estimate),
                                   final_data$Subgroup,
@@ -167,7 +168,7 @@ subgroup_forest <- function(data,
     if (sum(valid_rows) > 0) {
       forest_plot <- tryCatch({
         forestploter::forest(
-          final_data[, c(1, 10, 7, 9, 8)],
+          final_data[, c("Subgroup", CI_title, "P value", " ", "P for interaction")],
           est = final_data$Estimate,   # [FIXED] Use unified Estimate
           lower = final_data$Lower,
           upper = final_data$Upper,
@@ -347,7 +348,7 @@ generate_background_levels <- function(forest_data) {
   for (i in 1:nrow(forest_data)) {
     if (i == 1) {
       levels[i] <- 1  # first row
-    } else if (is.na(forest_data$OR[i])) {
+    } else if (is.na(forest_data$Estimate[i])) {
       levels[i] <- 3  # subgroup title row
       data_row_counter <- 0  # reset the counter
     } else {
